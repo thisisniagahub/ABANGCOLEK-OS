@@ -141,7 +141,7 @@ export async function insertSupabaseOrder(newOrder: {
   city: string;
   items: string;
   amount: number;
-}): Promise<{ success: boolean; data?: SupabaseOrder; error?: string }> {
+}): Promise<{ success: boolean; synced: boolean; data?: SupabaseOrder; error?: string }> {
   const generatedId = `ORD-2026-${Math.floor(100 + Math.random() * 900)}`;
   const record = {
     id: generatedId,
@@ -172,11 +172,11 @@ export async function insertSupabaseOrder(newOrder: {
 
     if (error) {
       console.warn('[Supabase Orders] Insert warning:', error.message);
-      return { success: true, data: record as SupabaseOrder };
+      return { success: true, synced: false, data: record as SupabaseOrder, error: error.message };
     }
-    return { success: true, data: (data as any) || record };
+    return { success: true, synced: true, data: (data as any) || record };
   } catch (err: any) {
-    return { success: true, data: record as SupabaseOrder };
+    return { success: true, synced: false, data: record as SupabaseOrder, error: err?.message };
   }
 }
 
@@ -187,28 +187,29 @@ export async function updateSupabaseOrderStatus(
   orderId: string, 
   status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded',
   refundReason?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; synced: boolean; error?: string }> {
   // Sync local store
   if (status === 'Refunded') {
     appStore.issueRefund(orderId, 0, refundReason || 'LEAKAGE / Kerosakan Botol');
   }
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('orders')
       .update({
         status,
         refund_reason: refundReason || null,
       })
-      .eq('id', orderId);
+      .or(`id.eq.${orderId},order_id.eq.${orderId}`)
+      .select();
 
     if (error) {
-      // Also try with order_id column
-      await supabase.from('orders').update({ status, refund_reason: refundReason || null }).eq('order_id', orderId);
+      console.warn('[Supabase Orders] Update warning:', error.message);
+      return { success: true, synced: false, error: error.message };
     }
-    return { success: true };
+    return { success: true, synced: Boolean(data && data.length > 0) };
   } catch (err: any) {
-    return { success: false, error: err?.message };
+    return { success: false, synced: false, error: err?.message };
   }
 }
 

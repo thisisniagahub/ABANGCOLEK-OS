@@ -209,24 +209,24 @@ export const AgentPerformanceView: React.FC<AgentPerformanceViewProps> = ({ onAc
   }, [sortedToolMetrics]);
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#FAFAFA] overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full bg-[#090A10] text-white overflow-y-auto">
       {/* Top Header */}
-      <div className="p-6 pb-4 border-b border-black/[0.06] bg-white sticky top-0 z-20 shadow-xs">
+      <div className="p-6 pb-4 border-b border-white/10 bg-[#121420] sticky top-0 z-20 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-xl bg-purple-600 text-white shadow-xs">
+              <span className="p-1.5 rounded-xl bg-purple-600/30 text-purple-400 border border-purple-500/40 shadow-xs">
                 <BarChart3 size={18} />
               </span>
-              <h1 className="text-xl font-bold tracking-tight text-zinc-900">
+              <h1 className="text-xl font-black tracking-tight text-white">
                 Prestasi & Kecekapan Agen AI (Agent Performance)
               </h1>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                <Radio size={12} className="animate-pulse text-emerald-600" />
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#181A2A] text-[#CFFF5E] border border-[#CFFF5E]/30">
+                <Radio size={12} className="animate-pulse text-[#CFFF5E]" />
                 <span>Supabase Realtime: Aktif (Jadual: tasks)</span>
               </span>
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-zinc-400 mt-1 font-medium">
               Visualisasi masa nyata purata kependaman (*average latency ms*), kadar kejayaan (*success rate %*), dan penilaian kecekapan setiap alat agen AI untuk membantu pasukan mengenal pasti alatan paling optimum.
             </p>
           </div>
@@ -236,17 +236,17 @@ export const AgentPerformanceView: React.FC<AgentPerformanceViewProps> = ({ onAc
             <button
               onClick={handleSimulateSupabaseTaskInsert}
               disabled={isSimulatingRealtimeInsert}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#CFFF5E] text-black hover:bg-[#d8ff6b] text-xs font-black transition-all shadow-[0_0_15px_rgba(207,255,94,0.35)] cursor-pointer"
               title="Sisip rekod baru terus ke jadual tasks Supabase untuk menguji kemas kini carta secara langsung"
             >
-              <Zap size={13} className={cn(isSimulatingRealtimeInsert && "animate-spin text-amber-300")} />
+              <Zap size={13} className={cn(isSimulatingRealtimeInsert && "animate-spin text-black")} />
               <span>{isSimulatingRealtimeInsert ? 'Menyisip...' : 'Sisip Tugas Baru (tasks)'}</span>
             </button>
 
             <button
               onClick={() => handleRunBenchmark()}
               disabled={isBenchmarking}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-[#181A2A] text-zinc-200 hover:text-white hover:bg-[#202438] text-xs font-bold border border-white/10 transition-all shadow-xs cursor-pointer"
               title="Jalankan ujian penanda aras kependaman langsung"
             >
               <Play size={13} className={cn(isBenchmarking && "animate-spin text-amber-400")} />
@@ -256,10 +256,10 @@ export const AgentPerformanceView: React.FC<AgentPerformanceViewProps> = ({ onAc
             <button
               onClick={loadPerformanceData}
               disabled={isRefreshing}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-purple-50 text-purple-800 hover:bg-purple-100 text-xs font-semibold border border-purple-200 transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-[#181A2A] text-zinc-200 hover:text-white hover:bg-[#202438] text-xs font-bold border border-white/10 transition-all cursor-pointer"
               title="Segerak log tugasan terkini daripada Supabase"
             >
-              <RefreshCw size={13} className={cn(isRefreshing && "animate-spin")} />
+              <RefreshCw size={13} className={cn(isRefreshing && "animate-spin text-[#CFFF5E]")} />
               <span>Segerak Supabase</span>
             </button>
           </div>
@@ -270,68 +270,68 @@ export const AgentPerformanceView: React.FC<AgentPerformanceViewProps> = ({ onAc
           <motion.div 
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-3 p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between"
+            className="mt-3 p-3 rounded-2xl bg-purple-950/80 border border-purple-800/40 text-purple-300 text-xs flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-purple-600 shrink-0" />
+              <CheckCircle2 size={15} className="text-purple-400 shrink-0" />
               <span className="font-medium">{benchmarkFeedback}</span>
             </div>
-            <button onClick={() => setBenchmarkFeedback(null)} className="text-purple-600 font-bold hover:underline">Tutup</button>
+            <button onClick={() => setBenchmarkFeedback(null)} className="text-purple-400 font-bold hover:underline cursor-pointer">Tutup</button>
           </motion.div>
         )}
 
         {/* KPI Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
           {/* Card 1: Avg Latency */}
-          <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/[0.04]">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-              <Clock size={12} className="text-blue-500" />
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Clock size={12} className="text-blue-400" />
               Purata Kependaman (Latency)
             </p>
-            <p className="text-xl font-black text-zinc-900 mt-1">
-              {overallMetrics.avgLatencyMs} <span className="text-xs font-semibold text-zinc-500">ms</span>
+            <p className="text-xl font-black text-white mt-1">
+              {overallMetrics.avgLatencyMs} <span className="text-xs font-semibold text-zinc-400">ms</span>
             </p>
-            <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+            <p className="text-[10px] text-[#CFFF5E] font-semibold mt-0.5">
               Sub-saat respons pantas ✓
             </p>
           </div>
 
           {/* Card 2: Success Rate */}
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/60">
-            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
-              <ShieldCheck size={12} className="text-emerald-600" />
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <ShieldCheck size={12} className="text-emerald-400" />
               Kadar Kejayaan Global
             </p>
-            <p className="text-xl font-black text-emerald-950 mt-1">
+            <p className="text-xl font-black text-[#CFFF5E] mt-1">
               {overallMetrics.overallSuccessRate}%
             </p>
-            <p className="text-[10px] text-emerald-700 mt-0.5">
+            <p className="text-[10px] text-zinc-400 mt-0.5">
               Sasaran &gt;95% tercapai
             </p>
           </div>
 
           {/* Card 3: Most Efficient Tool */}
-          <div className="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-200/60">
-            <p className="text-[10px] font-bold text-purple-800 uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={12} className="text-purple-600" />
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Sparkles size={12} className="text-purple-400" />
               Alat Paling Cekap (Juara)
             </p>
-            <p className="text-sm font-black text-purple-950 mt-1 truncate" title={overallMetrics.mostEfficientTool}>
+            <p className="text-sm font-black text-white mt-1 truncate" title={overallMetrics.mostEfficientTool}>
               {overallMetrics.mostEfficientTool}
             </p>
-            <p className="text-[10px] text-purple-700 mt-0.5">
+            <p className="text-[10px] text-purple-300 font-semibold mt-0.5">
               Skor kecekapan tertinggi
             </p>
           </div>
 
           {/* Card 4: Total Task Volume */}
-          <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/[0.04]">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
-              <Database size={12} className="text-amber-500" />
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Database size={12} className="text-amber-400" />
               Jumlah Panggilan Alat
             </p>
-            <p className="text-xl font-black text-zinc-900 mt-1">
-              {overallMetrics.totalTasks} <span className="text-xs font-semibold text-zinc-500">panggilan</span>
+            <p className="text-xl font-black text-white mt-1">
+              {overallMetrics.totalTasks} <span className="text-xs font-semibold text-zinc-400">panggilan</span>
             </p>
             <p className="text-[10px] text-zinc-400 mt-0.5">
               Disimpan di Supabase

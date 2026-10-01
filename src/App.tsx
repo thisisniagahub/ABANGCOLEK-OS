@@ -31,7 +31,16 @@ import {
   AlertCircle,
   Zap,
   Truck,
-  Gauge
+  Gauge,
+  Mic,
+  Bell,
+  Download,
+  Moon,
+  Sun,
+  Settings,
+  Power,
+  Share2,
+  ChevronDown
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
@@ -57,6 +66,9 @@ import { BusFreightView } from '@/components/BusFreightView';
 import { AgentPerformanceView } from '@/components/AgentPerformanceView';
 import { AgentInsightCard } from '@/components/AgentInsightCard';
 import { CommandPalette } from '@/components/CommandPalette';
+import { ModernBentoDashboard } from '@/components/ModernBentoDashboard';
+import { GlobalCommandHeader } from '@/components/GlobalCommandHeader';
+import { FloatingNeoDock } from '@/components/FloatingNeoDock';
 
 // --- Components ---
 
@@ -65,14 +77,16 @@ const Sidebar = ({
   setActiveTab, 
   isToolOrPluginInProgress,
   onOpenCommandPalette,
+  onAction,
 }: { 
   activeTab: string; 
   setActiveTab: (t: string) => void;
   isToolOrPluginInProgress?: boolean;
   onOpenCommandPalette?: () => void;
+  onAction?: (msg?: string) => void;
 }) => {
   const [googleUser, setGoogleUser] = useState<FbUser | null>(null);
-  const { user: supabaseUser, quickStaffSignIn, signOut: supabaseSignOut } = useSupabaseAuth();
+  const { user: supabaseUser, role, quickStaffSignIn, signOut: supabaseSignOut } = useSupabaseAuth();
 
   useEffect(() => {
     return subscribeAuth((u) => {
@@ -105,134 +119,165 @@ const Sidebar = ({
   ];
 
   return (
-    <div className="hidden md:flex w-[290px] flex-col h-screen pt-5 pb-5 pl-5 pr-3 shrink-0 bg-[#FFFDF5] border-r border-[#FFC107]/30">
-      {/* Official Abang Colek Brand Header */}
-      <div className="mb-4 px-2 flex flex-col gap-2">
-        <button 
-          onClick={() => setActiveTab('discovery')} 
-          className="flex items-center gap-3 text-left hover:opacity-90 transition-opacity p-2.5 rounded-2xl bg-white border-2 border-[#FFC107]/60 shadow-xs group"
-        >
-          <img 
-            src="/assets/brand/ABANG-COLEX-LOGO-2.png" 
-            alt="Abang Colek Logo" 
-            className="h-10 w-auto object-contain shrink-0 group-hover:scale-105 transition-transform" 
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-black tracking-tight text-[#1A1A1A]">ABANG COLEK</span>
-              <span className="text-[10px] px-1.5 py-0.5 font-black rounded-md bg-[#E53935] text-white">OS</span>
-            </div>
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider truncate">by Liurleleh House</span>
+    <div className="hidden md:flex w-[295px] flex-col h-full pt-3 pb-24 pl-4 pr-3 shrink-0 bg-[#0C0E16]/95 backdrop-blur-2xl border-r border-white/[0.08] select-none">
+      {/* Operator Profile Card (Orbital Concept) */}
+      <div className="mb-3 p-3 rounded-2xl bg-[#141624] border border-white/10 shadow-lg flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="relative shrink-0">
+            <img 
+              src="/assets/brand/epull.png" 
+              alt="Megat Epull" 
+              className="w-10 h-10 rounded-full object-cover border-2 border-[#CFFF5E]/80 shadow-[0_0_10px_rgba(207,255,94,0.3)] bg-black"
+              onError={(e) => {
+                e.currentTarget.src = '/assets/brand/founder.png';
+              }}
+            />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#CFFF5E] border-2 border-[#141624] shadow-[0_0_6px_#CFFF5E]" />
           </div>
-        </button>
-        <div className="px-3 py-1.5 rounded-xl bg-[#FFC107]/20 border border-[#FFC107]/60 flex items-center justify-between">
-          <span className="text-[10px] font-black text-[#1A1A1A] flex items-center gap-1">
-            🌶️ Rasa Padu, Pedas Menggamit
-          </span>
-          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#1A1A1A] text-[#FFC107]">
-            v4.2
-          </span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] text-zinc-400 font-medium">Selamat Bertugas</span>
+            <span className="text-xs font-black text-white truncate">
+              {role === 'stockist_kt' ? 'Kak Siti (KT)' : role === 'crew_toppen' ? 'Wan (Toppen JB)' : 'Megat Epull'}
+            </span>
+            <span className="text-[9px] font-extrabold text-[#CFFF5E] uppercase tracking-wider">
+              {role === 'stockist_kt' ? 'Stokis Pantai Timur' : role === 'crew_toppen' ? 'Krew Gerai Selatan' : 'HQ Operations Lead'}
+            </span>
+          </div>
         </div>
-        
-        {/* Quick Command Palette Trigger Button */}
+
         <button
           onClick={onOpenCommandPalette}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-2xl bg-white border border-[#FFC107]/50 hover:border-[#FFC107] text-zinc-600 hover:text-black transition-all shadow-2xs group cursor-pointer text-xs"
-          title="Buka Command Palette (Ctrl+K)"
+          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+          title="Pusat Perintah (Ctrl+K)"
         >
-          <div className="flex items-center gap-2">
-            <Search size={14} className="text-[#E53935]" />
-            <span className="font-semibold text-zinc-700">Cari arahan & tool...</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 rounded bg-[#FFC107]/30 text-amber-950 font-mono text-[10px] font-black border border-[#FFC107]/60 shadow-2xs">
-            Ctrl+K
-          </kbd>
+          <Search size={14} className="text-[#CFFF5E]" />
         </button>
       </div>
+
+      {/* AI Voice Waveform Assistant Card ("Hey, I'm Abang Colek AI!") */}
+      <div className="mb-3 p-3 rounded-2xl bg-gradient-to-br from-[#161828] to-[#1D1F34] border border-[#8C7DFF]/30 shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF4757] to-[#FFA000] flex items-center justify-center text-white shadow-xs">
+              <Mic size={12} />
+            </div>
+            <span className="text-xs font-black text-white tracking-tight">Abang Colek AI</span>
+          </div>
+          
+          {/* Animated Sine Wave Audio Visualizer */}
+          <div className="flex items-center gap-0.5 h-4 px-1">
+            {[0.4, 0.9, 0.6, 1.0, 0.5, 0.8].map((scale, i) => (
+              <motion.span
+                key={i}
+                animate={{
+                  scaleY: [0.3, scale, 0.4],
+                  opacity: [0.6, 1, 0.6]
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 0.8 + i * 0.15,
+                  ease: "easeInOut"
+                }}
+                className={cn(
+                  "w-1 rounded-full",
+                  i % 3 === 0 ? "bg-[#00F0FF]" : i % 3 === 1 ? "bg-[#CFFF5E]" : "bg-[#FF007A]"
+                )}
+                style={{ height: '100%' }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <p className="text-[10.5px] text-zinc-300 font-medium leading-relaxed mb-2">
+          "Ada sebarang isu botol bocor atau kargo bas TBS nak disiasat?"
+        </p>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => onAction && onAction("Siasat aduan integriti botol kuah colek bocor (LEAKAGE) mengikut JEV System-1.")}
+            className="flex-1 text-[10px] font-bold px-2 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-[#CFFF5E] border border-[#CFFF5E]/30 transition-all truncate text-left cursor-pointer"
+          >
+            ⚡ Siasat Botol Bocor
+          </button>
+          <button
+            onClick={() => onAction && onAction("Semak status pelepasan kargo bas TBS ke MBKT Kuala Terengganu hari ini.")}
+            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-[#FFC107] border border-[#FFC107]/30 transition-all cursor-pointer"
+          >
+            Bas TBS
+          </button>
+        </div>
+      </div>
       
-      <nav className="flex-1 space-y-4 pr-1 overflow-y-auto min-h-0 text-[13px]">
+      {/* Navigation Tree */}
+      <nav className="flex-1 space-y-4 pr-1 overflow-y-auto min-h-0 text-[13px] no-scrollbar">
         <div>
-          <p className="px-3 mb-2 text-[11px] font-black uppercase tracking-wider text-[#E53935] flex items-center gap-1.5">
-            <span>🌶️</span>
-            <span>Workspace & AI</span>
+          <p className="px-3 mb-2 text-[10px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span>🌶️</span>
+              <span>Workspace & AI</span>
+            </span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#CFFF5E] font-mono">13</span>
           </p>
           <div className="space-y-1">
             {workspaceItems.map((item) => {
               const isChat = item.id === 'chat';
               const isExecuting = isChat && isToolOrPluginInProgress;
+              const isActive = activeTab === item.id;
 
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={cn(
-                    "w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-medium transition-all text-left group",
-                    activeTab === item.id 
-                      ? "bg-[#1A1A1A] text-[#FFC107] border-2 border-[#FFC107] shadow-md font-bold" 
-                      : "text-zinc-700 hover:bg-[#FFC107]/15 hover:text-[#1A1A1A]",
-                    isExecuting && activeTab !== item.id && "bg-amber-50/90 border border-amber-300 text-amber-950 font-bold"
+                    "w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all text-left group cursor-pointer",
+                    isActive 
+                      ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
+                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
                   )}
                 >
                   <div className="flex items-center gap-2.5 truncate">
                     {isExecuting ? (
                       <span className="relative flex items-center justify-center shrink-0 w-4 h-4">
                         <motion.span
-                          animate={{
-                            scale: [1, 1.25, 1],
-                            opacity: [0.8, 1, 0.8],
-                          }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 1.5,
-                            ease: "easeInOut",
-                          }}
+                          animate={{ scale: [1, 1.25, 1], opacity: [0.8, 1, 0.8] }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                           className="flex items-center justify-center"
                         >
                           <item.icon 
                             size={15} 
-                            strokeWidth={activeTab === item.id ? 2.5 : 2} 
-                            className={cn(
-                              "shrink-0 transition-colors",
-                              activeTab === item.id ? "text-[#FFC107]" : "text-[#E53935]"
-                            )} 
+                            strokeWidth={isActive ? 2.5 : 2} 
+                            className="text-[#CFFF5E]" 
                           />
                         </motion.span>
                         <span className="absolute -top-1 -right-1 flex h-2 w-2 pointer-events-none">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFC107] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E53935]" />
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#CFFF5E] opacity-75" />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#FF4757]" />
                         </span>
                       </span>
                     ) : (
                       <item.icon 
                         size={15} 
-                        strokeWidth={activeTab === item.id ? 2.5 : 2} 
+                        strokeWidth={isActive ? 2.5 : 2} 
                         className={cn(
-                          "shrink-0",
-                          activeTab === item.id ? "text-[#FFC107]" : "text-zinc-600 group-hover:text-[#E53935]"
+                          "shrink-0 transition-colors",
+                          isActive ? "text-[#CFFF5E]" : "text-zinc-400 group-hover:text-white"
                         )} 
                       />
                     )}
-                    <span className="truncate">{item.label}</span>
+                    <span className="truncate text-xs">{item.label}</span>
                   </div>
+
                   {isExecuting ? (
-                    <span className={cn(
-                      "text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1",
-                      activeTab === item.id 
-                        ? "bg-[#E53935] text-white" 
-                        : "bg-[#FFC107] text-[#1A1A1A] shadow-xs"
-                    )}>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 bg-[#FF4757] text-white">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                      <span>Running</span>
+                      <span>Live</span>
                     </span>
                   ) : item.badge && (
                     <span className={cn(
-                      "text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
-                      activeTab === item.id 
-                        ? "bg-[#E53935] text-white" 
-                        : "bg-[#FFC107]/30 text-amber-950 border border-[#FFC107]/60"
+                      "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+                      isActive 
+                        ? "bg-[#CFFF5E] text-black font-extrabold" 
+                        : "bg-white/10 text-zinc-300 border border-white/10"
                     )}>
                       {item.badge}
                     </span>
@@ -244,73 +289,91 @@ const Sidebar = ({
         </div>
 
         <div>
-          <p className="px-3 mb-2 text-[11px] font-black uppercase tracking-wider text-[#E53935] flex items-center gap-1.5">
-            <span>📊</span>
-            <span>Operations & Data</span>
+          <p className="px-3 mb-2 text-[10px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span>📊</span>
+              <span>Operasi & Analitik</span>
+            </span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#FFC107] font-mono">5</span>
           </p>
           <div className="space-y-1">
-            {analyticsItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  "w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-medium transition-all text-left",
-                  activeTab === item.id 
-                    ? "bg-[#1A1A1A] text-[#FFC107] border-2 border-[#FFC107] shadow-md font-bold" 
-                    : "text-zinc-700 hover:bg-[#FFC107]/15 hover:text-[#1A1A1A]"
-                )}
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <item.icon 
-                    size={15} 
-                    strokeWidth={activeTab === item.id ? 2.5 : 2} 
-                    className={cn(
-                      "shrink-0",
-                      activeTab === item.id ? "text-[#FFC107]" : "text-zinc-600"
-                    )} 
-                  />
-                  <span className="truncate">{item.label}</span>
-                </div>
-              </button>
-            ))}
+            {analyticsItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all text-left cursor-pointer group",
+                    isActive 
+                      ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
+                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 truncate">
+                    <item.icon 
+                      size={15} 
+                      strokeWidth={isActive ? 2.5 : 2} 
+                      className={cn(
+                        "shrink-0 transition-colors",
+                        isActive ? "text-[#CFFF5E]" : "text-zinc-400 group-hover:text-white"
+                      )} 
+                    />
+                    <span className="truncate text-xs">{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className={cn(
+                      "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+                      isActive ? "bg-[#CFFF5E] text-black font-extrabold" : "bg-white/10 text-zinc-300"
+                    )}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </nav>
 
-      {/* Supabase Database & Auth Pill in Sidebar Footer */}
-      <div className="pr-1 pt-3 border-t border-[#FFC107]/30 shrink-0 space-y-2">
-        <div className="p-3 rounded-2xl bg-white border border-[#FFC107]/40 shadow-xs">
+      {/* Supabase Database & Auth Tactile Card in Sidebar Footer */}
+      <div className="pr-1 pt-3 border-t border-white/10 shrink-0 space-y-2">
+        <div className="p-2.5 rounded-2xl bg-[#141624] border border-white/10 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-[#1A1A1A] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Supabase Auth
+            <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#CFFF5E] animate-pulse" />
+              Supabase Postgres
             </span>
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#E53935] text-white">
-              Live DB
+            <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#CFFF5E]/20 text-[#CFFF5E] border border-[#CFFF5E]/30">
+              Live
             </span>
           </div>
-          <p className="text-[10px] text-zinc-500 mt-1 truncate font-mono font-medium">
+          <p className="text-[10px] text-zinc-400 mt-1 truncate font-mono">
             {supabaseUser?.email || 'thisisabangcolek@gmail.com'}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
             <button
               onClick={() => quickStaffSignIn('hq_admin')}
-              className="text-[10px] px-2 py-1 rounded-lg bg-[#FFC107]/30 hover:bg-[#FFC107]/50 text-amber-950 font-black transition-colors cursor-pointer border border-[#FFC107]/60"
-              title="Tukar sesi ke HQ Admin"
+              className={cn(
+                "text-[9.5px] px-2 py-0.8 rounded-lg font-black transition-colors cursor-pointer border",
+                role === 'hq_admin' || !role ? "bg-[#CFFF5E] text-black border-[#CFFF5E]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"
+              )}
             >
               HQ Admin
             </button>
             <button
               onClick={() => quickStaffSignIn('stockist_kt')}
-              className="text-[10px] px-2 py-1 rounded-lg bg-[#FFC107]/30 hover:bg-[#FFC107]/50 text-amber-950 font-black transition-colors cursor-pointer border border-[#FFC107]/60"
-              title="Tukar sesi ke Stokis Terengganu"
+              className={cn(
+                "text-[9.5px] px-2 py-0.8 rounded-lg font-black transition-colors cursor-pointer border",
+                role === 'stockist_kt' ? "bg-[#FFC107] text-black border-[#FFC107]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"
+              )}
             >
               Stokis KT
             </button>
             {supabaseUser && (
               <button
                 onClick={() => supabaseSignOut()}
-                className="text-[10px] px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold ml-auto transition-colors cursor-pointer"
+                className="text-[9.5px] px-2 py-0.8 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-300 font-bold ml-auto transition-colors cursor-pointer border border-red-800/40"
               >
                 Log Keluar
               </button>
@@ -321,22 +384,22 @@ const Sidebar = ({
         {/* Google Workspace Connection Pill */}
         <button
           onClick={() => setActiveTab('gmail')}
-          className="w-full text-left p-2.5 rounded-2xl bg-white border border-[#FFC107]/40 hover:border-[#FFC107] transition-all shadow-xs group cursor-pointer"
+          className="w-full text-left p-2.5 rounded-2xl bg-[#141624] border border-white/10 hover:border-[#8C7DFF]/50 transition-all shadow-xs group cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-[#1A1A1A] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#8C7DFF]" />
               Google Workspace
             </span>
             <span className={cn(
-              "text-[10px] font-black px-2 py-0.5 rounded-full",
-              googleUser ? "bg-emerald-100 text-emerald-800" : "bg-[#FFC107]/30 text-amber-950"
+              "text-[9px] font-black px-1.5 py-0.5 rounded-md",
+              googleUser ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800/50" : "bg-white/10 text-zinc-400"
             )}>
               {googleUser ? 'Connected' : 'Offline Mode'}
             </span>
           </div>
-          <p className="text-[10px] text-zinc-500 mt-0.5 line-clamp-1 font-medium">
-            {googleUser ? (googleUser.displayName || googleUser.email) : 'Sign in on any tab'}
+          <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-1 font-medium">
+            {googleUser ? (googleUser.displayName || googleUser.email) : 'Klik untuk hubung akaun Google'}
           </p>
         </button>
       </div>
@@ -350,28 +413,33 @@ const AgentStepBlock = ({ step }: { step: AgentStep }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "p-4 rounded-3xl transition-all",
-        step.status === 'streaming' ? "bg-white shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-black/5" : "bg-zinc-50 border border-black/[0.02]"
+        "p-3.5 rounded-2xl transition-all",
+        step.status === 'streaming' 
+          ? "bg-[#181B2C] border border-[#CFFF5E]/40 shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
+          : "bg-[#141624] border border-white/[0.06]"
       )}
     >
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-center gap-2.5 mb-2">
         <div className={cn(
-          "w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-white shadow-sm border border-black/5 text-zinc-500"
+          "w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border",
+          step.status === 'streaming'
+            ? "bg-[#CFFF5E]/20 border-[#CFFF5E]/40 text-[#CFFF5E]"
+            : "bg-white/5 border-white/10 text-zinc-300"
         )}>
-          {step.type === 'tool' ? <Database size={12} /> : <Bot size={12} />}
+          {step.type === 'tool' ? <Database size={13} /> : <Bot size={13} />}
         </div>
-        <span className="font-semibold text-[13px] text-zinc-800 truncate">
-          {step.type === 'tool' ? `Tool Call: ${step.toolName}` : 'Thinking'}
+        <span className="font-bold text-[12.5px] text-zinc-200 truncate">
+          {step.type === 'tool' ? `Tool Call: ${step.toolName}` : 'Pemikiran Ejen (Thinking)'}
         </span>
-        {step.status === 'streaming' && <Loader2 size={12} className="animate-spin text-zinc-400 ml-auto shrink-0" />}
+        {step.status === 'streaming' && <Loader2 size={13} className="animate-spin text-[#CFFF5E] ml-auto shrink-0" />}
         {step.status === 'completed' && (
           <div className="flex items-center gap-2 ml-auto shrink-0">
             {step.latencyMs !== undefined && (
-              <span className="text-[10px] text-zinc-500 font-medium">
+              <span className="text-[10px] text-zinc-400 font-mono">
                 {(step.latencyMs / 1000).toFixed(2)}s
               </span>
             )}
-            <div className="text-emerald-500">
+            <div className="text-[#CFFF5E]">
               <CheckCircle2 size={14} />
             </div>
           </div>
@@ -379,19 +447,19 @@ const AgentStepBlock = ({ step }: { step: AgentStep }) => {
       </div>
       
       {step.type === 'tool' && step.toolArgs && (
-        <pre className="text-[10px] bg-white text-zinc-500 p-3 rounded-2xl overflow-x-auto mt-3 font-mono whitespace-pre-wrap border border-black/[0.04]">
+        <pre className="text-[10px] bg-black/60 text-zinc-300 p-2.5 rounded-xl overflow-x-auto mt-2 font-mono whitespace-pre-wrap border border-white/10">
           {JSON.stringify(step.toolArgs, null, 2)}
         </pre>
       )}
       
       {step.type === 'text' && step.content && (
-        <div className="text-[13px] text-zinc-500 mt-2 line-clamp-2 leading-relaxed">"{step.content}"</div>
+        <div className="text-[12.5px] text-zinc-300 mt-2 line-clamp-2 leading-relaxed italic">"{step.content}"</div>
       )}
 
       {step.result && (
-        <div className="mt-4 pt-3 border-t border-black/[0.04] flex flex-col gap-1 text-[11px]">
-          <span className="font-semibold text-zinc-400 uppercase tracking-wider text-[9px]">Result</span> 
-          <span className="text-zinc-700 truncate font-medium">{step.result.message || 'Success'}</span>
+        <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-col gap-0.5 text-[11px]">
+          <span className="font-bold text-zinc-400 uppercase tracking-wider text-[9px]">Hasil Tindakan</span> 
+          <span className="text-zinc-200 truncate font-mono">{step.result.message || 'Berjaya dilaksanakan'}</span>
         </div>
       )}
     </motion.div>
@@ -443,99 +511,94 @@ const ChatInterface = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row-reverse h-auto md:h-full w-full gap-4 md:gap-6">
-      {/* Right side: Process & Agent Steps */}
-      <div className="min-h-[300px] flex-1 md:min-h-0 md:flex-initial w-full md:w-[60%] flex flex-col rounded-[32px] bg-white border border-black/[0.04] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden relative">
-        <header className="h-[60px] md:h-[72px] flex items-center px-4 md:px-8 bg-white shrink-0 border-b border-black/[0.04]">
-          <h2 className="font-semibold text-zinc-900 text-[15px] flex items-center gap-3">
-            {isProcessing ? (
-              <Loader2 className="text-zinc-400 animate-spin" size={16} />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center border border-black/5">
-                <Activity className="text-zinc-600" size={14} />
-              </div>
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 text-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 min-h-[calc(100vh-180px)] lg:h-[calc(100vh-170px)] select-none">
+        {/* Process & Agent Steps (Col span 7 on desktop, 1 col on mobile) */}
+        <div className="min-h-[380px] lg:min-h-0 lg:h-full lg:col-span-7 flex flex-col rounded-[24px] sm:rounded-[32px] bg-[#10121C] border border-white/10 shadow-2xl overflow-hidden relative">
+          <header className="h-[56px] md:h-[64px] flex items-center justify-between px-4 md:px-6 bg-[#141624] shrink-0 border-b border-white/10">
+            <h2 className="font-bold text-white text-[14px] flex items-center gap-2.5">
+              {isProcessing ? (
+                <Loader2 className="text-[#CFFF5E] animate-spin" size={16} />
+              ) : (
+                <div className="w-7 h-7 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                  <Activity className="text-[#CFFF5E]" size={14} />
+                </div>
+              )}
+              <span>Jejak Pelaksanaan Ejen (Execution Trace)</span>
+            </h2>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+              {agentSteps.length} langkah
+            </span>
+          </header>
+          <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-4 md:pb-6 pt-4 space-y-3 no-scrollbar" ref={leftScrollRef}>
+            {agentSteps.length === 0 && !isProcessing && (
+               <div className="text-zinc-500 text-xs font-medium mt-16 text-center flex flex-col items-center gap-2">
+                 <Database className="text-zinc-600" size={24} />
+                 <span>Mulakan sebarang arahan atau triage untuk melihat jejak pelaksanaan di sini.</span>
+               </div>
             )}
-            Execution Trace
-          </h2>
-        </header>
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-4 md:pb-8 pt-4 md:pt-6 space-y-4" ref={leftScrollRef}>
-          {agentSteps.length === 0 && !isProcessing && (
-             <div className="text-zinc-400 text-sm font-medium mt-10 text-center">Start a task to see agent steps here.</div>
-          )}
-          {agentSteps.map((step) => (
-            <AgentStepBlock key={step.id} step={step} />
-          ))}
-        </div>
-      </div>
-
-      {/* Left side: Chat */}
-      <div className="min-h-[450px] flex-1 md:min-h-0 md:flex-initial w-full md:w-[40%] flex flex-col rounded-[32px] bg-white border border-black/[0.04] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden relative">
-        {/* Header */}
-        <header className="h-[60px] md:h-[72px] flex items-center px-4 md:px-8 justify-between shrink-0 border-b border-black/[0.04]">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center border border-black/5">
-              <Bot className="text-zinc-600" size={14} />
-            </div>
-            <h2 className="font-semibold text-zinc-900 text-[15px]">Virtual Assistant</h2>
+            {agentSteps.map((step) => (
+              <AgentStepBlock key={step.id} step={step} />
+            ))}
           </div>
-        </header>
+        </div>
+
+        {/* Chat Panel (Col span 5 on desktop, 1 col on mobile) */}
+        <div className="min-h-[450px] lg:min-h-0 lg:h-full lg:col-span-5 flex flex-col rounded-[24px] sm:rounded-[32px] bg-[#10121C] border border-white/10 shadow-2xl overflow-hidden relative">
+          {/* Header */}
+          <header className="h-[56px] md:h-[64px] flex items-center px-4 md:px-6 justify-between shrink-0 bg-[#141624] border-b border-white/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#FF4757] to-[#FFA000] flex items-center justify-center text-white shadow-xs">
+                <Bot size={14} />
+              </div>
+              <div>
+                <h2 className="font-extrabold text-white text-[14px]">Pembantu Maya Pintar</h2>
+                <p className="text-[9.5px] text-[#CFFF5E] font-medium leading-none">Gemini 2.5 Flash • Workspace & JEV Connected</p>
+              </div>
+            </div>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#CFFF5E] shadow-[0_0_8px_#CFFF5E]" />
+          </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-8 space-y-6" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 space-y-4 no-scrollbar" ref={scrollRef}>
           {history.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-zinc-400 space-y-6">
-              <div className="w-16 h-16 bg-white shadow-sm border border-black/5 rounded-full flex items-center justify-center">
-                <Bot size={32} className="text-zinc-300" />
+            <div className="h-full flex flex-col items-center justify-center text-zinc-400 space-y-4 my-auto py-8">
+              <div className="w-14 h-14 bg-[#141624] shadow-md border border-white/10 rounded-2xl flex items-center justify-center">
+                <Bot size={28} className="text-[#CFFF5E]" />
               </div>
-              <p className="font-medium text-zinc-500">Bagaimana saya boleh bantu operasi Abang Colek hari ini?</p>
-              <div className="flex flex-wrap justify-center gap-2 w-full max-w-2xl">
-                <button onClick={() => onSendMessage("Siasat aduan pembungkusan botol kuah colek bocor (LEAKAGE) dan draf emel gantian di Gmail")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-red-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Mail size={13} className="text-red-600" />
+              <p className="font-bold text-white text-sm text-center">Bagaimana saya boleh bantu operasi Abang Colek hari ini?</p>
+              <div className="flex flex-wrap justify-center gap-1.5 w-full max-w-xl">
+                <button onClick={() => onSendMessage("Siasat aduan pembungkusan botol kuah colek bocor (LEAKAGE) dan draf emel gantian di Gmail")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-red-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <Mail size={12} className="text-red-400" />
                   Aduan Botol Bocor (Gmail)
                 </button>
-                <button onClick={() => onSendMessage("Jadualkan sesi taklimat stokis Terengganu & selatan dalam Google Calendar")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-amber-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Calendar size={13} className="text-amber-600" />
-                  Jadual Mesyuarat Stokis
+                <button onClick={() => onSendMessage("Jadualkan sesi taklimat stokis Terengganu & selatan dalam Google Calendar")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-amber-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <Calendar size={12} className="text-amber-400" />
+                  Jadual Taklimat Stokis
                 </button>
-                <button onClick={() => onSendMessage("Eksport rekod jualan kuah colek dan botol pakej ejen ke Google Sheets")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-emerald-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <FileSpreadsheet size={13} className="text-emerald-600" />
+                <button onClick={() => onSendMessage("Eksport rekod jualan kuah colek dan botol pakej ejen ke Google Sheets")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-emerald-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <FileSpreadsheet size={12} className="text-emerald-400" />
                   Eksport Stokis (Sheets)
                 </button>
-                <button onClick={() => onSendMessage("Cipta tugasan pemeriksaan QC penutup botol kuah colek pembekal di Google Tasks")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-blue-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <CheckSquare size={13} className="text-blue-600" />
+                <button onClick={() => onSendMessage("Cipta tugasan pemeriksaan QC penutup botol kuah colek pembekal di Google Tasks")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-blue-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <CheckSquare size={12} className="text-blue-400" />
                   Tugasan QC Botol (Tasks)
                 </button>
-                <button onClick={() => onSendMessage("Cipta SOP kawalan kualiti kuah colek & pembungkusan di Google Docs")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-indigo-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <FileText size={13} className="text-indigo-600" />
+                <button onClick={() => onSendMessage("Cipta SOP kawalan kualiti kuah colek & pembungkusan di Google Docs")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-indigo-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <FileText size={12} className="text-indigo-400" />
                   SOP Kuah Colek (Docs)
                 </button>
-                <button onClick={() => onSendMessage("Bina borang Google Forms untuk pendaftaran ejen & stokis baharu Abang Colek")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-purple-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <FolderOpen size={13} className="text-purple-600" />
+                <button onClick={() => onSendMessage("Bina borang Google Forms untuk pendaftaran ejen & stokis baharu Abang Colek")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-purple-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <FolderOpen size={12} className="text-purple-400" />
                   Borang Ejen (Forms)
                 </button>
-                <button onClick={() => onSendMessage("Buka bilik Google Meet untuk krew festival jualan pop-up Johor Bahru")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-teal-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Video size={13} className="text-teal-600" />
+                <button onClick={() => onSendMessage("Buka bilik Google Meet untuk krew festival jualan pop-up Johor Bahru")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-teal-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <Video size={12} className="text-teal-400" />
                   Bilik Krew Pop-Up (Meet)
                 </button>
-                <button onClick={() => onSendMessage("Cari tiket penerbangan murah ke Tokyo Jepun minggu depan di Skyscanner")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-teal-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Zap size={13} className="text-teal-600" />
-                  Tiket Jepun (Skyscanner)
-                </button>
-                <button onClick={() => onSendMessage("Reka poster promosi gerai pop-up Abang Colek di Canva saiz Instagram 1:1")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-cyan-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Zap size={13} className="text-cyan-600" />
+                <button onClick={() => onSendMessage("Reka poster promosi gerai pop-up Abang Colek di Canva saiz Instagram 1:1")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-cyan-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <Zap size={12} className="text-cyan-400" />
                   Reka Poster (Canva)
-                </button>
-                <button onClick={() => onSendMessage("Semak Pull Request terbaru di repositori GitHub Abang Colek")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-zinc-900 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Zap size={13} className="text-zinc-900" />
-                  Semak Kod PR (GitHub)
-                </button>
-                <button onClick={() => onSendMessage("Cari hotel berhampiran Toppen Shopping Centre Johor Bahru untuk krew di Booking.com")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-blue-800 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Zap size={13} className="text-blue-800" />
-                  Hotel Krew JB (Booking)
-                </button>
-                <button onClick={() => onSendMessage("Semak data latihan COROS dan stamina kecergasan krew hari ini")} className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-orange-700 font-medium text-[12px] flex items-center gap-1.5 shadow-xs">
-                  <Zap size={13} className="text-orange-600" />
-                  Data Latihan (COROS)
                 </button>
               </div>
             </div>
@@ -547,33 +610,40 @@ const ChatInterface = ({
               animate={{ opacity: 1, y: 0 }}
               key={idx} 
               className={cn(
-                "flex gap-4 max-w-full",
+                "flex gap-3 max-w-full",
                 msg.role === 'user' ? "ml-auto flex-row-reverse" : ""
               )}
             >
               <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto mb-1",
-                msg.role === 'user' ? "bg-black text-white" : "bg-white border border-black/5 text-zinc-900 shadow-sm"
+                "w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-auto mb-1 border shadow-xs",
+                msg.role === 'user' 
+                  ? "bg-[#CFFF5E] text-black border-[#CFFF5E] font-black" 
+                  : "bg-[#181A2A] border-white/10 text-[#CFFF5E]"
               )}>
-                {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                {msg.role === 'user' ? <User size={13} /> : <Bot size={13} />}
               </div>
               
               <div className={cn(
-                "rounded-3xl text-[14px] leading-relaxed max-w-[85%] font-medium",
+                "rounded-2xl text-[13.5px] leading-relaxed max-w-[85%] font-medium",
                 msg.role === 'user' 
-                  ? "p-5 bg-black text-white rounded-br-[8px]" 
-                  : (msg.hasReport || msg.hasDashboard || msg.hasForm || msg.hasEmail || msg.hasTask || msg.hasDoc || msg.hasCalendar || msg.hasSheet || msg.hasMeet || msg.hasChat || msg.hasPlugin)
+                  ? "p-4 bg-gradient-to-r from-[#1C2032] to-[#252C46] text-white border border-[#CFFF5E]/30 rounded-br-[4px] shadow-md" 
+                  : (msg.hasReport || msg.hasDashboard || msg.hasForm || msg.hasEmail || msg.hasTask || msg.hasDoc || msg.hasCalendar || msg.hasSheet || msg.hasMeet || msg.hasChat || msg.hasPlugin || msg.hasJev)
                     ? "p-0" 
-                    : "p-5 bg-white rounded-bl-[8px] text-zinc-800 border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)]"
+                    : "p-4 bg-[#141624] rounded-bl-[4px] text-zinc-100 border border-white/10 shadow-md"
               )}>
-                {msg.role === 'model' && (msg.hasReport || msg.hasDashboard || msg.hasForm || msg.hasEmail || msg.hasTask || msg.hasDoc || msg.hasCalendar || msg.hasSheet || msg.hasMeet || msg.hasChat || msg.hasPlugin) ? (
-                  <div className="flex flex-col gap-3 min-w-[220px]">
-                    <div className="p-4 bg-white border border-black/5 rounded-3xl rounded-bl-[8px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2.5">
-                      <span className="font-semibold text-[14px] text-zinc-900 flex items-center gap-2">
+                {msg.role === 'model' && (msg.hasReport || msg.hasDashboard || msg.hasForm || msg.hasEmail || msg.hasTask || msg.hasDoc || msg.hasCalendar || msg.hasSheet || msg.hasMeet || msg.hasChat || msg.hasPlugin || msg.hasJev) ? (
+                  <div className="flex flex-col gap-2.5 min-w-[220px]">
+                    <div className="p-4 bg-[#141624] border border-white/10 rounded-2xl rounded-bl-[4px] shadow-md flex flex-col gap-2.5 text-white">
+                      <span className="font-extrabold text-[13.5px] text-white flex items-center gap-2">
                         {msg.hasPlugin ? (
                           <>
                             <Zap size={16} className="text-amber-500 fill-amber-500" />
                             Tindakan Plugin 3P Selesai
+                          </>
+                        ) : msg.hasJev ? (
+                          <>
+                            <Flame size={16} className="text-[#E53935]" />
+                            Analisis Integriti JEV System-1 Selesai
                           </>
                         ) : msg.hasEmail ? (
                           <>
@@ -640,6 +710,59 @@ const ChatInterface = ({
                       )}
                       {msg.hasPlugin && msg.pluginData && (
                         <PluginArtifactCard pluginType={msg.pluginType || ''} data={msg.pluginData} onOpenStore={() => setActiveTab('plugins')} />
+                      )}
+                      {msg.hasJev && msg.jevData && (
+                        <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-300/80 text-xs flex flex-col gap-2 shadow-2xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-black text-amber-950 flex items-center gap-1.5">
+                              <span>🌶️</span>
+                              <span>Klasifikasi Integriti JEV System-1</span>
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-black text-[#FFC107]">
+                              Invarian 7-Dimensi
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-[11px] font-sans">
+                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Kelas Isu</span>
+                              <span className="font-black text-zinc-900">{msg.jevData.dimensions?.issueClass?.value || 'N/A'}</span>
+                            </div>
+                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Status Punca</span>
+                              <span className={cn(
+                                "font-black px-1.5 py-0.5 rounded text-[10px] inline-block",
+                                msg.jevData.dimensions?.rootCauseStatus?.value === 'UNDETERMINED' 
+                                  ? "bg-amber-100 text-amber-900 border border-amber-300" 
+                                  : "bg-emerald-100 text-emerald-900"
+                              )}>
+                                {msg.jevData.dimensions?.rootCauseStatus?.value || 'UNDETERMINED'}
+                              </span>
+                            </div>
+                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Saluran Jualan</span>
+                              <span className="font-bold text-zinc-800">{msg.jevData.dimensions?.salesChannel?.value || 'N/A'}</span>
+                            </div>
+                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Hasrat Pelanggan</span>
+                              <span className="font-bold text-zinc-800">{msg.jevData.dimensions?.customerIntent?.value || 'N/A'}</span>
+                            </div>
+                          </div>
+
+                          {msg.jevData.recommendedAction && (
+                            <div className="pt-1.5 border-t border-amber-200/70">
+                              <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-0.5">Cadangan Tindakan:</span>
+                              <p className="text-[11px] text-zinc-800 font-medium">
+                                {msg.jevData.recommendedAction}
+                              </p>
+                              {msg.jevData.suggestedSop && (
+                                <p className="text-[10px] text-zinc-500 mt-1">
+                                  <strong>SOP:</strong> {msg.jevData.suggestedSop}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       )}
                       {msg.latencyMs && (
                         <div className="text-emerald-600 flex items-center gap-1.5 text-[11px] font-medium">
@@ -821,14 +944,14 @@ const ChatInterface = ({
           )}
 
           {isProcessing && !streamingText && !isGeneratingWidget && (
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-white border border-black/5 text-zinc-900 shadow-sm flex items-center justify-center mt-auto mb-1">
-                <Bot size={14} />
+            <div className="flex gap-3">
+              <div className="w-7 h-7 rounded-xl bg-[#181A2A] border border-white/10 text-[#CFFF5E] shadow-sm flex items-center justify-center mt-auto mb-1">
+                <Bot size={13} />
               </div>
-              <div className="bg-white px-5 py-4 rounded-3xl rounded-bl-[8px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-black/[0.04] flex items-center gap-2">
-                <div className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="bg-[#141624] px-4 py-3 rounded-2xl rounded-bl-[4px] border border-white/10 flex items-center gap-1.5 shadow-md">
+                <div className="w-2 h-2 bg-[#CFFF5E] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#CFFF5E] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#CFFF5E] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           )}
@@ -837,18 +960,18 @@ const ChatInterface = ({
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex gap-4 max-w-full"
+              className="flex gap-3 max-w-full"
             >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto mb-1 bg-white border border-black/5 text-zinc-900 shadow-sm">
-                <Bot size={14} />
+              <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-auto mb-1 bg-[#181A2A] border border-white/10 text-[#CFFF5E] shadow-sm">
+                <Bot size={13} />
               </div>
-              <div className="flex flex-col gap-3 min-w-[200px]">
-                <div className="p-4 bg-white border border-black/5 rounded-3xl rounded-bl-[8px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col gap-3">
-                  <span className="font-medium text-[14px] text-zinc-800">
-                    {isGeneratingReport && isGeneratingDashboard ? 'Finalizing Report & Dashboard...' : isGeneratingReport ? 'Report now ready' : 'Dashboard now ready'}
+              <div className="flex flex-col gap-2.5 min-w-[200px]">
+                <div className="p-4 bg-[#141624] border border-white/10 rounded-2xl rounded-bl-[4px] shadow-md flex flex-col gap-2">
+                  <span className="font-bold text-[13px] text-white">
+                    {isGeneratingReport && isGeneratingDashboard ? 'Memuktamadkan Laporan & Dashboard...' : isGeneratingReport ? 'Laporan Eksekutif Sedia' : 'Papan Pemuka Sedia'}
                   </span>
-                  <div className="text-zinc-400 flex items-center gap-1.5 text-[11px] font-medium">
-                    <Loader2 size={12} className="animate-spin" /> Finalizing...
+                  <div className="text-[#CFFF5E] flex items-center gap-1.5 text-[11px] font-bold">
+                    <Loader2 size={12} className="animate-spin" /> Memuktamadkan data...
                   </div>
                 </div>
                 
@@ -856,17 +979,17 @@ const ChatInterface = ({
                   {isGeneratingReport && (
                     <button 
                       disabled
-                      className="bg-black/50 text-white px-6 py-3 rounded-full font-medium w-max text-[13px] shadow-sm flex items-center gap-2 cursor-not-allowed"
+                      className="bg-white/10 text-zinc-400 px-5 py-2.5 rounded-full font-bold w-max text-[12px] border border-white/10 cursor-not-allowed"
                     >
-                      go to reports &rarr;
+                      Buka Laporan &rarr;
                     </button>
                   )}
                   {isGeneratingDashboard && (
                     <button 
                       disabled
-                      className="bg-black/50 text-white px-6 py-3 rounded-full font-medium w-max text-[13px] shadow-sm flex items-center gap-2 cursor-not-allowed"
+                      className="bg-white/10 text-zinc-400 px-5 py-2.5 rounded-full font-bold w-max text-[12px] border border-white/10 cursor-not-allowed"
                     >
-                      go to dashboards &rarr;
+                      Buka Papan Pemuka &rarr;
                     </button>
                   )}
                 </div>
@@ -876,60 +999,60 @@ const ChatInterface = ({
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-6 shrink-0 bg-white">
+        <div className="p-3 md:p-5 shrink-0 bg-[#0E101A] border-t border-white/10">
           {/* Active Plugins Bar */}
-          <div className="mb-2.5 px-2 flex items-center justify-between text-[11px] text-zinc-500">
-            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
-                <Zap size={11} className="text-amber-500 fill-amber-500" />
-                Plugins Aktif:
+          <div className="mb-2 px-1 flex items-center justify-between text-[11px] text-zinc-400">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 no-scrollbar">
+              <span className="text-[9.5px] font-extrabold text-zinc-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
+                <Zap size={11} className="text-[#CFFF5E]" />
+                Plugins:
               </span>
-              {['Skyscanner', 'Booking.com', 'Canva', 'GitHub', 'Vercel', 'Supabase', 'COROS'].map((name, i) => (
-                <span key={i} className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 font-medium shrink-0 text-[10px]">
+              {['Skyscanner', 'Canva', 'GitHub', 'Supabase', 'COROS', 'Gmail'].map((name, i) => (
+                <span key={i} className="px-2 py-0.5 rounded-md bg-[#161826] text-zinc-300 font-bold shrink-0 text-[10px] border border-white/5">
                   {name}
                 </span>
               ))}
             </div>
             <button 
               onClick={() => setActiveTab('plugins')}
-              className="text-[11px] font-bold text-black hover:underline shrink-0 ml-2 cursor-pointer flex items-center gap-1"
+              className="text-[10.5px] font-bold text-[#CFFF5E] hover:underline shrink-0 ml-2 cursor-pointer flex items-center gap-1"
             >
               <span>+ Gedung Plugin</span>
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="relative flex items-center bg-zinc-50 rounded-full border border-black/5 p-2 focus-within:ring-2 focus-within:ring-black/5 focus-within:border-black/10 transition-all">
+          <form onSubmit={handleSubmit} className="relative flex items-center bg-[#141624] rounded-full border border-white/15 p-1.5 focus-within:border-[#CFFF5E]/50 focus-within:shadow-[0_0_20px_rgba(207,255,94,0.15)] transition-all">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Tanya apa sahaja atau aktifkan plugin (cth: cari tiket ke Tokyo, reka poster di Canva, semak PR di GitHub)..."
+              placeholder="Tanya arahan operasi, siasat tiket JEV atau lancarkan plugin..."
               disabled={isProcessing}
-              className="flex-1 bg-transparent px-5 py-2 outline-none placeholder:text-zinc-400 text-zinc-900 text-[14px] font-medium"
+              className="flex-1 bg-transparent px-4 py-2 outline-none placeholder:text-zinc-500 text-white text-[13px] font-medium"
             />
             <button 
               type="submit"
               disabled={!input.trim() || isProcessing}
-              className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center disabled:opacity-50 transition-colors ml-2 hover:bg-zinc-800 cursor-pointer"
+              className="w-9 h-9 rounded-full bg-[#CFFF5E] text-black font-extrabold flex items-center justify-center disabled:opacity-30 transition-all ml-1 hover:bg-[#d8ff6b] hover:scale-105 cursor-pointer shadow-[0_0_12px_rgba(207,255,94,0.35)] shrink-0"
             >
-              {isProcessing ? <Loader2 size={16} className="animate-spin text-white" /> : <Send size={16} className="text-white relative right-0.5 top-0.5" strokeWidth={2} />}
+              {isProcessing ? <Loader2 size={15} className="animate-spin text-black" /> : <Send size={15} className="text-black relative right-0.5 top-0.5" strokeWidth={2.5} />}
             </button>
           </form>
 
           {history.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 mt-4 w-full">
-              <button onClick={() => onSendMessage("Siasat aduan penutup botol kuah colek bocor (LEAKAGE) di Terengganu menggunakan JEV System-1.")} className="px-4 py-2 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-red-600 font-medium text-[12px] cursor-pointer">
-                Siasat Aduan Botol Bocor (JEV)
+            <div className="flex flex-wrap justify-center gap-1.5 mt-3 w-full">
+              <button onClick={() => onSendMessage("Siasat aduan penutup botol kuah colek bocor (LEAKAGE) di Terengganu menggunakan JEV System-1.")} className="px-3 py-1 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-red-400 font-bold text-[10.5px] cursor-pointer">
+                Siasat Botol Bocor (JEV)
               </button>
-              <button onClick={() => onSendMessage("Cari tiket penerbangan murah ke Tokyo Jepun minggu depan di Skyscanner.")} className="px-4 py-2 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-teal-700 font-medium text-[12px] cursor-pointer">
+              <button onClick={() => onSendMessage("Cari tiket penerbangan murah ke Tokyo Jepun minggu depan di Skyscanner.")} className="px-3 py-1 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-teal-400 font-bold text-[10.5px] cursor-pointer">
                 Tiket Tokyo (Skyscanner)
               </button>
-              <button onClick={() => onSendMessage("Reka poster promosi kombo kuah colek di Canva saiz Instagram 1:1.")} className="px-4 py-2 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-cyan-700 font-medium text-[12px] cursor-pointer">
+              <button onClick={() => onSendMessage("Reka poster promosi kombo kuah colek di Canva saiz Instagram 1:1.")} className="px-3 py-1 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-cyan-400 font-bold text-[10.5px] cursor-pointer">
                 Reka Poster (Canva)
               </button>
-              <button onClick={() => onSendMessage("Semak Pull Request dan Issues terkini di GitHub.")} className="px-4 py-2 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-zinc-800 font-medium text-[12px] cursor-pointer">
+              <button onClick={() => onSendMessage("Semak Pull Request dan Issues terkini di GitHub.")} className="px-3 py-1 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-zinc-300 font-bold text-[10.5px] cursor-pointer">
                 Semak PR (GitHub)
               </button>
-              <button onClick={() => onSendMessage("Semak data latihan COROS dan stamina kecergasan krew gerai hari ini.")} className="px-4 py-2 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all border border-black/5 text-orange-700 font-medium text-[12px] cursor-pointer">
+              <button onClick={() => onSendMessage("Semak data latihan COROS dan stamina kecergasan krew gerai hari ini.")} className="px-3 py-1 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-orange-400 font-bold text-[10.5px] cursor-pointer">
                 Stamina Krew (COROS)
               </button>
             </div>
@@ -937,86 +1060,103 @@ const ChatInterface = ({
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
 const ReviewsView = ({ onAction }: { onAction: (msg?: string) => void }) => {
   return (
-  <div className="p-4 md:p-8 h-full overflow-y-auto">
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between items-end mb-8 pl-2">
-        <div>
-          <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">Maklum Balas & Ulasan Pelanggan</h2>
-          <p className="text-zinc-500 mt-1 text-[15px] font-medium">Pantau ulasan kuah colek, aduan kebocoran penutup botol, dan klasifikasi JEV System-1.</p>
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 text-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-4 sm:gap-5 md:gap-6">
+        {/* Header Banner - Responsive CSS Grid */}
+        <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 border border-white/10 bg-[#121420] shadow-xl grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+          <div className="sm:col-span-8">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FFC107] animate-pulse" />
+              <span className="text-[11px] font-extrabold tracking-wider text-[#FFC107] uppercase">Sistem Maklum Balas Pelanggan</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Maklum Balas & Ulasan Pelanggan</h2>
+            <p className="text-zinc-400 mt-1 text-xs sm:text-sm font-medium">Pantau ulasan kuah colek, aduan kebocoran botol, dan klasifikasi automatik JEV System-1.</p>
+          </div>
+          <div className="sm:col-span-4 flex justify-start sm:justify-end">
+            <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-[#CFFF5E] font-bold">
+              {MOCK_DB.reviews?.length || 0} Ulasan Disahkan
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          {MOCK_DB.reviews?.length === 0 ? (
+            <div className="text-center py-20 bg-[#121420] rounded-3xl border border-white/10">
+              <p className="text-zinc-400 font-medium">Tiada ulasan ditemui buat masa ini.</p>
+            </div>
+          ) : (
+            MOCK_DB.reviews?.map((review, i) => {
+              const order = appStore.getOrders().find(o => o.order_id === review.order_id);
+              const customerName = order?.customer_id || `Pelanggan #${review.order_id}`;
+              const reviewText = review.comment_message;
+              const reviewDate = review.creation_date;
+
+              return (
+                <div key={review.review_id || i} className="bg-[#121420] p-5 md:p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col sm:flex-row justify-between items-start gap-4 transition-all hover:border-[#CFFF5E]/40 group">
+                  <div className="flex gap-4 max-w-full sm:max-w-[78%]">
+                    <div className="w-11 h-11 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shrink-0 mt-0.5 text-[#CFFF5E]">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-extrabold text-[16px] text-white">{customerName}</span>
+                        <span className="text-[12px] text-zinc-500">•</span>
+                        <span className="text-[12px] text-zinc-400 font-mono">{new Date(reviewDate).toLocaleDateString()}</span>
+                        {review.issue_class && (
+                          <span className={cn(
+                            "text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase",
+                            review.issue_class === 'PRAISE' 
+                              ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800/40" 
+                              : "bg-red-950/80 text-red-400 border border-red-800/40"
+                          )}>
+                            {review.issue_class}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-1 mb-2.5">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <Sparkles key={star} size={13} className={star <= review.score ? "text-[#FFC107] fill-[#FFC107]" : "text-zinc-700"} />
+                        ))}
+                      </div>
+                      <p className="text-zinc-200 text-[14.5px] leading-relaxed mb-3 font-medium">"{reviewText}"</p>
+                      <div className="flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span className="flex items-center gap-1.5 text-zinc-400 bg-[#161826] px-3 py-1 rounded-full border border-white/10">
+                          Order: <strong className="text-[#CFFF5E]">{review.order_id}</strong>
+                        </span>
+                        <span className="flex items-center gap-1.5 text-zinc-400 bg-[#161826] px-3 py-1 rounded-full border border-white/10">
+                          Kategori: <strong className="text-white capitalize">{review.product_category}</strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
+                    <button 
+                      onClick={() => onAction(`Nilaikan maklum balas pelanggan ini menggunakan JEV System-1: "${reviewText}" dan tentukan tindakan operasi.`)} 
+                      className="flex-1 sm:flex-initial px-3.5 py-1.5 text-[11.5px] font-bold rounded-full bg-[#FF4757] hover:bg-[#e03847] text-white transition-all cursor-pointer shadow-[0_0_12px_rgba(255,71,87,0.35)] flex items-center justify-center gap-1.5"
+                    >
+                      <Flame size={13} />
+                      <span>JEV Triage</span>
+                    </button>
+                    <button 
+                      onClick={() => onAction(`Draf respons pelanggan di Gmail untuk ulasan ${review.review_id} bagi pesanan ${review.order_id}.`)} 
+                      className="flex-1 sm:flex-initial px-3.5 py-1.5 text-[11px] font-bold rounded-full bg-[#181A2A] border border-white/15 text-zinc-300 hover:text-white hover:border-white/30 transition-colors flex items-center justify-center"
+                    >
+                      Draf Emel
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
-
-      <div className="grid gap-4">
-        {MOCK_DB.reviews?.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-black/[0.04]">
-            <p className="text-zinc-400 font-medium">No reviews found.</p>
-          </div>
-        ) : (
-          MOCK_DB.reviews?.map((review, i) => {
-            const order = appStore.getOrders().find(o => o.order_id === review.order_id);
-            const customerName = order?.customer_id || `Pelanggan #${review.order_id}`;
-            const reviewText = review.comment_message;
-            const reviewDate = review.creation_date;
-
-            return (
-              <div key={review.review_id || i} className="bg-white p-6 rounded-3xl border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex justify-between items-start transition-all hover:border-black/10">
-                <div className="flex gap-5 max-w-[80%]">
-                  <div className="w-12 h-12 bg-zinc-50 rounded-full flex items-center justify-center border border-black/5 shrink-0 mt-1">
-                    <User className="text-zinc-400" size={18} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[17px] text-zinc-900">{customerName}</span>
-                      <span className="text-[12px] text-zinc-400">•</span>
-                      <span className="text-[13px] text-zinc-500 font-medium">{new Date(reviewDate).toLocaleDateString()}</span>
-                      {review.issue_class && (
-                        <span className={cn(
-                          "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
-                          review.issue_class === 'PRAISE' ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                        )}>
-                          {review.issue_class}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex gap-1 mb-3">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <Sparkles key={star} size={14} className={star <= review.score ? "text-yellow-400 fill-yellow-400" : "text-zinc-200"} />
-                      ))}
-                    </div>
-                    <p className="text-zinc-700 text-[15px] leading-relaxed mb-3">"{reviewText}"</p>
-                    <div className="flex gap-4 text-[12px] font-medium">
-                      <span className="flex items-center gap-1.5 text-zinc-500 bg-zinc-50 px-3 py-1 rounded-full border border-black/5">Order: <strong className="text-zinc-800">{review.order_id}</strong></span>
-                      <span className="flex items-center gap-1.5 text-zinc-500 bg-zinc-50 px-3 py-1 rounded-full border border-black/5">Category: <strong className="text-zinc-800 capitalize">{review.product_category}</strong></span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 shrink-0">
-                  <button 
-                    onClick={() => onAction(`Nilaikan maklum balas pelanggan ini menggunakan JEV System-1: "${reviewText}" dan tentukan tindakan operasi.`)} 
-                    className="px-4 py-2 text-[12px] font-semibold rounded-full bg-red-600 hover:bg-red-700 text-white transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
-                  >
-                    <Flame size={13} />
-                    <span>JEV Triage</span>
-                  </button>
-                  <button 
-                    onClick={() => onAction(`Draf respons pelanggan di Gmail untuk ulasan ${review.review_id} bagi pesanan ${review.order_id}.`)} 
-                    className="px-4 py-1.5 text-[11px] font-medium rounded-full bg-white border border-black/10 text-zinc-600 hover:text-black hover:border-black/20 transition-colors"
-                  >
-                    Draf Emel
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
     </div>
-  </div>
   );
 };
 
@@ -1026,50 +1166,61 @@ const ReportsView = ({ onAction }: { onAction: (msg?: string) => void }) => {
   };
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex justify-between items-end mb-8 pl-2">
-          <div>
-            <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">Laporan Analisis Perniagaan</h2>
-            <p className="text-zinc-500 mt-1 text-[15px] font-medium">Laporan eksekutif operasi yang dijana secara automatik.</p>
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 text-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-4 sm:gap-5 md:gap-6">
+        {/* Header Banner - Responsive CSS Grid */}
+        <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 border border-white/10 bg-[#121420] shadow-xl grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+          <div className="sm:col-span-8">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#CFFF5E] animate-pulse" />
+              <span className="text-[11px] font-extrabold tracking-wider text-[#CFFF5E] uppercase">Analisis Perniagaan & GMV</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Laporan Analisis Perniagaan</h2>
+            <p className="text-zinc-400 mt-1 text-xs sm:text-sm font-medium">Laporan eksekutif operasi yang dijana secara pintar oleh Gemini 2.5 Flash.</p>
           </div>
-          <button onClick={handleGenerateReport} className="px-5 py-2.5 bg-black text-white rounded-full text-[13px] font-medium hover:bg-zinc-800 transition-colors cursor-pointer">
-            + Jana Laporan AI
-          </button>
+          <div className="sm:col-span-4 flex justify-start sm:justify-end">
+            <button 
+              onClick={handleGenerateReport} 
+              className="px-5 py-2.5 bg-[#CFFF5E] text-black rounded-full text-xs font-black hover:bg-[#d8ff6b] transition-all cursor-pointer shadow-[0_0_15px_rgba(207,255,94,0.35)] flex items-center gap-2 active:scale-95"
+            >
+              <Sparkles size={14} />
+              <span>+ Jana Laporan AI</span>
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {MOCK_DB.reports.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-black/[0.04]">
-              <p className="text-zinc-400 font-medium">Belum ada laporan dijana. Minta ejen menjana laporan prestasi.</p>
+            <div className="text-center py-20 bg-[#121420] rounded-3xl border border-white/10">
+              <p className="text-zinc-400 font-medium">Belum ada laporan dijana. Klik butang di atas untuk meminta ejen menjana laporan.</p>
             </div>
           ) : (
             [...MOCK_DB.reports].reverse().map((report, i) => (
-              <div key={i} className="bg-white rounded-[32px] border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden hover:border-black/10 transition-all">
-                <div className="bg-zinc-50/50 px-10 py-6 border-b border-black/[0.04] flex justify-between items-center">
-                  <h3 className="font-semibold text-[20px] text-zinc-900 tracking-tight">{report.title}</h3>
-                  <span className="text-[12px] font-medium bg-white text-zinc-600 px-4 py-1.5 rounded-full border border-black/5">{report.year}</span>
+              <div key={i} className="bg-[#121420] rounded-[28px] border border-white/10 shadow-xl overflow-hidden hover:border-[#CFFF5E]/40 transition-all">
+                <div className="bg-[#161828] px-6 sm:px-8 py-5 border-b border-white/10 flex justify-between items-center">
+                  <h3 className="font-extrabold text-[18px] text-white tracking-tight">{report.title}</h3>
+                  <span className="text-[11px] font-mono font-bold bg-[#CFFF5E]/15 text-[#CFFF5E] px-3.5 py-1 rounded-full border border-[#CFFF5E]/30">{report.year}</span>
                 </div>
-                <div className="p-10">
-                  <h4 className="font-semibold text-zinc-900 mb-3 text-[15px]">Executive Summary</h4>
-                  <p className="text-zinc-500 leading-relaxed mb-10 font-medium text-[14px]">{report.executive_summary}</p>
+                <div className="p-6 sm:p-8">
+                  <h4 className="font-bold text-white mb-2 text-[14px] uppercase tracking-wider text-[#CFFF5E]">Ringkasan Eksekutif</h4>
+                  <p className="text-zinc-300 leading-relaxed mb-8 font-medium text-[13.5px]">{report.executive_summary}</p>
                   
                   {report.metrics && report.metrics.length > 0 && (
-                    <div className="mb-12">
-                      <h4 className="font-semibold text-zinc-900 mb-5 text-[15px]">Key Performance Metrics</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="mb-8">
+                      <h4 className="font-bold text-white mb-4 text-[14px]">Metrik Prestasi Utama</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {report.metrics.filter((m: any) => m.value !== 'N/A' && m.value !== 'n/a').map((m: any, idx: number) => (
-                          <div key={idx} className="p-6 bg-zinc-50/50 border border-black/[0.04] rounded-3xl">
-                            <span className="text-[11px] text-zinc-400 font-medium uppercase tracking-wider block mb-2">{m.label}</span>
-                            <div className="flex items-end gap-3">
-                              <span className="text-[28px] font-semibold text-zinc-900 tracking-tight leading-none">
+                          <div key={idx} className="p-5 bg-[#161826] border border-white/10 rounded-2xl">
+                            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-1.5">{m.label}</span>
+                            <div className="flex items-end gap-2.5">
+                              <span className="text-[24px] font-black text-white tracking-tight leading-none">
                                 {m.label.toLowerCase().includes('revenue') || m.label.toLowerCase().includes('value') || m.label.toLowerCase().includes('price') || m.label.toLowerCase().includes('cost') || m.label.toLowerCase().includes('amount') ? 'RM ' : ''}
                                 {m.value?.toLocaleString() || 0}
                               </span>
                               {m.trend && m.trend !== 'N/A' && m.trend !== 'n/a' && (
                                 <span className={cn(
-                                  "text-[13px] font-semibold mb-1",
-                                  m.trend.startsWith('+') ? "text-emerald-500" : m.trend.startsWith('-') ? "text-red-500" : "text-zinc-400"
+                                  "text-[12px] font-bold mb-0.5",
+                                  m.trend.startsWith('+') ? "text-[#CFFF5E]" : m.trend.startsWith('-') ? "text-red-400" : "text-zinc-400"
                                 )}>
                                   {m.trend}
                                 </span>
@@ -1082,24 +1233,24 @@ const ReportsView = ({ onAction }: { onAction: (msg?: string) => void }) => {
                   )}
 
                   {report.detailed_analysis && (
-                    <div className="mb-12 border-t border-black/[0.04] pt-10">
-                      <h4 className="font-semibold text-zinc-900 mb-5 text-[15px]">Detailed Analysis</h4>
-                      <div className="markdown-body text-zinc-500 text-[14px] leading-relaxed font-medium">
+                    <div className="mb-8 border-t border-white/10 pt-6">
+                      <h4 className="font-bold text-white mb-4 text-[14px]">Analisis Terperinci</h4>
+                      <div className="markdown-body text-zinc-300 text-[13.5px] leading-relaxed font-medium">
                         <ReactMarkdown>{report.detailed_analysis}</ReactMarkdown>
                       </div>
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-black/[0.04] pt-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
                     <div>
-                      <h4 className="font-semibold text-zinc-900 mb-5 text-[15px]">Key Insights</h4>
-                      <div className="grid gap-4">
+                      <h4 className="font-bold text-white mb-3 text-[14px]">Wawasan Utama (Insights)</h4>
+                      <div className="grid gap-3">
                         {report.key_insights?.map((insight: string, idx: number) => (
-                          <div key={idx} className="bg-zinc-50/50 p-5 rounded-[24px] flex items-start gap-4 border border-black/[0.02]">
-                            <div className="w-6 h-6 rounded-full bg-white border border-black/5 flex items-center justify-center shrink-0">
-                              <CheckCircle2 size={12} className="text-zinc-400" />
+                          <div key={idx} className="bg-[#161826] p-4 rounded-2xl flex items-start gap-3 border border-white/5">
+                            <div className="w-5 h-5 rounded-full bg-[#CFFF5E]/20 text-[#CFFF5E] flex items-center justify-center shrink-0 mt-0.5">
+                              <CheckCircle2 size={12} />
                             </div>
-                            <span className="text-zinc-600 font-medium leading-relaxed text-[13.5px]">{insight}</span>
+                            <span className="text-zinc-300 font-medium leading-relaxed text-[12.5px]">{insight}</span>
                           </div>
                         ))}
                       </div>
@@ -1107,14 +1258,14 @@ const ReportsView = ({ onAction }: { onAction: (msg?: string) => void }) => {
 
                     {report.recommendations && (
                       <div>
-                        <h4 className="font-semibold text-zinc-900 mb-5 text-[15px]">Strategic Recommendations</h4>
-                        <div className="grid gap-4">
+                        <h4 className="font-bold text-white mb-3 text-[14px]">Cadangan Strategik</h4>
+                        <div className="grid gap-3">
                           {report.recommendations?.map((rec: string, idx: number) => (
-                            <div key={idx} className="bg-zinc-900 text-white p-5 rounded-[24px] flex items-start gap-4">
-                              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                                <Sparkles size={12} className="text-white/80" />
+                            <div key={idx} className="bg-gradient-to-r from-[#181A2A] to-[#1E2236] text-white p-4 rounded-2xl flex items-start gap-3 border border-[#CFFF5E]/30">
+                              <div className="w-5 h-5 rounded-full bg-[#CFFF5E] text-black flex items-center justify-center shrink-0 mt-0.5">
+                                <Sparkles size={11} />
                               </div>
-                              <span className="text-zinc-200 font-medium leading-relaxed text-[13.5px]">{rec}</span>
+                              <span className="text-zinc-100 font-medium leading-relaxed text-[12.5px]">{rec}</span>
                             </div>
                           ))}
                         </div>
@@ -1138,218 +1289,44 @@ const DashboardsView = ({
   onAction: (msg?: string) => void;
   setActiveTab?: (tab: string) => void;
 }) => {
-  const handleGenerateDashboard = () => {
-    onAction("Bina dashboard analitik visual operasi Abang Colek merangkumi prestasi jualan hab utama (Johor Bahru, Shah Alam, Terengganu, Bangi), taburan isu botol bocor, dan KPI krew pop-up.");
-  };
-
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex justify-between items-end mb-8 pl-2">
-          <div>
-            <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">Papan Pemuka Analitik Operasi</h2>
-            <p className="text-zinc-500 mt-1 text-[15px] font-medium">Metrik visual jualan hab, pecahan produk, dan status kualiti botol.</p>
-          </div>
-          <button onClick={handleGenerateDashboard} className="px-5 py-2.5 bg-black text-white rounded-full text-[13px] font-medium hover:bg-zinc-800 transition-colors cursor-pointer">
-            + Bina Dashboard AI
-          </button>
-        </div>
+    <div className="w-full min-h-full overflow-y-auto">
+      {/* 2026 Pinterest & Dribbble Inspired High-Density Bento Grid Dashboard */}
+      <ModernBentoDashboard onAction={onAction} setActiveTab={setActiveTab} />
 
-        {/* Real-time Agent Insight Card (Supabase Telemetry) */}
-        <div className="mb-6">
-          <AgentInsightCard 
-            onAction={onAction}
-            onViewFullPerformance={() => setActiveTab && setActiveTab('agent_performance')}
-          />
-        </div>
+      {/* Dynamic User/Agent-Generated Dashboards (if any exist in MOCK_DB) */}
+      {MOCK_DB.dashboards.length > 0 && (
+        <div className="max-w-7xl mx-auto px-3 sm:px-5 md:px-6 lg:px-8 pb-12 pt-4">
+          <div className="pt-8 border-t border-white/10">
+            <h3 className="text-xl font-black text-white tracking-tight mb-4 flex items-center gap-2">
+              <Sparkles size={18} className="text-[#FFC107]" />
+              <span>Laporan Analisis Khas Dijana Ejen AI ({MOCK_DB.dashboards.length})</span>
+            </h3>
 
-        <div className="grid gap-6">
-          {MOCK_DB.dashboards.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-black/[0.04]">
-              <p className="text-zinc-400 font-medium">No dashboards created yet. Ask the agent to create a dashboard for sales metrics.</p>
-            </div>
-          ) : (
-            [...MOCK_DB.dashboards].reverse().map((dashboard, i) => {
-              const mainChartMax = Math.max(...(dashboard.main_chart?.data || []).map((m: any) => m.value || 0));
-              const secondaryChartMax = Math.max(...(dashboard.secondary_chart?.data || []).map((m: any) => m.value || 0));
-
-              return (
-                <div key={i} className="flex flex-col gap-6 mb-12">
-                  <h3 className="font-semibold text-2xl text-zinc-900 tracking-tight pl-2">{dashboard.title}</h3>
-                  
-                  {/* KPIs Row */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {dashboard.kpis?.filter((kpi: any) => kpi.value !== 'N/A' && kpi.value !== 'n/a').map((kpi: any, idx: number) => (
-                      <div key={idx} className="bg-white p-6 rounded-3xl border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between hover:border-black/10 transition-all">
-                        <span className="text-[12px] text-zinc-400 font-medium uppercase tracking-wider mb-2">{kpi.label}</span>
-                        <div className="flex items-end justify-between">
-                          <span className="text-2xl font-bold text-zinc-900 tracking-tight leading-none">{kpi.value}</span>
-                          {kpi.trend && kpi.trend !== 'N/A' && kpi.trend !== 'n/a' && (
-                            <span className={cn(
-                              "text-[12px] font-semibold",
-                              kpi.trend.startsWith('+') ? "text-emerald-500" : kpi.trend.startsWith('-') ? "text-red-500" : "text-zinc-400"
-                            )}>
-                              {kpi.trend}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+            <div className="grid grid-cols-1 gap-6">
+              {[...MOCK_DB.dashboards].reverse().map((dashboard, i) => (
+                <div key={i} className="p-6 rounded-3xl bg-[#121420] border border-white/10 shadow-xl space-y-4 text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <h4 className="font-bold text-lg text-white">{dashboard.title}</h4>
+                    <span className="text-xs font-mono text-[#CFFF5E]">Custom Report #{i + 1}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Main Chart */}
-                    <div className="lg:col-span-2 bg-white p-8 rounded-[32px] border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col">
-                      <h4 className="font-semibold text-[17px] text-zinc-900 tracking-tight mb-1">{dashboard.main_chart?.title}</h4>
-                      <p className="text-[10px] text-zinc-400 font-medium mb-8 uppercase tracking-wider">{dashboard.main_chart?.type} Chart</p>
-                      
-                      <div className="flex-1 flex flex-col justify-start gap-5">
-                        {dashboard.main_chart?.data?.map((metric: any, idx: number) => {
-                          const heightPercent = mainChartMax > 0 ? (metric.value / mainChartMax) * 100 : 0;
-                          return (
-                            <div key={idx} className="flex items-center gap-5">
-                              <div className="w-24 text-[13px] font-medium text-zinc-500 truncate text-right">{metric.label}</div>
-                              <div className="flex-1 h-9 bg-zinc-50/80 rounded-full flex items-center border border-black/5 p-1.5 relative overflow-hidden">
-                                <motion.div 
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${Math.max(heightPercent, 5)}%` }}
-                                  className="h-full bg-black rounded-full shadow-sm absolute left-1.5"
-                                />
-                                <span className={cn("text-[12px] font-semibold tracking-tight absolute z-10", heightPercent > 15 ? "text-white left-4" : "text-zinc-700 left-8")} style={{ left: heightPercent > 15 ? 16 : `calc(${Math.max(heightPercent, 5)}% + 14px)` }}>
-                                  {metric.value.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-6">
-                      {/* Secondary Chart */}
-                      <div className="bg-white p-8 rounded-[32px] border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex-1">
-                        <h4 className="font-semibold text-[15px] text-zinc-900 tracking-tight mb-1">{dashboard.secondary_chart?.title}</h4>
-                        <p className="text-[10px] text-zinc-400 font-medium mb-6 uppercase tracking-wider">{dashboard.secondary_chart?.type} Chart</p>
-                        
-                        <div className="flex flex-col gap-4">
-                          {dashboard.secondary_chart?.data?.map((metric: any, idx: number) => {
-                            const pct = secondaryChartMax > 0 ? (metric.value / secondaryChartMax) * 100 : 0;
-                            return (
-                              <div key={idx} className="flex flex-col gap-1.5">
-                                <div className="flex justify-between text-[12px] font-medium">
-                                  <span className="text-zinc-600 truncate mr-2">{metric.label}</span>
-                                  <span className="text-zinc-900 font-semibold">{metric.value.toLocaleString()}</span>
-                                </div>
-                                <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${pct}%` }}
-                                    className="h-full bg-black rounded-full"
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
+                  {dashboard.kpis && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                      {dashboard.kpis.map((kpi: any, idx: number) => (
+                        <div key={idx} className="p-3.5 rounded-2xl bg-[#161826] border border-white/5">
+                          <span className="text-[10px] font-bold uppercase text-zinc-400 block mb-1">{kpi.label}</span>
+                          <span className="text-xl font-black text-white">{kpi.value}</span>
                         </div>
-                      </div>
-
-                      {/* Recent Activity */}
-                      <div className="bg-white p-8 rounded-[32px] border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex-1">
-                        <h4 className="font-semibold text-[15px] text-zinc-900 tracking-tight mb-6">Quick Insights</h4>
-                        <div className="flex flex-col gap-4">
-                          {dashboard.recent_activity?.map((activity: any, idx: number) => (
-                            <div key={idx} className="flex items-start gap-3">
-                              <div className="w-5 h-5 rounded-full bg-zinc-50 border border-black/5 flex items-center justify-center shrink-0 mt-0.5">
-                                <Activity size={10} className="text-zinc-400" />
-                              </div>
-                              <p className="text-[13px] text-zinc-600 leading-relaxed font-medium">{activity.text}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </div>
-              );
-            })
-          )}
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const BottomNav = ({ 
-  activeTab, 
-  setActiveTab, 
-  isToolOrPluginInProgress 
-}: { 
-  activeTab: string; 
-  setActiveTab: (t: string) => void;
-  isToolOrPluginInProgress?: boolean;
-}) => {
-  const menuItems = [
-    { id: 'discovery', label: 'Discovery', icon: Flame },
-    { id: 'chat', label: 'Chat', icon: Bot },
-    { id: 'agent_performance', label: 'Prestasi', icon: Gauge },
-    { id: 'bus_freight', label: 'Bas & Ejen', icon: Truck },
-    { id: 'plugins', label: 'Plugins', icon: Zap },
-    { id: 'gmail', label: 'Gmail', icon: Mail },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'sheets', label: 'Sheets', icon: FileSpreadsheet },
-    { id: 'forms', label: 'Forms', icon: FolderOpen },
-    { id: 'maps', label: 'Map', icon: MapPin },
-    { id: 'dashboards', label: 'Stats', icon: Activity },
-  ];
-
-  return (
-    <div className="md:hidden flex items-center justify-around bg-[#FFFDF5] border-t border-[#FFC107]/40 px-2 py-2.5 shrink-0 pb-safe overflow-x-auto shadow-md">
-      {menuItems.map((item) => {
-        const isChat = item.id === 'chat';
-        const isExecuting = isChat && isToolOrPluginInProgress;
-
-        return (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all shrink-0",
-              activeTab === item.id 
-                ? "bg-[#1A1A1A] text-[#FFC107] border border-[#FFC107]/80 shadow-xs font-black" 
-                : "text-zinc-600 hover:text-[#E53935]",
-              isExecuting && activeTab !== item.id && "text-[#E53935] font-bold"
-            )}
-          >
-            {isExecuting ? (
-              <div className="relative flex items-center justify-center">
-                <motion.div
-                  animate={{ scale: [1, 1.25, 1], opacity: [0.8, 1, 0.8] }}
-                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                  className="flex items-center justify-center"
-                >
-                  <item.icon 
-                    size={18} 
-                    strokeWidth={activeTab === item.id ? 2.5 : 2} 
-                    className="text-[#FFC107]" 
-                  />
-                </motion.div>
-                <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2 pointer-events-none">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFC107] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E53935]" />
-                </span>
-              </div>
-            ) : (
-              <item.icon 
-                size={18} 
-                strokeWidth={activeTab === item.id ? 2.5 : 2} 
-                className={activeTab === item.id ? "text-[#FFC107]" : ""}
-              />
-            )}
-            <span className="text-[10px] font-bold">{item.label}</span>
-          </button>
-        );
-      })}
+      )}
     </div>
   );
 };
@@ -1442,16 +1419,16 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen font-sans text-zinc-900 bg-[#FFFDF7] overflow-hidden selection:bg-[#E53935] selection:text-white relative">
+    <div className="grid grid-rows-[auto_1fr] h-screen w-full font-sans text-zinc-100 bg-[#090A10] overflow-hidden selection:bg-[#CFFF5E] selection:text-black relative">
       {quotaExceeded && (
-        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm shrink-0">
+        <div className="bg-amber-950/90 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm shrink-0">
           <span>
             Google Maps Platform quota reached. If you are the app owner, visit{' '}
             <a
               href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline font-semibold text-amber-950 hover:text-amber-800"
+              className="underline font-semibold text-[#FFC107]"
             >
               maps developer site
             </a>{' '}
@@ -1459,44 +1436,27 @@ export default function App() {
           </span>
         </div>
       )}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+
+      {/* Global Command Header (Orbital Style) - Grid Row 1 */}
+      <GlobalCommandHeader 
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onAction={handleAction}
+      />
+
+      {/* Unified Master Shell: Mobile-First CSS Grid (1-col on mobile, 2-col [295px_1fr] on md:) */}
+      <div className="grid grid-cols-1 md:grid-cols-[295px_1fr] min-h-0 h-full w-full overflow-hidden relative">
         <Sidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           isToolOrPluginInProgress={isToolOrPluginInProgress}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onAction={handleAction}
         />
-        
-        {/* Mobile Header with Official Logo */}
-        <div className="md:hidden flex items-center justify-between px-5 pt-4 pb-3 shrink-0 bg-[#FFFDF5] border-b border-[#FFC107]/40 shadow-xs">
-          <button onClick={() => setActiveTab('discovery')} className="flex items-center gap-2.5 text-left">
-            <img 
-              src="/assets/brand/ABANG-COLEX-LOGO-2.png" 
-              alt="Abang Colek" 
-              className="h-9 w-auto object-contain"
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            />
-            <div className="flex flex-col">
-              <span className="text-base font-black text-[#1A1A1A] tracking-tight">ABANG COLEK OS</span>
-              <span className="text-[9px] font-bold text-[#E53935] uppercase tracking-wider">Liurleleh House Malaysia</span>
-            </div>
-          </button>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsCommandPaletteOpen(true)}
-              className="p-1.5 rounded-xl bg-white border border-[#FFC107]/50 text-zinc-700 hover:text-black shadow-2xs cursor-pointer"
-              title="Cari arahan (Ctrl+K)"
-            >
-              <Search size={16} className="text-[#E53935]" />
-            </button>
-            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-[#E53935] text-white shadow-xs">
-              🌶️ Padu
-            </span>
-          </div>
-        </div>
 
-        <main className="flex-1 flex flex-col overflow-hidden relative px-4 pb-4 pt-2 md:pt-6 md:pb-6 md:pr-6 md:pl-2">
-          <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden relative">
+        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-4 bg-[#090A10]">
+          <div className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
             {activeTab === 'discovery' && <AbangColekDiscoveryView onAction={handleAction} />}
             {activeTab === 'chat' && (
               <ChatInterface 
@@ -1527,16 +1487,18 @@ export default function App() {
             {activeTab === 'dashboards' && <DashboardsView onAction={handleAction} setActiveTab={setActiveTab} />}
           </div>
           
-          <div className="mt-4 px-4 text-[11px] text-zinc-400 text-center md:text-right shrink-0">
-            Intelligence & Discovery via <a href="https://github.com/thisisabangcolek-web/Abang-Colek.git" target="_blank" className="underline hover:text-zinc-600 font-medium">ABANGCOLEK Discovery Engine (v4.2.0)</a>
+          <div className="mt-1 px-4 text-[10.5px] text-zinc-500 text-center md:text-right shrink-0">
+            Intelligence & Discovery via <a href="https://github.com/thisisabangcolek-web/Abang-Colek.git" target="_blank" className="underline hover:text-zinc-400 font-medium">ABANGCOLEK Discovery Engine (v4.2.0)</a>
           </div>
         </main>
       </div>
 
-      <BottomNav 
+      {/* Floating Neo-Dock (from Image 1 / Smart Cockpit Concept) */}
+      <FloatingNeoDock 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        isToolOrPluginInProgress={isToolOrPluginInProgress} 
+        isToolOrPluginInProgress={isToolOrPluginInProgress}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* Global Command Palette (Ctrl+K / Cmd+K) */}

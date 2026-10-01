@@ -98,22 +98,22 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-white rounded-[32px] border border-black/[0.04] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden relative">
+    <div className="flex flex-col h-full w-full bg-[#121420] text-white rounded-[24px] sm:rounded-[32px] border border-white/10 shadow-2xl overflow-hidden relative">
       {/* Header */}
-      <header className="px-6 py-4 border-b border-black/[0.04] flex flex-wrap items-center justify-between gap-4 shrink-0 bg-white z-10">
+      <header className="px-5 sm:px-6 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4 shrink-0 bg-[#121420] z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100/60 shadow-xs">
-            <Navigation className="text-emerald-600" size={20} />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-950/80 flex items-center justify-center border border-emerald-800/40 shadow-xs">
+            <Navigation className="text-emerald-400" size={20} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-2">
               Abang Colek Fleet & Logistics Map (Google Maps)
-              <span className="text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-bold bg-[#181A2A] text-[#CFFF5E] border border-[#CFFF5E]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#CFFF5E] animate-pulse" />
                 Live Map
               </span>
             </h1>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-400 font-medium">
               Interactive fleet tracking for Abang Colek pop-up stalls, runner dispatches, and outstation deliveries across Malaysia.
             </p>
           </div>
@@ -124,7 +124,7 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
           <select
             value={selectedCity}
             onChange={(e) => handleCitySelect(e.target.value)}
-            className="text-xs bg-zinc-50 border border-black/10 rounded-full px-3 py-1.5 text-zinc-700 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+            className="text-xs bg-[#161826] border border-white/10 rounded-full px-3 py-1.5 text-zinc-200 focus:outline-hidden focus:ring-2 focus:ring-[#CFFF5E] font-medium"
           >
             <option value="all">Semua Wilayah (Malaysia)</option>
             <option value="johor bahru">Johor Bahru (HQ & Pop-up Toppen)</option>
@@ -140,7 +140,7 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs bg-zinc-50 border border-black/10 rounded-full px-3 py-1.5 text-zinc-700 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+            className="text-xs bg-[#161826] border border-white/10 rounded-full px-3 py-1.5 text-zinc-200 focus:outline-hidden focus:ring-2 focus:ring-[#CFFF5E] font-medium"
           >
             <option value="all">All Order Statuses</option>
             <option value="delayed">⚠️ Delayed Only</option>
@@ -223,28 +223,28 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
           </APIProvider>
         </div>
 
-        {/* Sidebar Info Panel (30% on desktop) */}
-        <div className="w-full md:w-[360px] border-t md:border-t-0 md:border-l border-black/[0.04] bg-zinc-50/50 flex flex-col shrink-0 overflow-y-auto p-5 space-y-4">
+        {/* Sidebar Info Panel (Mobile-first responsive layout) */}
+        <div className="w-full md:w-[360px] border-t md:border-t-0 md:border-l border-white/10 bg-[#10121C] flex flex-col shrink-0 overflow-y-auto p-5 space-y-4">
           {/* Quick Metrics */}
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="p-3 bg-white rounded-2xl border border-black/[0.04] shadow-xs">
+            <div className="p-3.5 bg-[#161826] rounded-2xl border border-white/10 shadow-xs">
               <span className="text-[10px] uppercase font-bold text-zinc-400">Visible Shipments</span>
-              <div className="text-lg font-bold text-zinc-900 mt-0.5">{filteredOrders.length}</div>
+              <div className="text-lg font-black text-white mt-0.5">{filteredOrders.length}</div>
             </div>
-            <div className="p-3 bg-white rounded-2xl border border-black/[0.04] shadow-xs">
-              <span className="text-[10px] uppercase font-bold text-red-500">Delayed Shipments</span>
-              <div className="text-lg font-bold text-red-600 mt-0.5">{delayedOrders.length}</div>
+            <div className="p-3.5 bg-[#161826] rounded-2xl border border-white/10 shadow-xs">
+              <span className="text-[10px] uppercase font-bold text-red-400">Delayed Shipments</span>
+              <div className="text-lg font-black text-[#FF4757] mt-0.5">{delayedOrders.length}</div>
             </div>
           </div>
 
           {/* Delayed Orders Callout */}
           {delayedOrders.length > 0 && (
-            <div className="p-3.5 bg-red-50/80 border border-red-200/60 rounded-2xl space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-red-800">
-                <AlertTriangle size={15} />
+            <div className="p-3.5 bg-red-950/80 border border-red-800/40 rounded-2xl space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-red-300">
+                <AlertTriangle size={15} className="text-[#FF4757]" />
                 <span>Bottlenecks Detected</span>
               </div>
-              <p className="text-[11px] text-red-700 leading-relaxed">
+              <p className="text-[11px] text-red-200 leading-relaxed font-medium">
                 {delayedOrders.length} orders are delayed. Click any delayed pin on the map to issue an instant refund or notify the customer.
               </p>
             </div>
@@ -252,10 +252,10 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
 
           {/* Orders Feed */}
           <div className="space-y-2 flex-1">
-            <span className="text-xs font-bold text-zinc-800 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
               Shipment Dispatch Log
             </span>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
               {filteredOrders.slice(0, 15).map((order) => (
                 <div
                   key={order.order_id}
@@ -264,19 +264,19 @@ export const MapsView: React.FC<MapsViewProps> = ({ onAction }) => {
                     setMapCenter({ lat: order.lat, lng: order.lng });
                     setZoom(12);
                   }}
-                  className="p-3 bg-white rounded-xl border border-black/[0.03] hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between shadow-xs"
+                  className="p-3 bg-[#161826] rounded-xl border border-white/10 hover:border-[#CFFF5E]/40 transition-all cursor-pointer flex items-center justify-between shadow-xs group"
                 >
                   <div>
-                    <div className="text-xs font-semibold text-zinc-800 truncate capitalize">
+                    <div className="text-xs font-bold text-white truncate capitalize group-hover:text-[#CFFF5E]">
                       {order.city} Delivery
                     </div>
-                    <div className="text-[10px] text-zinc-400">
+                    <div className="text-[10px] text-zinc-400 font-mono">
                       ID: #{order.order_id.slice(-6)} • RM {order.amount}
                     </div>
                   </div>
                   <span className={cn(
-                    "text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0",
-                    order.status === 'Delayed' ? "bg-red-50 text-red-700 border border-red-200/60" : "bg-emerald-50 text-emerald-700"
+                    "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                    order.status === 'Delayed' ? "bg-red-950/80 text-red-400 border border-red-800/40" : "bg-emerald-950/80 text-emerald-400 border border-emerald-800/40"
                   )}>
                     {order.status}
                   </span>

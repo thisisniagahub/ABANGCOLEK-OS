@@ -117,38 +117,38 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   const refundedCount = orders.filter(o => o.status === 'Refunded').length;
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto">
-      <div className="max-w-6xl mx-auto space-y-6 pb-12">
-        {/* Header with Live Supabase Status */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 pl-2">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 bg-[#090A10] text-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-4 sm:gap-5 md:gap-6">
+        {/* Header with Live Supabase Status - Unified Responsive CSS Grid */}
+        <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 border border-white/10 bg-[#121420] shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+          <div className="lg:col-span-8">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#CFFF5E]/15 text-[#CFFF5E] border border-[#CFFF5E]/30">
+                <span className="w-2 h-2 rounded-full bg-[#CFFF5E] animate-pulse" />
                 <span>Supabase Live ({SUPABASE_CONFIG.projectRef})</span>
               </span>
               <span className="text-[11px] font-mono text-zinc-400">PostgreSQL RLS Active</span>
             </div>
-            <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">Pangkalan Data Pesanan Langsung</h2>
-            <p className="text-zinc-500 mt-1 text-[15px] font-medium">
-              Data pesanan dibaca dan disegerak secara langsung daripada jadual <code className="font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-xs">public.orders</code> di Supabase.
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Pangkalan Data Pesanan Langsung</h2>
+            <p className="text-zinc-400 mt-1 text-xs sm:text-sm font-medium">
+              Data pesanan dibaca dan disegerak secara langsung daripada jadual <code className="font-mono text-[#CFFF5E] bg-white/5 px-1.5 py-0.5 rounded text-xs border border-white/10">public.orders</code> di Supabase.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="lg:col-span-4 flex items-center justify-start lg:justify-end gap-2.5 flex-wrap">
             <button
               onClick={handleSyncAllToSupabase}
               disabled={syncing}
-              className="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full text-[13px] font-medium transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 bg-[#181A2A] hover:bg-[#202438] text-zinc-200 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 border border-white/10"
               title="Segerakkan semua pesanan ke pangkalan data awan Supabase"
             >
-              <RefreshCw size={14} className={cn(syncing && "animate-spin text-emerald-600")} />
+              <RefreshCw size={13} className={cn(syncing && "animate-spin text-[#CFFF5E]")} />
               <span>Segerak Cloud</span>
             </button>
 
             <button 
               onClick={() => setShowAddModal(true)} 
-              className="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white rounded-full text-[13px] font-medium transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black rounded-full text-xs font-black transition-all shadow-[0_0_15px_rgba(207,255,94,0.35)] flex items-center gap-2 cursor-pointer"
             >
               <Plus size={15} />
               <span>+ Tambah Pesanan</span>
@@ -158,62 +158,62 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
 
         {/* Real-time Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-          <div className="bg-white p-4.5 rounded-2xl border border-black/5 shadow-xs">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Jumlah Pesanan</span>
-            <div className="text-2xl font-bold text-zinc-900">{orders.length}</div>
-            <span className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+          <div className="bg-[#121420] p-4.5 rounded-2xl border border-white/10 shadow-xl">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Jumlah Pesanan</span>
+            <div className="text-2xl font-black text-white">{orders.length}</div>
+            <span className="text-[11px] text-[#CFFF5E] font-medium mt-1 flex items-center gap-1">
               <CheckCircle2 size={12} />
               <span>Disegerak Realtime</span>
             </span>
           </div>
 
-          <div className="bg-white p-4.5 rounded-2xl border border-black/5 shadow-xs">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Nilai Jualan (GMV)</span>
-            <div className="text-2xl font-bold text-zinc-900 text-emerald-700">RM {totalGMV.toLocaleString()}</div>
+          <div className="bg-[#121420] p-4.5 rounded-2xl border border-white/10 shadow-xl">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Nilai Jualan (GMV)</span>
+            <div className="text-2xl font-black text-[#CFFF5E]">RM {totalGMV.toLocaleString()}</div>
             <span className="text-[11px] text-zinc-400 font-medium mt-1 block">Hasil pesanan sah</span>
           </div>
 
-          <div className="bg-white p-4.5 rounded-2xl border border-black/5 shadow-xs">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Berjaya Dihantar</span>
-            <div className="text-2xl font-bold text-zinc-900">{deliveredCount}</div>
-            <span className="text-[11px] text-zinc-500 font-medium mt-1 block">Kadar siap {orders.length ? Math.round((deliveredCount/orders.length)*100) : 0}%</span>
+          <div className="bg-[#121420] p-4.5 rounded-2xl border border-white/10 shadow-xl">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Berjaya Dihantar</span>
+            <div className="text-2xl font-black text-white">{deliveredCount}</div>
+            <span className="text-[11px] text-zinc-400 font-medium mt-1 block">Kadar siap {orders.length ? Math.round((deliveredCount/orders.length)*100) : 0}%</span>
           </div>
 
-          <div className="bg-white p-4.5 rounded-2xl border border-black/5 shadow-xs">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Aduan / Bayar Balik</span>
-            <div className="text-2xl font-bold text-red-600">{refundedCount}</div>
-            <span className="text-[11px] text-amber-700 font-medium mt-1 block">Invarian JEV Terpelihara</span>
+          <div className="bg-[#121420] p-4.5 rounded-2xl border border-white/10 shadow-xl">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Aduan / Bayar Balik</span>
+            <div className="text-2xl font-black text-[#FF4757]">{refundedCount}</div>
+            <span className="text-[11px] text-zinc-400 font-medium mt-1 block">Invarian JEV Terpelihara</span>
           </div>
         </div>
 
         {/* Add Order Modal */}
         {showAddModal && (
-          <div className="p-6 bg-white rounded-3xl border border-black/10 shadow-md space-y-4">
-            <div className="flex justify-between items-center">
+          <div className="p-6 bg-[#141624] rounded-3xl border border-white/15 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center pb-2 border-b border-white/10">
               <div>
-                <h3 className="font-bold text-base text-zinc-900">Daftar Pesanan Baharu ke Supabase</h3>
-                <p className="text-xs text-zinc-500">Rekod akan disimpan terus ke pangkalan data PostgreSQL awan.</p>
+                <h3 className="font-extrabold text-base text-white">Daftar Pesanan Baharu ke Supabase</h3>
+                <p className="text-xs text-zinc-400">Rekod akan disimpan terus ke pangkalan data PostgreSQL awan.</p>
               </div>
-              <button onClick={() => setShowAddModal(false)} className="text-xs font-semibold text-zinc-400 hover:text-zinc-700">Tutup</button>
+              <button onClick={() => setShowAddModal(false)} className="text-xs font-bold text-zinc-400 hover:text-white cursor-pointer">Tutup</button>
             </div>
             <form onSubmit={handleAddOrder} className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Nama / ID Pelanggan</label>
+                <label className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Nama / ID Pelanggan</label>
                 <input 
                   type="text" 
                   value={newCust} 
                   onChange={(e) => setNewCust(e.target.value)} 
                   placeholder="cth: Kak Mas (Stokis KT)"
                   required
-                  className="w-full px-3 py-2 bg-zinc-50 border border-black/10 rounded-xl text-xs font-medium focus:outline-none focus:border-black"
+                  className="w-full px-3 py-2 bg-[#10121C] border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-[#CFFF5E]/50"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Bandar / Hab</label>
+                <label className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Bandar / Hab</label>
                 <select 
                   value={newCity} 
                   onChange={(e) => setNewCity(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-50 border border-black/10 rounded-xl text-xs font-medium capitalize focus:outline-none focus:border-black"
+                  className="w-full px-3 py-2 bg-[#10121C] border border-white/10 rounded-xl text-xs font-medium text-white capitalize focus:outline-none focus:border-[#CFFF5E]/50"
                 >
                   <option value="johor bahru">Johor Bahru (HQ / Toppen)</option>
                   <option value="shah alam">Shah Alam (Central Hub)</option>
@@ -225,30 +225,30 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                 </select>
               </div>
               <div>
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Item Produk</label>
+                <label className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Item Produk</label>
                 <input 
                   type="text" 
                   value={newItems} 
                   onChange={(e) => setNewItems(e.target.value)} 
                   placeholder="cth: 3x Kuah Colek Buah Original (500g)"
                   required
-                  className="w-full px-3 py-2 bg-zinc-50 border border-black/10 rounded-xl text-xs font-medium focus:outline-none focus:border-black"
+                  className="w-full px-3 py-2 bg-[#10121C] border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-[#CFFF5E]/50"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Jumlah (RM)</label>
+                <label className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block mb-1">Jumlah (RM)</label>
                 <div className="flex gap-2">
                   <input 
                     type="number" 
                     value={newAmount} 
                     onChange={(e) => setNewAmount(e.target.value)} 
                     required
-                    className="w-full px-3 py-2 bg-zinc-50 border border-black/10 rounded-xl text-xs font-medium focus:outline-none focus:border-black"
+                    className="w-full px-3 py-2 bg-[#10121C] border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-[#CFFF5E]/50"
                   />
                   <button 
                     type="submit" 
                     disabled={syncing}
-                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shrink-0 cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2 bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black rounded-xl text-xs font-black shrink-0 cursor-pointer disabled:opacity-50"
                   >
                     {syncing ? 'Menyimpan...' : 'Simpan'}
                   </button>
@@ -259,29 +259,29 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
         )}
 
         {/* Filter and Search Bar */}
-        <div className="bg-white p-3.5 rounded-2xl border border-black/5 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="bg-[#121420] p-3 rounded-2xl border border-white/10 shadow-xl flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input 
               type="text"
               placeholder="Cari ID pesanan, pelanggan atau produk..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-zinc-50 rounded-xl text-xs font-medium border border-black/5 focus:outline-none focus:border-black/20"
+              className="w-full pl-9 pr-4 py-2 bg-[#10121C] rounded-xl text-xs font-medium text-white border border-white/10 focus:outline-none focus:border-[#CFFF5E]/50 placeholder:text-zinc-500"
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
             <Filter size={13} className="text-zinc-400 shrink-0" />
             {['all', 'johor bahru', 'kuala terengganu', 'shah alam', 'bangi', 'penang'].map(city => (
               <button
                 key={city}
                 onClick={() => setSelectedCity(city)}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors shrink-0 capitalize",
+                  "px-3 py-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 capitalize cursor-pointer",
                   selectedCity === city 
-                    ? "bg-black text-white" 
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    ? "bg-[#CFFF5E] text-black shadow-[0_0_12px_rgba(207,255,94,0.35)]" 
+                    : "bg-[#181A2A] text-zinc-300 hover:text-white border border-white/10"
                 )}
               >
                 {city === 'all' ? 'Semua Hab' : city}
@@ -293,59 +293,59 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
         {/* Orders Table Cards */}
         <div className="grid gap-3.5">
           {loading ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-black/[0.04]">
-              <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="text-center py-20 bg-[#121420] rounded-3xl border border-white/10">
+              <div className="w-8 h-8 border-2 border-[#CFFF5E] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-zinc-400 font-medium text-xs">Memuat turun pesanan daripada Supabase PostgreSQL...</p>
             </div>
           ) : filteredOrders.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-black/[0.04]">
+            <div className="text-center py-20 bg-[#121420] rounded-3xl border border-white/10">
               <p className="text-zinc-400 font-medium">Tiada pesanan ditemui sepadan dengan carian.</p>
             </div>
           ) : (
             filteredOrders.map((order, i) => (
               <div 
                 key={order.id || order.order_id || i} 
-                className="bg-white p-5 md:p-6 rounded-3xl border border-black/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-black/10"
+                className="bg-[#121420] p-5 md:p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-[#CFFF5E]/40 group"
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <h3 className="font-bold text-base md:text-lg text-zinc-900 font-mono">{order.order_id}</h3>
-                    <span className="px-3 py-0.5 bg-zinc-50 rounded-full text-xs font-semibold text-zinc-700 border border-black/5 capitalize">
+                    <h3 className="font-black text-base md:text-lg text-white font-mono">{order.order_id}</h3>
+                    <span className="px-3 py-0.5 bg-[#181A2A] rounded-full text-xs font-bold text-zinc-300 border border-white/10 capitalize">
                       {order.city}
                     </span>
                     <span className={cn(
-                      "px-2.5 py-0.5 text-xs font-bold rounded-full border",
-                      order.status === 'Delivered' ? "bg-emerald-50 border-emerald-200 text-emerald-700" : 
-                      order.status === 'Delayed' ? "bg-red-50 border-red-200 text-red-700" :
-                      order.status === 'Refunded' ? "bg-zinc-100 border-black/10 text-zinc-600" :
-                      "bg-blue-50 border-blue-200 text-blue-700"
+                      "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full border",
+                      order.status === 'Delivered' ? "bg-emerald-950/80 border-emerald-800/40 text-emerald-400" : 
+                      order.status === 'Delayed' ? "bg-red-950/80 border-red-800/40 text-red-400" :
+                      order.status === 'Refunded' ? "bg-zinc-800 border-white/10 text-zinc-300" :
+                      "bg-blue-950/80 border-blue-800/40 text-blue-400"
                     )}>
                       {order.status}
                     </span>
                   </div>
 
-                  <p className="text-xs font-medium text-zinc-700">
-                    <strong className="text-zinc-900">Produk:</strong> {order.items}
+                  <p className="text-xs font-medium text-zinc-300">
+                    <strong className="text-white">Produk:</strong> {order.items}
                   </p>
 
                   {order.refund_reason && (
-                    <p className="text-[11px] font-semibold text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-100">
+                    <p className="text-[11px] font-bold text-amber-300 bg-amber-950/60 p-2 rounded-xl border border-amber-800/40">
                       {order.refund_reason}
                     </p>
                   )}
 
-                  <div className="flex flex-wrap gap-5 text-xs text-zinc-600 pt-1">
+                  <div className="flex flex-wrap gap-5 text-xs text-zinc-400 pt-1">
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Pelanggan</span>
-                      <strong className="text-zinc-900 text-xs font-semibold">{order.customer_name}</strong>
+                      <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Pelanggan</span>
+                      <strong className="text-white text-xs font-bold">{order.customer_name}</strong>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Jumlah</span>
-                      <strong className="text-emerald-700 text-xs font-bold">RM {order.amount.toLocaleString()}</strong>
+                      <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Jumlah</span>
+                      <strong className="text-[#CFFF5E] text-xs font-black">RM {order.amount.toLocaleString()}</strong>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Tarikh Rekod</span>
-                      <strong className="text-zinc-600 text-xs font-medium">{new Date(order.created_at).toLocaleDateString()}</strong>
+                      <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Tarikh Rekod</span>
+                      <strong className="text-zinc-300 text-xs font-mono">{new Date(order.created_at).toLocaleDateString()}</strong>
                     </div>
                   </div>
                 </div>
@@ -354,7 +354,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                   {order.status !== 'Refunded' && (
                     <button 
                       onClick={() => handleRefund(order.order_id, order.amount)}
-                      className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1"
+                      className="px-3.5 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                     >
                       <RotateCcw size={12} />
                       <span>Bayar Balik (RM {order.amount})</span>
@@ -362,10 +362,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                   )}
                   <button 
                     onClick={() => onAction && onAction(`Siasat pesanan Supabase ${order.order_id} bagi pelanggan ${order.customer_name} di hab ${order.city} dengan JEV System-1.`)}
-                    className="px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1"
+                    className="px-3.5 py-1.5 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 hover:border-[#CFFF5E]/40 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                   >
                     <span>Semak di Chat</span>
-                    <ArrowUpRight size={12} />
+                    <ArrowUpRight size={12} className="text-[#CFFF5E]" />
                   </button>
                 </div>
               </div>

@@ -632,3 +632,4 @@ export function formatWhatsAppUrl(phoneNumber: string, message: string): string 
 }
 
 export const busFreightManager = new BusFreightManager();
+export const busFreightService = busFreightManager;

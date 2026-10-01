@@ -10,6 +10,7 @@ import { supabase } from './supabaseClient';
 export interface SupabaseAuthState {
   user: User | null;
   session: Session | null;
+  role: 'hq_admin' | 'stockist_kt' | 'crew_toppen' | string | null;
   loading: boolean;
   error: string | null;
   signInWithEmail: (email: string, password: string) => Promise<{ user: User | null; error: AuthError | null }>;
@@ -112,42 +113,40 @@ export function useSupabaseAuth(): SupabaseAuthState {
   }, []);
 
   /**
-   * Fast Staff session simulation for instant testing of Abang Colek roles
+   * Safe Operator Role Switcher for demonstration & UI view testing
+   * Does NOT use shared credentials or spoof real cryptographic JWT sessions
    */
   const quickStaffSignIn = useCallback(async (role: 'hq_admin' | 'stockist_kt' | 'crew_toppen' = 'hq_admin') => {
     setLoading(true);
-    const mockEmail = role === 'hq_admin' 
-      ? 'thisisabangcolek@gmail.com' 
+    const roleEmail = role === 'hq_admin' 
+      ? 'hq.ops@abangcolek.my' 
       : role === 'stockist_kt' 
       ? 'stokis.terengganu@abangcolek.my' 
       : 'kru.toppen@abangcolek.my';
 
-    // Try signing in with default password, or create an active operational session object
-    const { data: _data, error } = await supabase.auth.signInWithPassword({
-      email: mockEmail,
-      password: 'AbangColekOSPassword2026!'
-    });
+    // Set local demonstration profile with explicit simulation metadata
+    setUser({
+      id: `sim_usr_${role}`,
+      app_metadata: { provider: 'local_preview', role, isSimulated: true },
+      user_metadata: { 
+        full_name: role === 'hq_admin' ? 'Abang Colek HQ (Demo)' : role === 'stockist_kt' ? 'Kak Mas Stokis KT (Demo)' : 'Kru Gerai Toppen (Demo)',
+        role,
+        isDemoOperator: true
+      },
+      aud: 'local_preview',
+      email: roleEmail,
+      created_at: new Date().toISOString()
+    } as any);
 
-    if (error) {
-      // If user not registered yet in Auth schema, set local mock session with user email
-      setUser({
-        id: `usr_${role}_001`,
-        app_metadata: { provider: 'email', role },
-        user_metadata: { 
-          full_name: role === 'hq_admin' ? 'Abang Colek HQ Master' : role === 'stockist_kt' ? 'Kak Mas (Stokis KT)' : 'Kru Gerai Toppen',
-          role 
-        },
-        aud: 'authenticated',
-        email: mockEmail,
-        created_at: new Date().toISOString()
-      } as any);
-    }
     setLoading(false);
   }, []);
+
+  const role = (user?.user_metadata?.role as any) || (user?.app_metadata?.role as any) || 'hq_admin';
 
   return {
     user,
     session,
+    role,
     loading,
     error,
     signInWithEmail,

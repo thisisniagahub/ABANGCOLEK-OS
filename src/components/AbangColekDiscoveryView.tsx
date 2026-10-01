@@ -235,44 +235,46 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
   };
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto">
-      <div className="max-w-6xl mx-auto space-y-6 pb-12">
-        {/* Header Banner */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-zinc-900 via-zinc-800 to-black text-white p-6 md:p-8 rounded-[32px] border border-black/10 shadow-sm">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-red-600/30 text-red-300 border border-red-500/40 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 bg-[#090A10] text-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-4 sm:gap-5 md:gap-6">
+        {/* Header Banner - Unified Responsive CSS Grid */}
+        <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 border border-white/10 bg-[#121420] shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-5 items-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#CFFF5E]/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+          
+          <div className="lg:col-span-8 space-y-2 relative z-10">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full bg-red-950/80 text-red-400 border border-red-800/40 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <Flame size={12} className="text-red-400 fill-red-400" />
                 Abang Colek Business OS v4.2
               </span>
-              <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-mono font-medium">
+              <span className="px-2.5 py-1 rounded-full bg-[#181A2A] text-[#CFFF5E] border border-[#CFFF5E]/30 text-[11px] font-mono font-medium">
                 TypeSafe JEV Engine
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white">
               Pusat Penyelidikan Operasi & Enjin JEV System-1
             </h1>
-            <p className="text-zinc-400 text-xs md:text-sm max-w-2xl leading-relaxed">
+            <p className="text-zinc-400 text-xs sm:text-sm max-w-2xl leading-relaxed font-medium">
               Platform bersepadu pemprosesan pesanan, kawalan kualiti kuah colek, pengurusan stokis ejen, dan automasi Google Workspace tanpa sebarang data palsu.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="lg:col-span-4 flex items-center justify-start lg:justify-end gap-2.5 shrink-0 relative z-10 flex-wrap">
             <a
               href="https://github.com/thisisabangcolek-web/Abang-Colek.git"
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-2 border border-white/15 transition-all"
+              className="px-4 py-2.5 rounded-full bg-[#181A2A] hover:bg-[#202438] text-white text-xs font-bold flex items-center gap-2 border border-white/10 transition-all"
             >
               <span>Repo Rasmi</span>
-              <ExternalLink size={13} />
+              <ExternalLink size={13} className="text-[#CFFF5E]" />
             </a>
             <button
               onClick={() => {
                 setActiveSubTab('jev_tester');
                 handleRunRealJev();
               }}
-              className="px-4 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+              className="px-5 py-2.5 rounded-full bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black text-xs font-black flex items-center gap-2 transition-all cursor-pointer shadow-[0_0_15px_rgba(207,255,94,0.35)]"
             >
               <Sparkles size={14} />
               <span>Uji JEV System-1</span>
@@ -280,8 +282,8 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
           </div>
         </div>
 
-        {/* Sub-navigation Tabs */}
-        <div className="flex items-center gap-1.5 border-b border-black/5 pb-2 overflow-x-auto">
+        {/* Sub-navigation Tabs (Tactile Pill Dock) */}
+        <div className="flex items-center gap-2 border-b border-white/10 pb-2.5 overflow-x-auto no-scrollbar">
           {[
             { id: 'overview', label: 'Ringkasan & Metrik Forensik', icon: ShieldCheck },
             { id: 'pitch_deck', label: 'Pitch Deck Pelabur', icon: BookOpen, badge: '15 Slaid' },
@@ -299,18 +301,18 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id as any)}
               className={cn(
-                "px-4 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0",
+                "px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0 border",
                 activeSubTab === tab.id
-                  ? "bg-black text-white shadow-xs"
-                  : "text-zinc-600 hover:text-black hover:bg-black/5"
+                  ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black"
+                  : "bg-[#121420] text-zinc-400 hover:text-white border-white/10 hover:border-white/20"
               )}
             >
-              <tab.icon size={14} />
+              <tab.icon size={13} />
               <span>{tab.label}</span>
               {tab.badge && (
                 <span className={cn(
                   "text-[10px] px-1.5 py-0.2 rounded-full font-bold",
-                  activeSubTab === tab.id ? "bg-white/20 text-white" : "bg-black/10 text-zinc-700"
+                  activeSubTab === tab.id ? "bg-black/20 text-black font-black" : "bg-white/10 text-zinc-400"
                 )}>
                   {tab.badge}
                 </span>
@@ -323,100 +325,100 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
         {activeSubTab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col justify-between">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Tangkapan Bukti</span>
+              <div className="p-4.5 rounded-2xl bg-[#121420] border border-white/10 shadow-xl flex flex-col justify-between">
+                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">Tangkapan Bukti</span>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900">167</span>
-                  <span className="text-[10px] text-emerald-600 font-bold">100% SHA-256</span>
+                  <span className="text-2xl font-black text-white">167</span>
+                  <span className="text-[10px] text-[#CFFF5E] font-bold">100% SHA-256</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 mt-1">128 Rekod Unik Ternormal</span>
+                <span className="text-[10px] text-zinc-500 mt-1 font-mono">128 Rekod Unik Ternormal</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col justify-between">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Keputusan JEV</span>
+              <div className="p-4.5 rounded-2xl bg-[#121420] border border-white/10 shadow-xl flex flex-col justify-between">
+                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">Keputusan JEV</span>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900">389+</span>
-                  <span className="text-[10px] text-emerald-600 font-bold">Live AI</span>
+                  <span className="text-2xl font-black text-white">389+</span>
+                  <span className="text-[10px] text-[#CFFF5E] font-bold">Live AI</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 mt-1">Single forward-pass &lt;50ms</span>
+                <span className="text-[10px] text-zinc-500 mt-1 font-mono">Single forward-pass &lt;50ms</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col justify-between">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Kandungan Media BI</span>
+              <div className="p-4.5 rounded-2xl bg-[#121420] border border-white/10 shadow-xl flex flex-col justify-between">
+                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">Kandungan Media BI</span>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900">123</span>
-                  <span className="text-[10px] text-zinc-500 font-medium">79 video / 44 pos</span>
+                  <span className="text-2xl font-black text-white">123</span>
+                  <span className="text-[10px] text-zinc-400 font-medium">79 video / 44 pos</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 mt-1">TikTok & Instagram rasmi</span>
+                <span className="text-[10px] text-zinc-500 mt-1">TikTok & Instagram rasmi</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col justify-between">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Graf Pengetahuan</span>
+              <div className="p-4.5 rounded-2xl bg-[#121420] border border-white/10 shadow-xl flex flex-col justify-between">
+                <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">Graf Pengetahuan</span>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900">131</span>
-                  <span className="text-[10px] text-blue-600 font-bold">128 Relasi</span>
+                  <span className="text-2xl font-black text-white">131</span>
+                  <span className="text-[10px] text-blue-400 font-bold">128 Relasi</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 mt-1">124 Peristiwa garis masa</span>
+                <span className="text-[10px] text-zinc-500 mt-1">124 Peristiwa garis masa</span>
               </div>
             </div>
 
             {/* Core Brand & Operations Synthesis */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-3xl bg-white border border-black/5 shadow-xs space-y-4">
+              <div className="p-6 rounded-3xl bg-[#121420] border border-white/10 shadow-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
-                    <Flame size={16} className="text-red-600" />
+                  <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
+                    <Flame size={16} className="text-red-400" />
                     Profil Jenama & Hubungan Entiti Sebenar
                   </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800/40">
                     Disahkan Penuh
                   </span>
                 </div>
-                <p className="text-xs text-zinc-600 leading-relaxed font-medium">
+                <p className="text-xs text-zinc-300 leading-relaxed font-medium">
                   Berdasarkan audit repositori, teras perniagaan berpusat kepada 
-                  <strong> ABANGCOLEK</strong> (produk kuah colek buah 500g, pencicah pedas manis, jeruk mangga asam boi) serta pasukan operasi 
-                  <strong> STYLOAIRPOOL</strong> yang mengendalikan gerai pop-up bergerak di Toppen Johor Bahru, Pasar Karat, Shah Alam, dan Bangi.
+                  <strong className="text-white"> ABANGCOLEK</strong> (produk kuah colek buah 500g, pencicah pedas manis, jeruk mangga asam boi) serta pasukan operasi 
+                  <strong className="text-white"> STYLOAIRPOOL</strong> yang mengendalikan gerai pop-up bergerak di Toppen Johor Bahru, Pasar Karat, Shah Alam, dan Bangi.
                 </p>
-                <div className="p-3.5 rounded-2xl bg-zinc-50 border border-black/5 space-y-2">
+                <div className="p-4 rounded-2xl bg-[#10121C] border border-white/10 space-y-2">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-zinc-700">ABANGCOLEK & STYLOAIRPOOL:</span>
-                    <span className="text-emerald-700 font-bold">Jenama & Pengendali Rasmi</span>
+                    <span className="text-zinc-400">ABANGCOLEK & STYLOAIRPOOL:</span>
+                    <span className="text-[#CFFF5E] font-bold">Jenama & Pengendali Rasmi</span>
                   </div>
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-zinc-700">LIURLELEH (Liur Leleh House):</span>
-                    <span className="text-amber-700 font-bold">Produk Rakan Niaga</span>
+                    <span className="text-zinc-400">LIURLELEH (Liur Leleh House):</span>
+                    <span className="text-amber-400 font-bold">Produk Rakan Niaga</span>
                   </div>
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-zinc-700">JERUX (The Famous Jerux):</span>
-                    <span className="text-amber-700 font-bold">Produk Jeruk Buah</span>
+                    <span className="text-zinc-400">JERUX (The Famous Jerux):</span>
+                    <span className="text-amber-400 font-bold">Produk Jeruk Buah</span>
                   </div>
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-zinc-700">Stokis Terengganu (@jeruxsliurlelehterengganu):</span>
-                    <span className="text-blue-700 font-bold">Ejen Wilayah Pantai Timur</span>
+                    <span className="text-zinc-400">Stokis Terengganu (@jeruxsliurlelehterengganu):</span>
+                    <span className="text-blue-400 font-bold">Ejen Wilayah Pantai Timur</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-black/5 shadow-xs space-y-4">
+              <div className="p-6 rounded-3xl bg-[#121420] border border-white/10 shadow-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
-                    <AlertTriangle size={16} className="text-amber-600" />
+                  <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-amber-400" />
                     Tadbir Urus & Invarian Root Cause
                   </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-400 border border-amber-800/40">
                     Tiada Halusinasi
                   </span>
                 </div>
-                <p className="text-xs text-zinc-600 leading-relaxed font-medium">
+                <p className="text-xs text-zinc-300 leading-relaxed font-medium">
                   Sistem mengekalkan piawaian etika data tanpa sebarang mock data:
                 </p>
                 <div className="space-y-2.5">
-                  <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 text-xs text-zinc-700">
-                    <span className="font-bold text-red-600 block mb-1">Aduan Kebocoran (LEAKAGE / SEAL_FAILURE):</span>
-                    Aduan penutup botol kuah colek bocor semasa pos kurier dilabelkan sebagai <code>LEAKAGE</code>. Punca operasi wajib kekal <strong><code>UNDETERMINED</code></strong> sehingga semakan lot pengeluaran pembekal atau syarikat kurier diverifikasi.
+                  <div className="p-3.5 rounded-2xl bg-[#10121C] border border-white/10 text-xs text-zinc-300">
+                    <span className="font-bold text-red-400 block mb-1">Aduan Kebocoran (LEAKAGE / SEAL_FAILURE):</span>
+                    Aduan penutup botol kuah colek bocor semasa pos kurier dilabelkan sebagai <code>LEAKAGE</code>. Punca operasi wajib kekal <strong className="text-white"><code>UNDETERMINED</code></strong> sehingga semakan lot pengeluaran pembekal atau syarikat kurier diverifikasi.
                   </div>
-                  <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 text-xs text-zinc-700">
-                    <span className="font-bold text-blue-600 block mb-1">Pintu Kelulusan PRD (Gated Workflows):</span>
+                  <div className="p-3.5 rounded-2xl bg-[#10121C] border border-white/10 text-xs text-zinc-300">
+                    <span className="font-bold text-[#CFFF5E] block mb-1">Pintu Kelulusan PRD (Gated Workflows):</span>
                     8 Aliran operasi asas di bawah memerlukan semakan dan pengesahan pemilik secara langsung sebelum kod automasi dijalankan secara bebas.
                   </div>
                 </div>

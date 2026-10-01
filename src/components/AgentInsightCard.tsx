@@ -50,6 +50,7 @@ export const AgentInsightCard: React.FC<AgentInsightCardProps> = ({
   const [isSimulating, setIsSimulating] = useState(false);
   const [realtimeConnected, setRealtimeConnected] = useState(true);
   const [lastInsertedTask, setLastInsertedTask] = useState<AgentTaskLog | null>(null);
+  const [showExpandedDetails, setShowExpandedDetails] = useState(false);
 
   useEffect(() => {
     // Initial load
@@ -289,10 +290,126 @@ export const AgentInsightCard: React.FC<AgentInsightCardProps> = ({
 
       {/* Recent Completed Tasks Stream */}
       <div>
-        <div className="flex items-center justify-between pb-2 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-          <span>Tugasan Terkini Diselesaikan</span>
-          <span>Masa & Kependaman</span>
+        <div className="flex items-center justify-between pb-2 text-[11px] font-bold">
+          <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Tugasan Terkini Diselesaikan</span>
+
+          {/* 'Expand Details' Toggle Switch */}
+          <div className="flex items-center gap-2">
+            <label 
+              htmlFor="expand-details-toggle" 
+              className="text-[11px] font-bold text-zinc-700 cursor-pointer select-none hover:text-[#E53935] transition-colors"
+            >
+              Expand Details
+            </label>
+            <button
+              id="expand-details-toggle"
+              type="button"
+              role="switch"
+              aria-checked={showExpandedDetails}
+              onClick={() => setShowExpandedDetails(!showExpandedDetails)}
+              className={cn(
+                "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden",
+                showExpandedDetails ? "bg-[#E53935]" : "bg-zinc-300 hover:bg-zinc-400"
+              )}
+              title={showExpandedDetails ? "Sembunyikan pecahan kependaman terperinci" : "Papar pecahan kependaman terperinci 5 operasi terkini"}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out",
+                  showExpandedDetails ? "translate-x-4" : "translate-x-0"
+                )}
+              />
+            </button>
+          </div>
         </div>
+
+        {/* Expandable Table Row Breakdown of Individual Tool Latencies for the Last 5 Operations */}
+        <AnimatePresence>
+          {showExpandedDetails && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="overflow-hidden mb-3 pt-1"
+            >
+              <div className="rounded-2xl border border-[#FFC107]/40 bg-[#FFFDF7] overflow-hidden shadow-xs">
+                <div className="px-3 py-2 bg-[#1A1A1A] text-white flex items-center justify-between text-[11px]">
+                  <span className="font-black text-[#FFC107] flex items-center gap-1.5">
+                    <Activity size={12} className="text-[#E53935]" />
+                    <span>Pecahan Kependaman 5 Operasi Terkini</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-zinc-300">
+                    Last 5 Operations Breakdown
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-[11px]">
+                    <thead>
+                      <tr className="border-b border-[#FFC107]/30 text-zinc-500 text-[10px] uppercase font-bold bg-amber-50/50">
+                        <th className="py-2 px-3">#</th>
+                        <th className="py-2 px-3">Alatan (Tool Name)</th>
+                        <th className="py-2 px-3">Kategori</th>
+                        <th className="py-2 px-3 text-right">Kependaman (ms)</th>
+                        <th className="py-2 px-3 text-center">Status</th>
+                        <th className="py-2 px-3 text-right">Waktu</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-black/5 bg-white">
+                      {logs.slice(0, 5).length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-4 text-center text-xs text-zinc-400">
+                            Tiada rekod operasi terkini.
+                          </td>
+                        </tr>
+                      ) : (
+                        logs.slice(0, 5).map((op, idx) => (
+                          <tr key={op.id || idx} className="hover:bg-amber-50/30 transition-colors font-mono">
+                            <td className="py-2 px-3 font-bold text-zinc-400">
+                              #{idx + 1}
+                            </td>
+                            <td className="py-2 px-3 font-sans font-bold text-zinc-900 truncate max-w-[150px]" title={op.tool_name}>
+                              {op.tool_name}
+                            </td>
+                            <td className="py-2 px-3 font-sans text-zinc-500 text-[10px] truncate max-w-[110px]">
+                              {op.tool_category}
+                            </td>
+                            <td className="py-2 px-3 text-right">
+                              <span className={cn(
+                                "inline-block px-2 py-0.5 rounded-md font-bold text-[10px]",
+                                op.latency_ms < 200 ? "bg-emerald-100 text-emerald-800" :
+                                op.latency_ms < 500 ? "bg-blue-100 text-blue-800" :
+                                op.latency_ms < 1000 ? "bg-amber-100 text-amber-900" : "bg-rose-100 text-rose-900"
+                              )}>
+                                {op.latency_ms} ms
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <span className={cn(
+                                "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold font-sans",
+                                op.status === 'SUCCESS' ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                              )}>
+                                {op.status === 'SUCCESS' ? '✓ SUCCESS' : '✕ ERROR'}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-right text-zinc-400 text-[10px]">
+                              {new Date(op.timestamp).toLocaleTimeString('ms-MY', { 
+                                hour: '2-digit', 
+                                minute: '2-digit', 
+                                second: '2-digit' 
+                              })}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="divide-y divide-black/5">
           {recentTasks.map((t) => (

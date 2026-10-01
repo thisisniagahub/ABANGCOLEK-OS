@@ -1091,7 +1091,9 @@ export async function sendMessageToAgentStream(
               await new Promise(r => setTimeout(r, 400));
             } else if (call.name === "jev_classify_issue") {
               try {
-                const jevRes = await evaluateWithJev(call.args.message);
+                const args = (call.args || {}) as any;
+                const textToEvaluate = String(args.message || args.text || '');
+                const jevRes = await evaluateWithJev(textToEvaluate);
                 output = {
                   success: true,
                   message: `JEV System-1 mengelaskan isu sebagai [${jevRes.dimensions.issueClass.value}] (${(jevRes.dimensions.issueClass.confidence * 100).toFixed(0)}% keyakinan). Urgensi: ${jevRes.primitives.urgencyScore.score}/5.0. Tindakan disyorkan: ${jevRes.recommendedAction}`,
@@ -1831,7 +1833,8 @@ console.log(MODEL_NAME)
           } else if (call.name === "jev_classify_issue") {
             try {
               const args = (call.args || {}) as any;
-              const jevRes = await evaluateWithJev(String(args.message || ''));
+              const textToEvaluate = String(args.message || args.text || '');
+              const jevRes = await evaluateWithJev(textToEvaluate);
               output = {
                 success: true,
                 message: `JEV System-1 mengelaskan isu sebagai [${jevRes.dimensions.issueClass.value}] (${(jevRes.dimensions.issueClass.confidence * 100).toFixed(0)}% keyakinan). Urgensi: ${jevRes.primitives.urgencyScore.score}/5.0. Tindakan disyorkan: ${jevRes.recommendedAction}`,

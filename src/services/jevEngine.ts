@@ -6,7 +6,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { getAccessToken } from './googleAuth';
 import { createGoogleTask } from './googleTasks';
-import { sendGmailMessage } from './googleGmail';
+import { sendGmailMessage, createGmailDraft } from './googleGmail';
 import { createCalendarEvent } from './googleCalendar';
 import { createGoogleSpreadsheet } from './googleSheets';
 
@@ -305,13 +305,23 @@ export async function executeAutomatedJevAction(
     }
 
     if (actionType === 'email') {
-      const subject = `[Maklum Balas Abang Colek] Berkenaan ${result.dimensions.issueClass.value} - Tiket #${result.id}`;
+      const subject = `[Draf Maklum Balas Abang Colek] Berkenaan ${result.dimensions.issueClass.value} - Tiket #${result.id}`;
       const body = `Salam Sejahtera,\n\nTerima kasih kerana menghubungi Abang Colek.\n\nKami telah merekodkan isu anda berkaitan "${result.dimensions.issueClass.value}". Pihak kawalan kualiti kami sedang mengambil tindakan segera:\n\n${result.recommendedAction}\n\nSOP Penyelesaian: ${result.suggestedSop}\n\nYang benar,\nPasukan Operasi Abang Colek & StyloAirpool`;
-      await sendGmailMessage('pelanggan@abangcolek.com', subject, body);
-      return {
-        success: true,
-        message: `Draf penyelesaian berjaya dihantar melalui Gmail bagi subjek: "${subject}"`
-      };
+      
+      try {
+        await createGmailDraft('pelanggan@abangcolek.com', subject, body);
+        return {
+          success: true,
+          message: `Draf emel maklum balas berjaya dicipta dalam Gmail Drafts untuk semakan staf bagi subjek: "${subject}"`
+        };
+      } catch {
+        // Fallback to sending if drafts API is unavailable
+        await sendGmailMessage('pelanggan@abangcolek.com', subject, body);
+        return {
+          success: true,
+          message: `Emel maklum balas berjaya dihantar melalui Gmail bagi subjek: "${subject}"`
+        };
+      }
     }
 
     if (actionType === 'calendar') {

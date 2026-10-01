@@ -12,7 +12,7 @@ import {
   signOut as fbSignOut,
   User 
 } from 'firebase/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
+import firebaseConfig from './firebaseConfig';
 
 export const SCOPES = [
   'https://www.googleapis.com/auth/drive',

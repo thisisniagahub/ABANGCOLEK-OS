@@ -212,7 +212,7 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-white rounded-[32px] border border-black/[0.04] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden relative">
+    <div className="flex flex-col h-full w-full bg-[#121420] text-white rounded-[32px] border border-white/10 shadow-2xl overflow-hidden relative">
       {/* Toast Notification */}
       <AnimatePresence>
         {toastMsg && (
@@ -220,31 +220,31 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 text-white px-5 py-2.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2 border border-white/10"
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-[#141624] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 border border-white/20"
           >
-            <CheckCircle2 size={15} className="text-emerald-400" />
+            <CheckCircle2 size={15} className="text-[#CFFF5E]" />
             {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Header */}
-      <header className="px-6 py-4 border-b border-black/[0.04] flex flex-wrap items-center justify-between gap-4 shrink-0 bg-white">
+      <header className="px-6 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4 shrink-0 bg-[#121420]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center border border-red-100/60 shadow-xs">
-            <Mail className="text-red-600" size={20} />
+          <div className="w-10 h-10 rounded-2xl bg-red-950/80 flex items-center justify-center border border-red-800/40 shadow-xs">
+            <Mail className="text-red-400" size={20} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
               Gmail Inbox & Operations
               {token && (
-                <span className="text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-bold bg-[#181A2A] text-[#CFFF5E] border border-[#CFFF5E]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#CFFF5E] animate-pulse" />
                   Live Sync
                 </span>
               )}
             </h1>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-400 font-medium">
               Read customer queries, draft responses, and send emails via Gmail.
             </p>
           </div>
@@ -254,15 +254,15 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
           <button
             onClick={() => loadEmails()}
             disabled={isLoading}
-            className="p-2 text-zinc-500 hover:text-zinc-800 bg-zinc-50 hover:bg-zinc-100 rounded-full border border-black/5 transition-all"
+            className="p-2 text-zinc-400 hover:text-white bg-[#181A2A] hover:bg-[#202438] rounded-full border border-white/10 transition-all cursor-pointer"
             title="Refresh emails"
           >
-            <RefreshCw size={15} className={cn(isLoading && "animate-spin")} />
+            <RefreshCw size={15} className={cn(isLoading && "animate-spin text-[#CFFF5E]")} />
           </button>
 
           <button
             onClick={() => setShowCompose(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs font-semibold transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black rounded-full text-xs font-black transition-all shadow-[0_0_12px_rgba(207,255,94,0.3)] cursor-pointer"
           >
             <Plus size={14} />
             Compose Email
@@ -271,7 +271,7 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
       </header>
 
       {/* Search Bar & Banner */}
-      <div className="px-6 pt-3 pb-2 border-b border-black/[0.03] flex items-center gap-3 bg-zinc-50/40">
+      <div className="px-6 pt-3 pb-2.5 border-b border-white/10 flex items-center gap-3 bg-[#10121C]">
         <div className="relative flex-1 max-w-md">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
@@ -280,10 +280,10 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && loadEmails()}
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-black/10 rounded-full focus:outline-hidden focus:ring-2 focus:ring-red-500"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#141624] text-white border border-white/10 rounded-full focus:outline-none focus:border-[#CFFF5E]/50 placeholder:text-zinc-500"
           />
         </div>
-        <span className="text-[11px] text-zinc-400 font-medium">
+        <span className="text-[11px] text-zinc-400 font-mono">
           {messages.length} messages
         </span>
       </div>
@@ -291,11 +291,11 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
       {/* Main split */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Email List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-black/[0.03]">
+        <div className="flex-1 overflow-y-auto divide-y divide-white/5">
           {messages.length === 0 && !isLoading ? (
-            <div className="p-12 text-center text-zinc-400 space-y-2">
-              <Inbox size={36} className="mx-auto text-zinc-300" />
-              <p className="text-xs font-medium text-zinc-600">No emails found</p>
+            <div className="p-12 text-center text-zinc-500 space-y-2">
+              <Inbox size={36} className="mx-auto text-zinc-600" />
+              <p className="text-xs font-medium text-zinc-400">No emails found</p>
             </div>
           ) : (
             messages.map((m) => {
@@ -306,30 +306,30 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
                   onClick={() => handleSelectMessage(m)}
                   className={cn(
                     "p-4 flex items-start gap-3 cursor-pointer transition-colors relative group",
-                    isSelected ? "bg-red-50/40" : "hover:bg-zinc-50/80",
-                    m.unread && "font-semibold text-zinc-900"
+                    isSelected ? "bg-[#181A2A] border-l-2 border-[#CFFF5E]" : "hover:bg-white/5",
+                    m.unread && "font-bold text-white"
                   )}
                 >
                   <div className={cn(
                     "w-2 h-2 rounded-full mt-2 shrink-0",
-                    m.unread ? "bg-red-500" : "bg-transparent"
+                    m.unread ? "bg-[#CFFF5E]" : "bg-transparent"
                   )} />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs text-zinc-900 truncate font-semibold">
+                      <span className="text-xs text-white truncate font-bold">
                         {m.from || 'Unknown Sender'}
                       </span>
-                      <span className="text-[10px] text-zinc-400 shrink-0 font-normal">
+                      <span className="text-[10px] text-zinc-400 shrink-0 font-mono">
                         {m.date}
                       </span>
                     </div>
 
-                    <div className="text-xs text-zinc-800 font-medium truncate mt-0.5">
+                    <div className="text-xs text-zinc-200 font-medium truncate mt-0.5">
                       {m.subject}
                     </div>
 
-                    <p className="text-[11px] text-zinc-500 line-clamp-1 mt-1 font-normal">
+                    <p className="text-[11px] text-zinc-400 line-clamp-1 mt-1 font-normal">
                       {m.snippet}
                     </p>
                   </div>
@@ -340,7 +340,7 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
                       setDeleteTargetId(m.id);
                     }}
                     title="Delete message"
-                    className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-red-600 rounded-lg hover:bg-zinc-100 transition-all shrink-0"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-400 hover:text-red-400 rounded-lg hover:bg-white/10 transition-all shrink-0 cursor-pointer"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -352,20 +352,20 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
 
         {/* Email Reading Panel */}
         <div className={cn(
-          "w-full md:w-[460px] border-t md:border-t-0 md:border-l border-black/[0.04] bg-zinc-50/50 flex flex-col shrink-0 overflow-y-auto",
+          "w-full md:w-[460px] border-t md:border-t-0 md:border-l border-white/10 bg-[#10121C] flex flex-col shrink-0 overflow-y-auto",
           !selectedMessageId && "hidden md:flex"
         )}>
           {selectedDetail ? (
             <div className="p-6 flex flex-col h-full space-y-4">
-              <div className="flex items-start justify-between gap-2 pb-3 border-b border-black/[0.05]">
+              <div className="flex items-start justify-between gap-2 pb-3 border-b border-white/10">
                 <div>
-                  <h2 className="text-sm font-bold text-zinc-900 leading-snug">
+                  <h2 className="text-sm font-black text-white leading-snug">
                     {selectedDetail.subject}
                   </h2>
-                  <div className="text-xs text-zinc-600 mt-1">
-                    From: <span className="font-semibold text-zinc-800">{selectedDetail.from}</span>
+                  <div className="text-xs text-zinc-400 mt-1">
+                    From: <span className="font-bold text-zinc-200">{selectedDetail.from}</span>
                   </div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">
+                  <div className="text-[10px] text-zinc-500 font-mono mt-0.5">
                     {selectedDetail.date}
                   </div>
                 </div>
@@ -375,33 +375,33 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
                     setSelectedMessageId(null);
                     setSelectedDetail(null);
                   }}
-                  className="p-1 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-200/60"
+                  className="p-1 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 cursor-pointer"
                 >
                   <X size={15} />
                 </button>
               </div>
 
               {/* AI Reply Quick Action */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 text-white flex items-center justify-between shadow-xs">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-red-950/80 via-red-900/60 to-black text-white flex items-center justify-between border border-red-800/40 shadow-lg">
                 <div className="space-y-0.5">
-                  <div className="text-xs font-semibold flex items-center gap-1.5">
-                    <Sparkles size={13} />
+                  <div className="text-xs font-bold flex items-center gap-1.5 text-red-300">
+                    <Sparkles size={13} className="text-[#CFFF5E]" />
                     Agent Draft Reply
                   </div>
-                  <div className="text-[10px] text-red-100">
+                  <div className="text-[10px] text-zinc-400">
                     Generate an operational response in Agent Chat
                   </div>
                 </div>
                 <button
                   onClick={handleAiDraftReply}
-                  className="px-3 py-1 bg-white text-red-600 rounded-full text-xs font-bold hover:bg-red-50 transition-all cursor-pointer shrink-0"
+                  className="px-3.5 py-1 bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black rounded-full text-xs font-black transition-all cursor-pointer shrink-0"
                 >
                   Draft
                 </button>
               </div>
 
               {/* Email Content Body */}
-              <div className="flex-1 bg-white p-4 rounded-2xl border border-black/[0.04] text-xs text-zinc-700 leading-relaxed overflow-y-auto whitespace-pre-wrap font-sans shadow-xs">
+              <div className="flex-1 bg-[#141624] p-4 rounded-2xl border border-white/10 text-xs text-zinc-200 leading-relaxed overflow-y-auto whitespace-pre-wrap font-sans shadow-inner">
                 {selectedDetail.bodyText}
               </div>
 
@@ -413,15 +413,15 @@ export const GmailView: React.FC<GmailViewProps> = ({ onAction }) => {
                     setComposeSubject(`Re: ${selectedDetail.subject}`);
                     setShowCompose(true);
                   }}
-                  className="px-4 py-2 bg-black hover:bg-zinc-800 text-white rounded-full text-xs font-medium transition-all shadow-xs flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 rounded-full text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Send size={12} />
+                  <Send size={12} className="text-[#CFFF5E]" />
                   Reply to Customer
                 </button>
 
                 <button
                   onClick={() => setDeleteTargetId(selectedDetail.id)}
-                  className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2 text-zinc-400 hover:text-red-400 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>

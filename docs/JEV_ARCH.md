@@ -180,9 +180,9 @@ In `src/services/gemini.ts`:
   parameters: {
     type: Type.OBJECT,
     properties: {
-      text: { type: Type.STRING, description: "Raw customer or operator message" }
+      message: { type: Type.STRING, description: "Customer complaint, inquiry, or operational text to evaluate (alias: text)" }
     },
-    required: ["text"]
+    required: ["message"]
   }
 }
 ```

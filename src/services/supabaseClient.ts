@@ -95,11 +95,16 @@ export const ABANGCOLEK_SQL_SCHEMA = `
 -- 1. Jadual Pesanan (Orders)
 CREATE TABLE IF NOT EXISTS public.orders (
   id VARCHAR(64) PRIMARY KEY,
+  order_id VARCHAR(64),
   customer_name VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
-  location VARCHAR(100) NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'completed',
-  total_amount NUMERIC(10, 2) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  location VARCHAR(100),
+  status VARCHAR(50) NOT NULL DEFAULT 'Processing',
+  amount NUMERIC(10, 2) NOT NULL,
+  total_amount NUMERIC(10, 2),
+  refund_reason TEXT,
+  delivered_date TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   items JSONB NOT NULL DEFAULT '[]'::jsonb
 );

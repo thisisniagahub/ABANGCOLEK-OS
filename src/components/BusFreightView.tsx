@@ -442,7 +442,7 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
   const oneHourAlertCount = consignments.filter(c => c.status === 'ONE_HOUR_ALERT').length;
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#FAFAFA] overflow-y-auto relative">
+    <div className="flex-1 flex flex-col h-full bg-[#090A10] text-white overflow-y-auto relative">
 
       {/* ============================================================ */}
       {/* 🔔 FRAMER-MOTION TOAST NOTIFICATION CONTAINER (SUPABASE GPS)  */}
@@ -457,23 +457,23 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
               exit={{ opacity: 0, x: 60, scale: 0.9 }}
               transition={{ duration: 0.28, ease: "easeOut" }}
               className={cn(
-                "pointer-events-auto p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all text-xs space-y-2.5",
+                "pointer-events-auto p-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all text-xs space-y-2.5",
                 toast.isOneHourAlert 
-                  ? "bg-amber-950/92 text-white border-amber-500/40 shadow-amber-500/10" 
-                  : "bg-zinc-950/92 text-white border-white/10"
+                  ? "bg-amber-950/95 text-white border-amber-500/40 shadow-amber-500/20" 
+                  : "bg-[#121420]/95 text-white border-white/15 shadow-black/60"
               )}
             >
               {/* Toast Badge & Close */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   {toast.isOneHourAlert ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500 text-black font-extrabold text-[10px] tracking-wide animate-pulse">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500 text-black font-extrabold text-[10px] tracking-wide animate-pulse">
                       <Radio size={11} />
                       SOP 1 JAM ALERT
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#CFFF5E]/20 text-[#CFFF5E] font-bold text-[10px] border border-[#CFFF5E]/40">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#CFFF5E] animate-ping" />
                       Supabase GPS Update
                     </span>
                   )}
@@ -492,7 +492,7 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
               <div>
                 <div className="flex items-center gap-1.5 font-bold text-zinc-100">
                   <span>{toast.companyName}</span>
-                  <span className="px-1.5 py-0.2 rounded bg-white/20 font-mono text-[11px] text-amber-300">
+                  <span className="px-1.5 py-0.2 rounded bg-white/10 font-mono text-[11px] text-[#CFFF5E]">
                     {toast.busPlateNo}
                   </span>
                   <span className="text-zinc-400 font-normal">→ {toast.agentName}</span>
@@ -502,7 +502,7 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
                 </p>
                 <div className="flex items-center justify-between text-[10px] text-zinc-400 mt-1 font-mono">
                   <span>{toast.lat.toFixed(4)}°N, {toast.lng.toFixed(4)}°E</span>
-                  <span className="text-emerald-300 font-bold">ETA: {toast.calculatedEta}</span>
+                  <span className="text-[#CFFF5E] font-bold">ETA: {toast.calculatedEta}</span>
                 </div>
               </div>
 
@@ -520,7 +520,7 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
                   href={formatWhatsAppUrl(toast.agentPhone, `Salam ${toast.agentName}, update GPS bas ${toast.companyName} (${toast.busPlateNo}): ${toast.milestone}. Anggaran sampai ${toast.calculatedEta} (${toast.speedKmh} km/j).`)}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1 transition-all"
+                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 transition-all"
                 >
                   <MessageSquare size={11} />
                   <span>WhatsApp Ejen</span>
@@ -532,30 +532,30 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
       </div>
 
       {/* Top Header */}
-      <div className="p-6 pb-4 border-b border-black/[0.06] bg-white sticky top-0 z-20 shadow-xs">
+      <div className="p-6 pb-4 border-b border-white/10 bg-[#121420] sticky top-0 z-20 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-xl bg-red-600 text-white shadow-xs">
+              <span className="p-1.5 rounded-xl bg-red-600/30 text-red-400 border border-red-500/40 shadow-xs">
                 <Truck size={18} />
               </span>
-              <h1 className="text-xl font-bold tracking-tight text-zinc-900">
+              <h1 className="text-xl font-black tracking-tight text-white">
                 Logistik Bas Ekspres & Radar Penjejakan Ejen (Google Maps)
               </h1>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">
-                <Radio size={12} className="animate-pulse" />
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#181A2A] text-[#CFFF5E] border border-[#CFFF5E]/30">
+                <Radio size={12} className="animate-pulse text-[#CFFF5E]" />
                 Live GPS & Supabase Telemetry
               </span>
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
-              Visualisasi masa nyata koordinat kargo dari jadual Supabase <code className="font-mono text-zinc-700 bg-zinc-100 px-1 py-0.5 rounded">shipments</code>, pengiraan trafik Google Maps, serahan TBS, & SOP panggilan 1 jam sebelum tiba.
+            <p className="text-xs text-zinc-400 mt-1 font-medium">
+              Visualisasi masa nyata koordinat kargo dari jadual Supabase <code className="font-mono text-[#CFFF5E] bg-white/5 px-1 py-0.5 rounded border border-white/10">shipments</code>, pengiraan trafik Google Maps, serahan TBS, & SOP panggilan 1 jam sebelum tiba.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#CFFF5E] text-black text-xs font-black hover:bg-[#d8ff6b] transition-all shadow-[0_0_15px_rgba(207,255,94,0.35)] cursor-pointer"
             >
               <Plus size={15} />
               <span>Daftar Serahan Bas (TBS)</span>
@@ -564,20 +564,20 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
             <button
               onClick={handleRecalculateTraffic}
               disabled={isRecalculatingTraffic}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-blue-50 text-blue-800 hover:bg-blue-100 text-xs font-semibold border border-blue-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-[#181A2A] text-zinc-200 hover:text-white hover:bg-[#202438] text-xs font-bold border border-white/10 transition-all cursor-pointer"
               title="Kira semula anggaran ETA berdasarkan keadaan trafik Google Maps semasa"
             >
-              <Activity size={13} className={cn(isRecalculatingTraffic && "animate-spin")} />
+              <Activity size={13} className={cn(isRecalculatingTraffic && "animate-spin text-[#CFFF5E]")} />
               <span>Kira Trafik Maps</span>
             </button>
 
             <button
               onClick={loadSupabaseShipments}
               disabled={isRefreshingSupabase}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold border border-emerald-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-[#181A2A] text-zinc-200 hover:text-white hover:bg-[#202438] text-xs font-bold border border-white/10 transition-all cursor-pointer"
               title="Segerak dengan pangkalan data Supabase"
             >
-              <RefreshCw size={13} className={cn(isRefreshingSupabase && "animate-spin")} />
+              <RefreshCw size={13} className={cn(isRefreshingSupabase && "animate-spin text-[#CFFF5E]")} />
               <span>Supabase {supabaseSyncStatus.latencyMs}ms</span>
             </button>
 
@@ -585,10 +585,10 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
               href="https://www.redbus.my/"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 text-xs font-semibold border border-red-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-[#181A2A] text-zinc-300 hover:text-white hover:bg-[#202438] text-xs font-bold border border-white/10 transition-all"
             >
               <span>redBus.my</span>
-              <ExternalLink size={13} />
+              <ExternalLink size={13} className="text-[#CFFF5E]" />
             </a>
           </div>
         </div>
@@ -598,109 +598,109 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
           <motion.div 
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between"
+            className="mt-3 p-3 rounded-2xl bg-emerald-950/80 border border-emerald-800/40 text-emerald-300 text-xs flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
               <span className="font-medium">{actionNotice}</span>
             </div>
-            <button onClick={() => setActionNotice(null)} className="text-emerald-600 font-bold hover:underline">Tutup</button>
+            <button onClick={() => setActionNotice(null)} className="text-emerald-400 font-bold hover:underline">Tutup</button>
           </motion.div>
         )}
 
         {/* Quick KPI stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-          <div className="p-3 rounded-xl bg-zinc-50 border border-black/[0.04]">
-            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Pangkalan Data Supabase</p>
-            <p className="text-lg font-bold text-zinc-900 mt-0.5 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">Pangkalan Data Supabase</p>
+            <p className="text-lg font-black text-white mt-0.5 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#CFFF5E] animate-pulse" />
               {shipments.length} Bas Ber-GPS
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/60">
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Zon 1 Jam Sebelum Tiba</p>
-              {oneHourAlertCount > 0 && <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />}
+              <p className="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">Zon 1 Jam Sebelum Tiba</p>
+              {oneHourAlertCount > 0 && <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />}
             </div>
-            <p className="text-lg font-bold text-amber-900 mt-0.5">{oneHourAlertCount} Bas Menghampiri Hub</p>
+            <p className="text-lg font-black text-amber-300 mt-0.5">{oneHourAlertCount} Bas Menghampiri Hub</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60">
-            <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">Aliran Trafik Google Maps</p>
-            <p className="text-lg font-bold text-blue-900 mt-0.5">85% Lancar</p>
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-blue-400 uppercase tracking-wider">Aliran Trafik Google Maps</p>
+            <p className="text-lg font-black text-blue-300 mt-0.5">85% Lancar</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/60">
-            <p className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">DuitNow QR Pemandu</p>
-            <p className="text-lg font-bold text-emerald-900 mt-0.5">100% Pindahan Selesai</p>
+          <div className="p-3.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg">
+            <p className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider">DuitNow QR Pemandu</p>
+            <p className="text-lg font-black text-[#CFFF5E] mt-0.5">100% Pindahan Selesai</p>
           </div>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center gap-2 mt-4 pt-2 border-t border-black/[0.04] overflow-x-auto text-xs font-semibold">
+        <div className="flex items-center gap-2 mt-4 pt-2 border-t border-white/10 overflow-x-auto text-xs font-bold no-scrollbar">
           <button
             onClick={() => setActiveTab('live_map')}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5",
+              "px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 border cursor-pointer",
               activeTab === 'live_map' 
-                ? "bg-red-600 text-white shadow-xs" 
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black" 
+                : "bg-[#181A2A] text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
             )}
           >
-            <Navigation size={14} className={activeTab === 'live_map' ? "animate-pulse" : ""} />
+            <Navigation size={13} className={activeTab === 'live_map' ? "animate-pulse" : ""} />
             <span>Peta Satelit & GPS Bas Masa Nyata</span>
           </button>
 
           <button
             onClick={() => setActiveTab('traffic_summary')}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5",
+              "px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 border cursor-pointer",
               activeTab === 'traffic_summary' 
-                ? "bg-blue-600 text-white shadow-xs" 
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black" 
+                : "bg-[#181A2A] text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
             )}
           >
-            <Activity size={14} />
+            <Activity size={13} />
             <span>Ringkasan ETA & Trafik Google Maps</span>
           </button>
 
           <button
             onClick={() => setActiveTab('consignments')}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5",
+              "px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 border cursor-pointer",
               activeTab === 'consignments' 
-                ? "bg-zinc-900 text-white" 
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black" 
+                : "bg-[#181A2A] text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
             )}
           >
-            <Truck size={14} />
+            <Truck size={13} />
             <span>Senarai Konsinan ({consignments.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('schedules')}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5",
+              "px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 border cursor-pointer",
               activeTab === 'schedules' 
-                ? "bg-zinc-900 text-white" 
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black" 
+                : "bg-[#181A2A] text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
             )}
           >
-            <Clock size={14} />
+            <Clock size={13} />
             <span>Jadual Bas Ekspres (redBus.my)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('duitnow_qr')}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5",
+              "px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 border cursor-pointer",
               activeTab === 'duitnow_qr' 
-                ? "bg-zinc-900 text-white" 
-                : "text-zinc-600 hover:bg-zinc-100"
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.3)] font-black" 
+                : "bg-[#181A2A] text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
             )}
           >
-            <QrCode size={14} />
+            <QrCode size={13} />
             <span>DuitNow QR Driver</span>
           </button>
         </div>
