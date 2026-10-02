@@ -49,6 +49,7 @@ import { appStore, OrderItem } from '@/services/store';
 import { AbangColekDiscoveryView } from '@/components/AbangColekDiscoveryView';
 import { PluginsView } from '@/components/PluginsView';
 import { PluginArtifactCard } from '@/components/PluginArtifactCard';
+import { JevArtifactCard } from '@/components/JevArtifactCard';
 import { FormsView } from '@/components/FormsView';
 import { GmailView } from '@/components/GmailView';
 import { TasksView } from '@/components/TasksView';
@@ -69,343 +70,9 @@ import { CommandPalette } from '@/components/CommandPalette';
 import { ModernBentoDashboard } from '@/components/ModernBentoDashboard';
 import { GlobalCommandHeader } from '@/components/GlobalCommandHeader';
 import { FloatingNeoDock } from '@/components/FloatingNeoDock';
+import { Sidebar } from '@/components/Sidebar';
 
 // --- Components ---
-
-const Sidebar = ({ 
-  activeTab, 
-  setActiveTab, 
-  isToolOrPluginInProgress,
-  onOpenCommandPalette,
-  onAction,
-}: { 
-  activeTab: string; 
-  setActiveTab: (t: string) => void;
-  isToolOrPluginInProgress?: boolean;
-  onOpenCommandPalette?: () => void;
-  onAction?: (msg?: string) => void;
-}) => {
-  const [googleUser, setGoogleUser] = useState<FbUser | null>(null);
-  const { user: supabaseUser, role, quickStaffSignIn, signOut: supabaseSignOut } = useSupabaseAuth();
-
-  useEffect(() => {
-    return subscribeAuth((u) => {
-      setGoogleUser(u);
-    });
-  }, []);
-
-  const workspaceItems = [
-    { id: 'discovery', label: 'Abang Colek Hub', icon: Flame, badge: 'v4.2' },
-    { id: 'chat', label: 'Agent Chat', icon: Bot },
-    { id: 'bus_freight', label: 'Ekspres Bas & Ejen', icon: Truck, badge: 'SOP 1 Jam' },
-    { id: 'plugins', label: 'Gedung Plugins', icon: Zap, badge: '12 Aktif' },
-    { id: 'gmail', label: 'Gmail', icon: Mail },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'docs', label: 'Docs', icon: FileText },
-    { id: 'sheets', label: 'Sheets', icon: FileSpreadsheet },
-    { id: 'forms', label: 'Forms', icon: FolderOpen, badge: googleUser ? 'Synced' : undefined },
-    { id: 'meet', label: 'Meet', icon: Video },
-    { id: 'chat_workspace', label: 'Chat', icon: MessageSquare },
-    { id: 'maps', label: 'Logistics Map', icon: MapPin },
-  ];
-
-  const analyticsItems = [
-    { id: 'agent_performance', label: 'Prestasi Agen AI', icon: Gauge, badge: 'Recharts' },
-    { id: 'dashboards', label: 'Dashboards', icon: Activity },
-    { id: 'reports', label: 'Reports', icon: Search },
-    { id: 'orders', label: 'Orders', icon: Database },
-    { id: 'reviews', label: 'Reviews', icon: Briefcase },
-  ];
-
-  return (
-    <div className="hidden md:flex w-[295px] flex-col h-full pt-3 pb-24 pl-4 pr-3 shrink-0 bg-[#0C0E16]/95 backdrop-blur-2xl border-r border-white/[0.08] select-none">
-      {/* Operator Profile Card (Orbital Concept) */}
-      <div className="mb-3 p-3 rounded-2xl bg-[#141624] border border-white/10 shadow-lg flex items-center justify-between">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative shrink-0">
-            <img 
-              src="/assets/brand/epull.png" 
-              alt="Megat Epull" 
-              className="w-10 h-10 rounded-full object-cover border-2 border-[#CFFF5E]/80 shadow-[0_0_10px_rgba(207,255,94,0.3)] bg-black"
-              onError={(e) => {
-                e.currentTarget.src = '/assets/brand/founder.png';
-              }}
-            />
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#CFFF5E] border-2 border-[#141624] shadow-[0_0_6px_#CFFF5E]" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[10px] text-zinc-400 font-medium">Selamat Bertugas</span>
-            <span className="text-xs font-black text-white truncate">
-              {role === 'stockist_kt' ? 'Kak Siti (KT)' : role === 'crew_toppen' ? 'Wan (Toppen JB)' : 'Megat Epull'}
-            </span>
-            <span className="text-[9px] font-extrabold text-[#CFFF5E] uppercase tracking-wider">
-              {role === 'stockist_kt' ? 'Stokis Pantai Timur' : role === 'crew_toppen' ? 'Krew Gerai Selatan' : 'HQ Operations Lead'}
-            </span>
-          </div>
-        </div>
-
-        <button
-          onClick={onOpenCommandPalette}
-          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-          title="Pusat Perintah (Ctrl+K)"
-        >
-          <Search size={14} className="text-[#CFFF5E]" />
-        </button>
-      </div>
-
-      {/* AI Voice Waveform Assistant Card ("Hey, I'm Abang Colek AI!") */}
-      <div className="mb-3 p-3 rounded-2xl bg-gradient-to-br from-[#161828] to-[#1D1F34] border border-[#8C7DFF]/30 shadow-md">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF4757] to-[#FFA000] flex items-center justify-center text-white shadow-xs">
-              <Mic size={12} />
-            </div>
-            <span className="text-xs font-black text-white tracking-tight">Abang Colek AI</span>
-          </div>
-          
-          {/* Animated Sine Wave Audio Visualizer */}
-          <div className="flex items-center gap-0.5 h-4 px-1">
-            {[0.4, 0.9, 0.6, 1.0, 0.5, 0.8].map((scale, i) => (
-              <motion.span
-                key={i}
-                animate={{
-                  scaleY: [0.3, scale, 0.4],
-                  opacity: [0.6, 1, 0.6]
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 0.8 + i * 0.15,
-                  ease: "easeInOut"
-                }}
-                className={cn(
-                  "w-1 rounded-full",
-                  i % 3 === 0 ? "bg-[#00F0FF]" : i % 3 === 1 ? "bg-[#CFFF5E]" : "bg-[#FF007A]"
-                )}
-                style={{ height: '100%' }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <p className="text-[10.5px] text-zinc-300 font-medium leading-relaxed mb-2">
-          "Ada sebarang isu botol bocor atau kargo bas TBS nak disiasat?"
-        </p>
-
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => onAction && onAction("Siasat aduan integriti botol kuah colek bocor (LEAKAGE) mengikut JEV System-1.")}
-            className="flex-1 text-[10px] font-bold px-2 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-[#CFFF5E] border border-[#CFFF5E]/30 transition-all truncate text-left cursor-pointer"
-          >
-            ⚡ Siasat Botol Bocor
-          </button>
-          <button
-            onClick={() => onAction && onAction("Semak status pelepasan kargo bas TBS ke MBKT Kuala Terengganu hari ini.")}
-            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-[#FFC107] border border-[#FFC107]/30 transition-all cursor-pointer"
-          >
-            Bas TBS
-          </button>
-        </div>
-      </div>
-      
-      {/* Navigation Tree */}
-      <nav className="flex-1 space-y-4 pr-1 overflow-y-auto min-h-0 text-[13px] no-scrollbar">
-        <div>
-          <p className="px-3 mb-2 text-[10px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span>🌶️</span>
-              <span>Workspace & AI</span>
-            </span>
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#CFFF5E] font-mono">13</span>
-          </p>
-          <div className="space-y-1">
-            {workspaceItems.map((item) => {
-              const isChat = item.id === 'chat';
-              const isExecuting = isChat && isToolOrPluginInProgress;
-              const isActive = activeTab === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all text-left group cursor-pointer",
-                    isActive 
-                      ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
-                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
-                  )}
-                >
-                  <div className="flex items-center gap-2.5 truncate">
-                    {isExecuting ? (
-                      <span className="relative flex items-center justify-center shrink-0 w-4 h-4">
-                        <motion.span
-                          animate={{ scale: [1, 1.25, 1], opacity: [0.8, 1, 0.8] }}
-                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                          className="flex items-center justify-center"
-                        >
-                          <item.icon 
-                            size={15} 
-                            strokeWidth={isActive ? 2.5 : 2} 
-                            className="text-[#CFFF5E]" 
-                          />
-                        </motion.span>
-                        <span className="absolute -top-1 -right-1 flex h-2 w-2 pointer-events-none">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#CFFF5E] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#FF4757]" />
-                        </span>
-                      </span>
-                    ) : (
-                      <item.icon 
-                        size={15} 
-                        strokeWidth={isActive ? 2.5 : 2} 
-                        className={cn(
-                          "shrink-0 transition-colors",
-                          isActive ? "text-[#CFFF5E]" : "text-zinc-400 group-hover:text-white"
-                        )} 
-                      />
-                    )}
-                    <span className="truncate text-xs">{item.label}</span>
-                  </div>
-
-                  {isExecuting ? (
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 bg-[#FF4757] text-white">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                      <span>Live</span>
-                    </span>
-                  ) : item.badge && (
-                    <span className={cn(
-                      "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
-                      isActive 
-                        ? "bg-[#CFFF5E] text-black font-extrabold" 
-                        : "bg-white/10 text-zinc-300 border border-white/10"
-                    )}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <p className="px-3 mb-2 text-[10px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span>📊</span>
-              <span>Operasi & Analitik</span>
-            </span>
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#FFC107] font-mono">5</span>
-          </p>
-          <div className="space-y-1">
-            {analyticsItems.map((item) => {
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all text-left cursor-pointer group",
-                    isActive 
-                      ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
-                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
-                  )}
-                >
-                  <div className="flex items-center gap-2.5 truncate">
-                    <item.icon 
-                      size={15} 
-                      strokeWidth={isActive ? 2.5 : 2} 
-                      className={cn(
-                        "shrink-0 transition-colors",
-                        isActive ? "text-[#CFFF5E]" : "text-zinc-400 group-hover:text-white"
-                      )} 
-                    />
-                    <span className="truncate text-xs">{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className={cn(
-                      "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
-                      isActive ? "bg-[#CFFF5E] text-black font-extrabold" : "bg-white/10 text-zinc-300"
-                    )}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
-
-      {/* Supabase Database & Auth Tactile Card in Sidebar Footer */}
-      <div className="pr-1 pt-3 border-t border-white/10 shrink-0 space-y-2">
-        <div className="p-2.5 rounded-2xl bg-[#141624] border border-white/10 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#CFFF5E] animate-pulse" />
-              Supabase Postgres
-            </span>
-            <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#CFFF5E]/20 text-[#CFFF5E] border border-[#CFFF5E]/30">
-              Live
-            </span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-1 truncate font-mono">
-            {supabaseUser?.email || 'thisisabangcolek@gmail.com'}
-          </p>
-          <div className="flex items-center gap-1.5 mt-2">
-            <button
-              onClick={() => quickStaffSignIn('hq_admin')}
-              className={cn(
-                "text-[9.5px] px-2 py-0.8 rounded-lg font-black transition-colors cursor-pointer border",
-                role === 'hq_admin' || !role ? "bg-[#CFFF5E] text-black border-[#CFFF5E]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"
-              )}
-            >
-              HQ Admin
-            </button>
-            <button
-              onClick={() => quickStaffSignIn('stockist_kt')}
-              className={cn(
-                "text-[9.5px] px-2 py-0.8 rounded-lg font-black transition-colors cursor-pointer border",
-                role === 'stockist_kt' ? "bg-[#FFC107] text-black border-[#FFC107]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"
-              )}
-            >
-              Stokis KT
-            </button>
-            {supabaseUser && (
-              <button
-                onClick={() => supabaseSignOut()}
-                className="text-[9.5px] px-2 py-0.8 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-300 font-bold ml-auto transition-colors cursor-pointer border border-red-800/40"
-              >
-                Log Keluar
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Google Workspace Connection Pill */}
-        <button
-          onClick={() => setActiveTab('gmail')}
-          className="w-full text-left p-2.5 rounded-2xl bg-[#141624] border border-white/10 hover:border-[#8C7DFF]/50 transition-all shadow-xs group cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#8C7DFF]" />
-              Google Workspace
-            </span>
-            <span className={cn(
-              "text-[9px] font-black px-1.5 py-0.5 rounded-md",
-              googleUser ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800/50" : "bg-white/10 text-zinc-400"
-            )}>
-              {googleUser ? 'Connected' : 'Offline Mode'}
-            </span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-1 font-medium">
-            {googleUser ? (googleUser.displayName || googleUser.email) : 'Klik untuk hubung akaun Google'}
-          </p>
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const AgentStepBlock = ({ step }: { step: AgentStep }) => {
   return (
@@ -568,6 +235,10 @@ const ChatInterface = ({
               </div>
               <p className="font-bold text-white text-sm text-center">Bagaimana saya boleh bantu operasi Abang Colek hari ini?</p>
               <div className="flex flex-wrap justify-center gap-1.5 w-full max-w-xl">
+                <button onClick={() => onSendMessage("Jalankan penilaian integriti 7-dimensi JEV System-1 untuk aduan penutup botol kuah colek bocor di Terengganu")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-amber-400/40 text-[#FFC107] font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
+                  <Flame size={12} className="text-[#FF4444]" />
+                  Integriti JEV (7-Dimensi)
+                </button>
                 <button onClick={() => onSendMessage("Siasat aduan pembungkusan botol kuah colek bocor (LEAKAGE) dan draf emel gantian di Gmail")} className="px-3 py-1.5 bg-[#141624] hover:bg-[#1A1E30] rounded-full transition-all border border-white/10 text-red-400 font-bold text-[11px] flex items-center gap-1.5 shadow-xs cursor-pointer">
                   <Mail size={12} className="text-red-400" />
                   Aduan Botol Bocor (Gmail)
@@ -712,57 +383,11 @@ const ChatInterface = ({
                         <PluginArtifactCard pluginType={msg.pluginType || ''} data={msg.pluginData} onOpenStore={() => setActiveTab('plugins')} />
                       )}
                       {msg.hasJev && msg.jevData && (
-                        <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-300/80 text-xs flex flex-col gap-2 shadow-2xs">
-                          <div className="flex items-center justify-between">
-                            <span className="font-black text-amber-950 flex items-center gap-1.5">
-                              <span>🌶️</span>
-                              <span>Klasifikasi Integriti JEV System-1</span>
-                            </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-black text-[#FFC107]">
-                              Invarian 7-Dimensi
-                            </span>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-2 text-[11px] font-sans">
-                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Kelas Isu</span>
-                              <span className="font-black text-zinc-900">{msg.jevData.dimensions?.issueClass?.value || 'N/A'}</span>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Status Punca</span>
-                              <span className={cn(
-                                "font-black px-1.5 py-0.5 rounded text-[10px] inline-block",
-                                msg.jevData.dimensions?.rootCauseStatus?.value === 'UNDETERMINED' 
-                                  ? "bg-amber-100 text-amber-900 border border-amber-300" 
-                                  : "bg-emerald-100 text-emerald-900"
-                              )}>
-                                {msg.jevData.dimensions?.rootCauseStatus?.value || 'UNDETERMINED'}
-                              </span>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Saluran Jualan</span>
-                              <span className="font-bold text-zinc-800">{msg.jevData.dimensions?.salesChannel?.value || 'N/A'}</span>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white border border-amber-200/60">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase block">Hasrat Pelanggan</span>
-                              <span className="font-bold text-zinc-800">{msg.jevData.dimensions?.customerIntent?.value || 'N/A'}</span>
-                            </div>
-                          </div>
-
-                          {msg.jevData.recommendedAction && (
-                            <div className="pt-1.5 border-t border-amber-200/70">
-                              <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-0.5">Cadangan Tindakan:</span>
-                              <p className="text-[11px] text-zinc-800 font-medium">
-                                {msg.jevData.recommendedAction}
-                              </p>
-                              {msg.jevData.suggestedSop && (
-                                <p className="text-[10px] text-zinc-500 mt-1">
-                                  <strong>SOP:</strong> {msg.jevData.suggestedSop}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        <JevArtifactCard 
+                          jevData={msg.jevData} 
+                          onOpenDiscovery={() => setActiveTab('discovery')} 
+                          onAction={onSendMessage} 
+                        />
                       )}
                       {msg.latencyMs && (
                         <div className="text-emerald-600 flex items-center gap-1.5 text-[11px] font-medium">
@@ -888,6 +513,16 @@ const ChatInterface = ({
 
                     {msg.hasPlugin && msg.pluginData && (
                       <PluginArtifactCard pluginType={msg.pluginType || ''} data={msg.pluginData} onOpenStore={() => setActiveTab('plugins')} />
+                    )}
+
+                    {msg.hasJev && msg.jevData && (
+                      <div className="mt-3">
+                        <JevArtifactCard 
+                          jevData={msg.jevData} 
+                          onOpenDiscovery={() => setActiveTab('discovery')} 
+                          onAction={onSendMessage} 
+                        />
+                      </div>
                     )}
 
                     {msg.role === 'model' && msg.latencyMs !== undefined && (
@@ -1341,6 +976,11 @@ export default function App() {
   const [isToolExecuting, setIsToolExecuting] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  
+  // Responsive Sidebar States: Desktop Collapse & Mobile Slide-Over Drawer
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const { quickStaffSignIn } = useSupabaseAuth();
 
   // Global Ctrl+K / Cmd+K keyboard shortcut listener
@@ -1443,16 +1083,24 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onAction={handleAction}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebarCollapse={() => setIsSidebarCollapsed(prev => !prev)}
       />
 
-      {/* Unified Master Shell: Mobile-First CSS Grid (1-col on mobile, 2-col [295px_1fr] on md:) */}
-      <div className="grid grid-cols-1 md:grid-cols-[295px_1fr] min-h-0 h-full w-full overflow-hidden relative">
+      {/* Unified Master Shell: Mobile-First CSS Grid (1-col on mobile, dynamic [76px/295px_1fr] on md:) */}
+      <div className={cn(
+        "grid min-h-0 h-full w-full overflow-hidden relative transition-[grid-template-columns] duration-300",
+        isSidebarCollapsed ? "grid-cols-1 md:grid-cols-[76px_1fr]" : "grid-cols-1 md:grid-cols-[295px_1fr]"
+      )}>
         <Sidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           isToolOrPluginInProgress={isToolOrPluginInProgress}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           onAction={handleAction}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         />
 
         <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-4 bg-[#090A10]">
@@ -1492,6 +1140,48 @@ export default function App() {
           </div>
         </main>
       </div>
+
+      {/* Mobile Drawer (Slide-Over Navigation Tree) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 md:hidden"
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              className="fixed inset-y-0 left-0 z-50 w-[84%] max-w-[320px] bg-[#0C0E16] shadow-2xl md:hidden overflow-hidden"
+            >
+              <Sidebar 
+                activeTab={activeTab} 
+                setActiveTab={(tab) => {
+                  setActiveTab(tab);
+                  setIsMobileMenuOpen(false);
+                }} 
+                isToolOrPluginInProgress={isToolOrPluginInProgress}
+                onOpenCommandPalette={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsCommandPaletteOpen(true);
+                }}
+                onAction={(prompt) => {
+                  setIsMobileMenuOpen(false);
+                  handleAction(prompt);
+                }}
+                isMobile={true}
+                onCloseMobile={() => setIsMobileMenuOpen(false)}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Floating Neo-Dock (from Image 1 / Smart Cockpit Concept) */}
       <FloatingNeoDock 

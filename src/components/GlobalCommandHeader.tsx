@@ -20,7 +20,10 @@ import {
   Check, 
   X,
   ExternalLink,
-  Laptop
+  Laptop,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -32,13 +35,19 @@ interface GlobalCommandHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onAction?: (msg?: string) => void;
+  onToggleMobileMenu?: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebarCollapse?: () => void;
 }
 
 export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
   onOpenCommandPalette,
   activeTab,
   setActiveTab,
-  onAction
+  onAction,
+  onToggleMobileMenu,
+  isSidebarCollapsed = false,
+  onToggleSidebarCollapse
 }) => {
   const { user, role, quickStaffSignIn } = useSupabaseAuth();
   const [timeString, setTimeString] = useState<string>('');
@@ -103,11 +112,22 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
   return (
     <>
       <header className="w-full shrink-0 bg-[#0C0E16]/95 backdrop-blur-2xl border-b border-white/[0.08] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 z-30 select-none">
-        {/* Left: Brand Identity & Version */}
-        <div className="flex items-center gap-3.5 shrink-0">
+        {/* Left: Mobile Menu Trigger + Brand Identity & Version */}
+        <div className="flex items-center gap-2.5 md:gap-3.5 shrink-0">
+          {/* Mobile Drawer Trigger (md:hidden) */}
+          <button
+            type="button"
+            onClick={onToggleMobileMenu}
+            className="md:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+            title="Buka Menu Operasi"
+            aria-label="Buka Menu Operasi"
+          >
+            <Menu size={18} className="text-[#CFFF5E]" />
+          </button>
+
           <button 
             onClick={() => setActiveTab('discovery')}
-            className="flex items-center gap-3 group text-left transition-transform active:scale-95 cursor-pointer"
+            className="flex items-center gap-2.5 md:gap-3 group text-left transition-transform active:scale-95 cursor-pointer"
           >
             <div className="relative">
               <img 
@@ -137,6 +157,23 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
               </span>
             </div>
           </button>
+
+          {/* Desktop Sidebar Collapse Toggle Button */}
+          {onToggleSidebarCollapse && (
+            <button
+              type="button"
+              onClick={onToggleSidebarCollapse}
+              className="hidden md:flex items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 hover:border-[#CFFF5E]/30 transition-all cursor-pointer ml-1"
+              title={isSidebarCollapsed ? "Kembangkan Sidebar (Penuh)" : "Kuncupkan Sidebar (Kompak)"}
+              aria-label={isSidebarCollapsed ? "Kembangkan Sidebar" : "Kuncupkan Sidebar"}
+            >
+              {isSidebarCollapsed ? (
+                <PanelLeftOpen size={16} className="text-[#CFFF5E]" />
+              ) : (
+                <PanelLeftClose size={16} />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Center: Omni-Search Command Trigger (Orbital Style) */}

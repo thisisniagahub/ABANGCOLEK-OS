@@ -53,13 +53,16 @@ import {
   Award,
   Maximize2,
   Minimize2,
-  LayoutGrid
+  LayoutGrid,
+  Grid,
+  Ruler
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { appStore } from '@/services/store';
 import { busFreightService, BusConsignment } from '@/services/busFreightService';
 import { AgentInsightCard } from './AgentInsightCard';
+import { WireframeCockpitStudio } from './WireframeCockpitStudio';
 
 export interface ModernBentoDashboardProps {
   onAction: (msg?: string) => void;
@@ -69,7 +72,7 @@ export interface ModernBentoDashboardProps {
 type OperationalZone = 'all' | 'pantai_timur' | 'selatan' | 'klang_valley';
 type TimeframeOption = 'today' | '7d' | '30d';
 type MetricMode = 'gmv' | 'bottles';
-type GridLayoutMode = 'balanced' | 'chart_focus' | 'ops_focus';
+type GridLayoutMode = 'cockpit_studio' | 'balanced' | 'chart_focus' | 'ops_focus';
 
 export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
   onAction,
@@ -83,6 +86,11 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
   // Dynamic Grid Layout & Dynamic Row Span State
   const [gridLayoutMode, setGridLayoutMode] = useState<GridLayoutMode>('balanced');
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+
+  // Visual Grid Overlay for Layout Debugging & Spacing Management
+  const [showGridOverlay, setShowGridOverlay] = useState<boolean>(false);
+  const [gridOverlayTheme, setGridOverlayTheme] = useState<'cyan' | 'lime' | 'magenta'>('cyan');
+  const [showGutterMarkers, setShowGutterMarkers] = useState<boolean>(true);
 
   // Dynamic individual card row span tracking (1, 2, or 3 rows) to maximize screen real estate
   const [cardRowSpans, setCardRowSpans] = useState<Record<string, number>>({
@@ -106,7 +114,7 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
   const handleLayoutModeChange = (mode: GridLayoutMode) => {
     setGridLayoutMode(mode);
     setExpandedCardId(null);
-    if (mode === 'balanced') {
+    if (mode === 'cockpit_studio' || mode === 'balanced') {
       setCardRowSpans({
         chart: 2,
         quota: 1,
@@ -383,14 +391,15 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
               <button
                 onClick={() => handleLayoutModeChange('balanced')}
                 className={cn(
-                  "px-2.5 py-1.5 rounded-xl transition-all cursor-pointer text-[11px]",
+                  "px-3 py-1.5 rounded-xl transition-all cursor-pointer text-[11px] flex items-center gap-1.5",
                   gridLayoutMode === 'balanced' && !expandedCardId
                     ? "bg-[#CFFF5E] text-black font-black shadow-sm" 
                     : "text-zinc-300 hover:text-white"
                 )}
-                title="Grid Seimbang: Interlocking Bento dengan Dynamic 2-Row Spans"
+                title="Grid Seimbang: High-Density Symmetrical Bento Grid (12-Col Master)"
               >
-                Seimbang
+                <LayoutGrid size={11} className={gridLayoutMode === 'balanced' ? "text-black" : "text-[#CFFF5E]"} />
+                <span>Bento Seimbang</span>
               </button>
               <button
                 onClick={() => handleLayoutModeChange('chart_focus')}
@@ -416,7 +425,39 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
               >
                 Fokus Operasi
               </button>
+              <button
+                onClick={() => handleLayoutModeChange('cockpit_studio')}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl transition-all cursor-pointer text-[11px] flex items-center gap-1.5",
+                  gridLayoutMode === 'cockpit_studio'
+                    ? "bg-gradient-to-r from-[#FF4757] to-[#FFA000] text-white font-black shadow-md" 
+                    : "text-zinc-300 hover:text-white"
+                )}
+                title="Cockpit Studio: Susun atur futuristik berpandukan lakaran konsep tablet"
+              >
+                <Sparkles size={11} className={gridLayoutMode === 'cockpit_studio' ? "fill-white" : "text-[#CFFF5E]"} />
+                <span>Cockpit Studio</span>
+              </button>
             </div>
+
+            {/* Visual Grid Overlay Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowGridOverlay(!showGridOverlay)}
+              className={cn(
+                "px-3 py-2 rounded-2xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-sm",
+                showGridOverlay
+                  ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-md shadow-[#CFFF5E]/20"
+                  : "bg-black/40 border-white/10 text-zinc-300 hover:text-white hover:bg-black/60"
+              )}
+              title={showGridOverlay ? "Tutup Hamparan Grid Visual (Debug Mode Aktif)" : "Buka Hamparan Grid Visual untuk Semakan Spacing & Jajaran (Layout Debugging)"}
+            >
+              <Grid size={14} className={showGridOverlay ? "text-black" : "text-[#CFFF5E]"} />
+              <span className="hidden sm:inline">Grid Visual</span>
+              {showGridOverlay && (
+                <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+              )}
+            </button>
 
             {/* Manual Refresh */}
             <button
@@ -432,18 +473,183 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. RESPONSIVE UNIFIED CSS BENTO GRID WITH DYNAMIC ROW SPANS               */}
+      {/* 2. COCKPIT STUDIO (WIREFRAME KONSEP) OR BENTO GRID MASTER                 */}
       {/* ========================================================================= */}
-      <div 
-        className="grid [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))] gap-5 auto-rows-[minmax(140px,auto)] grid-flow-dense"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}
-      >
+      {gridLayoutMode === 'cockpit_studio' ? (
+        <div className="space-y-6">
+          <WireframeCockpitStudio onAction={onAction} setActiveTab={setActiveTab} />
+
+          {/* Quick Sub-Grid Bar to Access Full Cards */}
+          <div className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-3xl bg-[#121420] border border-white/10 shadow-lg gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#CFFF5E] animate-pulse" />
+              <span className="text-xs font-bold text-white">Paparan Cockpit Studio Aktif (Konsep Lakaran Tablet)</span>
+              <span className="hidden md:inline text-[11px] text-zinc-400">• Beralih ke mod 'Seimbang' untuk melihat semua 12 kad operasi serentak.</span>
+            </div>
+            <button
+              onClick={() => handleLayoutModeChange('balanced')}
+              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-[#CFFF5E] flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <span>Buka Semua 12 Kad Metrik</span>
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+      ) : (
+      <div className="relative space-y-4">
+        {/* Visual Grid Overlay Debug HUD & Spacing Controls */}
+        <AnimatePresence>
+          {showGridOverlay && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="p-3.5 sm:p-4 rounded-3xl bg-[#0C0D14]/95 border border-cyan-400/40 shadow-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-2xl bg-cyan-400/20 text-cyan-400 flex items-center justify-center border border-cyan-400/30 shrink-0 shadow-inner">
+                  <Ruler size={16} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono font-black text-cyan-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <Grid size={12} />
+                      <span>Hamparan Grid Visual &amp; Spacing (Debug HUD)</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30">
+                      12-Col Master
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-zinc-900 text-zinc-300 border border-white/10">
+                      Gutter: 20px (gap-5)
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-zinc-900 text-zinc-300 border border-white/10">
+                      Radius: 24px (rounded-3xl)
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-zinc-900 text-zinc-300 border border-white/10">
+                      Padding: 24px (p-6)
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-zinc-400 mt-0.5">
+                    Mod semakan jajaran: Garis panduan 12-lajur, jarak ruang (gutters), dan sempadan kad aktif di seluruh dashboard.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Theme Selector */}
+                <div className="flex items-center p-1 rounded-xl bg-black/60 border border-white/10 text-[10px] font-bold">
+                  <span className="px-1.5 text-zinc-400">Tema:</span>
+                  <button
+                    type="button"
+                    onClick={() => setGridOverlayTheme('cyan')}
+                    className={cn(
+                      "px-2 py-0.5 rounded-lg transition-colors cursor-pointer",
+                      gridOverlayTheme === 'cyan' ? "bg-cyan-500 text-black font-extrabold" : "text-zinc-400 hover:text-white"
+                    )}
+                  >
+                    Cyan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGridOverlayTheme('lime')}
+                    className={cn(
+                      "px-2 py-0.5 rounded-lg transition-colors cursor-pointer",
+                      gridOverlayTheme === 'lime' ? "bg-[#CFFF5E] text-black font-extrabold" : "text-zinc-400 hover:text-white"
+                    )}
+                  >
+                    Lime
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGridOverlayTheme('magenta')}
+                    className={cn(
+                      "px-2 py-0.5 rounded-lg transition-colors cursor-pointer",
+                      gridOverlayTheme === 'magenta' ? "bg-pink-500 text-white font-extrabold" : "text-zinc-400 hover:text-white"
+                    )}
+                  >
+                    Magenta
+                  </button>
+                </div>
+
+                {/* Gutter Callout Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowGutterMarkers(!showGutterMarkers)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer",
+                    showGutterMarkers 
+                      ? "bg-white text-black border-white" 
+                      : "bg-black/60 border-white/10 text-zinc-400 hover:text-white"
+                  )}
+                  title="Papar petunjuk saiz gutter 20px antara kad"
+                >
+                  Ukuran Gutter
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGridOverlay(false)}
+                  className="px-2.5 py-1 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-[10px] font-bold transition-all cursor-pointer"
+                >
+                  Tutup Debug
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Master Bento Grid Wrapper with Visual Grid Overlay */}
+        <div className="relative">
+          {/* Visual Grid Column & Gutter Guides */}
+          {showGridOverlay && (
+            <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden rounded-3xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 h-full">
+                {Array.from({ length: 12 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "h-full border-x border-dashed flex flex-col justify-between items-center py-2 transition-colors relative",
+                      gridOverlayTheme === 'cyan' && "bg-cyan-500/[0.04] border-cyan-400/30 text-cyan-300",
+                      gridOverlayTheme === 'lime' && "bg-[#CFFF5E]/[0.04] border-[#CFFF5E]/30 text-[#CFFF5E]",
+                      gridOverlayTheme === 'magenta' && "bg-pink-500/[0.04] border-pink-400/30 text-pink-300"
+                    )}
+                  >
+                    <div className="px-1.5 py-0.5 rounded font-mono text-[9px] font-black bg-black/85 border border-current shadow-xs">
+                      #{idx + 1}
+                    </div>
+
+                    {/* Gutter Callout Tag between columns */}
+                    {showGutterMarkers && idx < 11 && (
+                      <div className="absolute -right-3.5 top-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center">
+                        <span className="px-1 py-0.5 rounded-full text-[7.5px] font-mono font-black bg-black/90 text-amber-300 border border-amber-400/40 shadow-xs whitespace-nowrap">
+                          20px
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="font-mono text-[8.5px] font-bold opacity-35 rotate-90 my-auto tracking-widest">
+                      COL {idx + 1}
+                    </div>
+                    <div className="px-1.5 py-0.5 rounded font-mono text-[8px] font-bold bg-black/75 border border-current/40">
+                      8.33%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actual 12-Column Grid */}
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 auto-rows-auto"
+          >
         
         {/* KPI 1: GMV Jualan Bersih */}
         <motion.div 
-          whileHover={{ scale: 1.02 }} 
-          transition={{ duration: 0.2, ease: "easeOut" }} 
-          className="col-span-1 sm:col-span-1 lg:col-span-3 lg:row-span-1 p-5 sm:p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-amber-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-amber-400/40 transition-all cursor-pointer"
+          whileHover={{ scale: 1.02, y: -3 }} 
+          transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+          className="col-span-1 md:col-span-1 lg:col-span-3 p-5 sm:p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between h-full hover:border-amber-400/40 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
             <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">GMV Jualan Bersih</span>
@@ -476,9 +682,9 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
 
         {/* KPI 2: Volum Botol Terjual */}
         <motion.div 
-          whileHover={{ scale: 1.02 }} 
-          transition={{ duration: 0.2, ease: "easeOut" }} 
-          className="col-span-1 sm:col-span-1 lg:col-span-3 lg:row-span-1 p-5 sm:p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-emerald-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-emerald-400/40 transition-all cursor-pointer"
+          whileHover={{ scale: 1.02, y: -3 }} 
+          transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+          className="col-span-1 md:col-span-1 lg:col-span-3 p-5 sm:p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-emerald-500/10 flex flex-col justify-between h-full hover:border-emerald-400/40 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
             <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Volum Botol Terjual</span>
@@ -502,9 +708,9 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
 
         {/* KPI 3: Kargo Bas TBS Aktif */}
         <motion.div 
-          whileHover={{ scale: 1.02 }} 
-          transition={{ duration: 0.2, ease: "easeOut" }} 
-          className="col-span-1 sm:col-span-1 lg:col-span-3 lg:row-span-1 p-5 sm:p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-blue-400/40 transition-all cursor-pointer"
+          whileHover={{ scale: 1.02, y: -3 }} 
+          transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+          className="col-span-1 md:col-span-1 lg:col-span-3 p-5 sm:p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 flex flex-col justify-between h-full hover:border-blue-400/40 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
             <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Kargo Bas TBS</span>
@@ -529,9 +735,9 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
 
         {/* KPI 4: Integriti JEV System-1 */}
         <motion.div 
-          whileHover={{ scale: 1.02 }} 
-          transition={{ duration: 0.2, ease: "easeOut" }} 
-          className="col-span-1 sm:col-span-1 lg:col-span-3 lg:row-span-1 p-5 sm:p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-purple-400/40 transition-all cursor-pointer"
+          whileHover={{ scale: 1.02, y: -3 }} 
+          transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+          className="col-span-1 md:col-span-1 lg:col-span-3 p-5 sm:p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 flex flex-col justify-between h-full hover:border-purple-400/40 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
             <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Integriti JEV System-1</span>
@@ -560,15 +766,14 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           const isChartExpanded = cardRowSpans.chart === 3 || gridLayoutMode === 'chart_focus' || expandedCardId === 'chart';
           return (
             <motion.div 
-              whileHover={{ scale: 1.01 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.012, y: -2 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 sm:p-8 rounded-[32px] bg-[#141522] border border-white/[0.08] shadow-2xl hover:shadow-black/60 transition-all grid grid-rows-[auto_1fr_auto] h-full col-span-full [grid-column:1/-1]",
+                "p-6 sm:p-7 rounded-3xl bg-[#121422]/90 border border-white/[0.08] hover:border-white/20 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between h-full cursor-pointer",
                 isChartExpanded
-                  ? "row-span-3 border-amber-400/30"
-                  : "row-span-2"
+                  ? "col-span-1 md:col-span-2 lg:col-span-12 border-amber-400/30"
+                  : "col-span-1 md:col-span-2 lg:col-span-8"
               )}
-              style={{ gridColumn: '1 / -1' }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
                 <div>
@@ -698,32 +903,44 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
 
               {/* Symmetrical 3-Card SKU Velocity Footer */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 mt-4 border-t border-white/[0.06]">
-                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
+                <motion.div 
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 hover:border-white/20 transition-all flex items-center justify-between cursor-pointer"
+                >
                   <div>
                     <span className="text-[10px] font-bold text-zinc-400 uppercase block">SKU Utama</span>
                     <p className="text-xs font-black text-white">Kuah Colek 500g (RM28)</p>
                     <p className="text-[10px] text-[#CFFF5E] font-bold mt-0.5">3,420 botol terjual</p>
                   </div>
                   <span className="text-xl">🥭</span>
-                </div>
+                </motion.div>
 
-                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
+                <motion.div 
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 hover:border-white/20 transition-all flex items-center justify-between cursor-pointer"
+                >
                   <div>
                     <span className="text-[10px] font-bold text-zinc-400 uppercase block">Pakej Ejen</span>
                     <p className="text-xs font-black text-white">Pakej 50 Botol (RM850)</p>
                     <p className="text-[10px] text-blue-400 font-bold mt-0.5">24 kotak kargo dihantar</p>
                   </div>
                   <span className="text-xl">📦</span>
-                </div>
+                </motion.div>
 
-                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
+                <motion.div 
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 hover:border-white/20 transition-all flex items-center justify-between cursor-pointer"
+                >
                   <div>
                     <span className="text-[10px] font-bold text-zinc-400 uppercase block">Kombo Viral</span>
                     <p className="text-xs font-black text-white">Beli 3 Percuma 1 (RM75)</p>
                     <p className="text-[10px] text-purple-400 font-bold mt-0.5">890 set TikTok Shop</p>
                   </div>
                   <span className="text-xl">🔥</span>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           );
@@ -731,16 +948,17 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
 
         {/* FEATURED CARD 2: ELECTRIC LIME TACTILE QUOTA COCKPIT (DYNAMIC ROW SPAN) */}
         {(() => {
+          const isChartExpanded = cardRowSpans.chart === 3 || gridLayoutMode === 'chart_focus' || expandedCardId === 'chart';
           const isQuotaExpanded = cardRowSpans.quota === 2 || gridLayoutMode === 'ops_focus' || expandedCardId === 'quota';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.018, y: -2 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 rounded-[32px] bg-[#CFFF5E] text-black shadow-xl hover:shadow-2xl hover:shadow-[#CFFF5E]/20 grid grid-rows-[auto_1fr_auto] h-full border-2 border-[#CFFF5E]/50 relative overflow-hidden transition-all col-span-full sm:col-span-1 [grid-column:1/-1] sm:[grid-column:auto]",
-                isQuotaExpanded
-                  ? "row-span-2"
-                  : "row-span-1"
+                "p-6 rounded-3xl bg-[#CFFF5E] text-black shadow-xl hover:shadow-2xl hover:shadow-[#CFFF5E]/20 flex flex-col justify-between h-full border-2 border-[#CFFF5E]/60 relative overflow-hidden transition-all cursor-pointer",
+                isChartExpanded
+                  ? "col-span-1 md:col-span-2 lg:col-span-12"
+                  : "col-span-1 md:col-span-2 lg:col-span-4"
               )}
             >
               <div className="flex items-center justify-between pb-3 border-b border-black/10">
@@ -856,85 +1074,16 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
-        {/* FEATURED CARD 3: WARM GOLDEN AMBER MEDIA & JINGLE COCKPIT */}
-        <motion.div 
-          whileHover={{ scale: 1.02 }} 
-          transition={{ duration: 0.2, ease: "easeOut" }} 
-          className="col-span-full sm:col-span-1 [grid-column:1/-1] sm:[grid-column:auto] row-span-1 p-6 rounded-[32px] bg-[#FFC107] text-black shadow-xl hover:shadow-2xl hover:shadow-[#FFC107]/20 grid grid-rows-[auto_1fr_auto] h-full border-2 border-amber-300 relative overflow-hidden transition-all"
-        >
-          <div className="flex items-center justify-between pb-2 border-b border-black/10">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-xl bg-black text-[#FFC107]">
-                <Headphones size={15} />
-              </span>
-              <div>
-                <h3 className="text-xs sm:text-sm font-black text-black">Jingle Promosi Abang Colek</h3>
-                <p className="text-[9.5px] font-bold text-zinc-800">Lagu Tema Rasmi Gerai</p>
-              </div>
-            </div>
-
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-black text-[#FFC107] uppercase font-mono">
-              1:00 MP3
-            </span>
-          </div>
-
-          {/* Central Rotating Vinyl Player */}
-          <div className="my-2 flex items-center justify-center">
-            <div className="relative flex items-center justify-center">
-              <motion.div 
-                animate={{ rotate: isPlayingJingle ? 360 : 0 }}
-                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                className="w-20 h-20 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 border-4 border-black/40 shadow-xl flex items-center justify-center p-1.5"
-              >
-                <div className="w-full h-full rounded-full border border-zinc-700/50 flex items-center justify-center p-1.5">
-                  <div className="w-full h-full rounded-full border border-zinc-800/80 flex items-center justify-center bg-gradient-to-tr from-amber-600 to-red-600 p-1">
-                    <span className="text-[8px] font-black text-white text-center leading-none">
-                      COLEK
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-
-              <button
-                onClick={toggleJingle}
-                className="absolute w-10 h-10 rounded-full bg-black text-white hover:bg-zinc-800 shadow-xl flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-[#FFC107]"
-                title={isPlayingJingle ? "Hentikan Jingle" : "Mainkan Jingle Kasi Lagi-Lagi"}
-              >
-                {isPlayingJingle ? (
-                  <Pause size={16} className="fill-white" />
-                ) : (
-                  <Play size={16} className="fill-white ml-0.5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="text-center space-y-0.5">
-            <p className="text-xs font-black text-black truncate">
-              "Kasi Lagi-Lagi" — Lagu Rasmi
-            </p>
-            <p className="text-[9.5px] font-bold text-zinc-800">
-              {isPlayingJingle ? (
-                <span className="text-red-700 font-extrabold animate-pulse">♫ Audio Sedang Dimainkan</span>
-              ) : (
-                <span className="text-zinc-700">Tekan Main Untuk Audio Gerai</span>
-              )}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* OPERATIONAL CARD 1: STOK BOTOL 500G (DYNAMIC ROW SPAN) */}
+        {/* OPERATIONAL CARD 1: STOK BOTOL 500G */}
         {(() => {
           const isStockExpanded = cardRowSpans.stock === 2 || gridLayoutMode === 'ops_focus' || expandedCardId === 'stock';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.02, y: -3 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-amber-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-amber-400/40 transition-all",
-                isStockExpanded
-                  ? "col-span-1 sm:col-span-2 lg:col-span-4 lg:row-span-2 border-amber-400/40"
-                  : "col-span-1 sm:col-span-1 lg:col-span-4 lg:row-span-1"
+                "p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between h-full hover:border-amber-400/40 transition-all col-span-1 md:col-span-1 lg:col-span-4 cursor-pointer",
+                isStockExpanded && "border-amber-400/40"
               )}
             >
               <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -1020,18 +1169,16 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
-        {/* OPERATIONAL CARD 2: RADAR KARGO BAS TBS (DYNAMIC ROW SPAN) */}
+        {/* OPERATIONAL CARD 2: RADAR KARGO BAS TBS */}
         {(() => {
           const isBusExpanded = cardRowSpans.bus === 2 || gridLayoutMode === 'ops_focus' || expandedCardId === 'bus';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.02, y: -3 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 rounded-[28px] bg-[#141522] border border-white/[0.08] shadow-lg hover:shadow-2xl hover:shadow-red-500/10 grid grid-rows-[auto_1fr_auto] h-full hover:border-red-400/40 transition-all",
-                isBusExpanded
-                  ? "col-span-1 sm:col-span-2 lg:col-span-4 lg:row-span-2 border-red-500/40"
-                  : "col-span-1 sm:col-span-1 lg:col-span-4 lg:row-span-1"
+                "p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-red-500/10 flex flex-col justify-between h-full hover:border-red-400/40 transition-all col-span-1 md:col-span-1 lg:col-span-4 cursor-pointer",
+                isBusExpanded && "border-red-500/40"
               )}
             >
               <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -1119,18 +1266,16 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
-        {/* OPERATIONAL CARD 3: TIKTOK LIVE & MASKOT (DYNAMIC ROW SPAN) */}
+        {/* OPERATIONAL CARD 3: TIKTOK LIVE & MASKOT */}
         {(() => {
           const isTiktokExpanded = cardRowSpans.tiktok === 2 || expandedCardId === 'tiktok';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.02, y: -3 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 rounded-[28px] bg-gradient-to-br from-[#1C1829] to-[#120F1D] border border-purple-500/20 shadow-lg hover:shadow-2xl hover:shadow-purple-500/15 grid grid-rows-[auto_1fr_auto] h-full relative overflow-hidden transition-all",
-                isTiktokExpanded
-                  ? "col-span-1 sm:col-span-2 lg:col-span-4 lg:row-span-2 border-purple-500/40"
-                  : "col-span-1 sm:col-span-2 lg:col-span-4 lg:row-span-1"
+                "p-6 rounded-3xl bg-gradient-to-br from-[#1C1829] to-[#120F1D] border border-purple-500/20 shadow-xl hover:shadow-2xl hover:shadow-purple-500/15 flex flex-col justify-between h-full relative overflow-hidden transition-all col-span-1 md:col-span-2 lg:col-span-4 cursor-pointer",
+                isTiktokExpanded && "border-purple-500/40"
               )}
             >
               <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -1212,22 +1357,84 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
-        {/* FEATURED CARD 4: JEV QUALITY & REGIONAL STOCKIST METERS (DYNAMIC ROW SPAN) */}
+        {/* FEATURED CARD 3: WARM GOLDEN AMBER MEDIA & JINGLE COCKPIT */}
+        <motion.div 
+          whileHover={{ scale: 1.02, y: -3 }} 
+          transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+          className="col-span-1 md:col-span-1 lg:col-span-4 p-6 rounded-3xl bg-[#FFC107] text-black shadow-xl hover:shadow-2xl hover:shadow-[#FFC107]/20 flex flex-col justify-between h-full border-2 border-amber-300 relative overflow-hidden transition-all cursor-pointer"
+        >
+          <div className="flex items-center justify-between pb-2 border-b border-black/10">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-xl bg-black text-[#FFC107]">
+                <Headphones size={15} />
+              </span>
+              <div>
+                <h3 className="text-xs sm:text-sm font-black text-black">Jingle Promosi Abang Colek</h3>
+                <p className="text-[9.5px] font-bold text-zinc-800">Lagu Tema Rasmi Gerai</p>
+              </div>
+            </div>
+
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-black text-[#FFC107] uppercase font-mono">
+              1:00 MP3
+            </span>
+          </div>
+
+          {/* Central Rotating Vinyl Player */}
+          <div className="my-2 flex items-center justify-center">
+            <div className="relative flex items-center justify-center">
+              <motion.div 
+                animate={{ rotate: isPlayingJingle ? 360 : 0 }}
+                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                className="w-20 h-20 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 border-4 border-black/40 shadow-xl flex items-center justify-center p-1.5"
+              >
+                <div className="w-full h-full rounded-full border border-zinc-700/50 flex items-center justify-center p-1.5">
+                  <div className="w-full h-full rounded-full border border-zinc-800/80 flex items-center justify-center bg-gradient-to-tr from-amber-600 to-red-600 p-1">
+                    <span className="text-[8px] font-black text-white text-center leading-none">
+                      COLEK
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              <button
+                onClick={toggleJingle}
+                className="absolute w-10 h-10 rounded-full bg-black text-white hover:bg-zinc-800 shadow-xl flex items-center justify-center active:scale-90 transition-transform cursor-pointer border-2 border-[#FFC107]"
+                title={isPlayingJingle ? "Hentikan Jingle" : "Mainkan Jingle Kasi Lagi-Lagi"}
+              >
+                {isPlayingJingle ? (
+                  <Pause size={16} className="fill-white" />
+                ) : (
+                  <Play size={16} className="fill-white ml-0.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="text-center space-y-0.5">
+            <p className="text-xs font-black text-black truncate">
+              "Kasi Lagi-Lagi" — Lagu Rasmi
+            </p>
+            <p className="text-[9.5px] font-bold text-zinc-800">
+              {isPlayingJingle ? (
+                <span className="text-red-700 font-extrabold animate-pulse">♫ Audio Sedang Dimainkan</span>
+              ) : (
+                <span className="text-zinc-700">Tekan Main Untuk Audio Gerai</span>
+              )}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* FEATURED CARD 4: JEV QUALITY & REGIONAL STOCKIST METERS */}
         {(() => {
           const isJevExpanded = cardRowSpans.jev === 3 || expandedCardId === 'jev';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
+              whileHover={{ scale: 1.015, y: -3 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
               className={cn(
-                "p-6 rounded-[32px] bg-[#141522] border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 grid grid-rows-[auto_1fr_auto] h-full transition-all col-span-full [grid-column:1/-1]",
-                isJevExpanded
-                  ? "row-span-3 border-purple-500/40"
-                  : gridLayoutMode === 'ops_focus'
-                    ? "row-span-3"
-                    : "row-span-2"
+                "p-6 rounded-3xl bg-[#121422]/90 border border-white/[0.08] shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 flex flex-col justify-between h-full transition-all col-span-1 md:col-span-1 lg:col-span-8 cursor-pointer",
+                isJevExpanded && "border-purple-500/40"
               )}
-              style={{ gridColumn: '1 / -1' }}
             >
               <div>
                 <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
@@ -1327,22 +1534,14 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
-        {/* FEATURED CARD 5: AGENT TELEMETRY INSIGHT COMPONENT (DYNAMIC ROW SPAN) */}
+        {/* FEATURED CARD 5: AGENT TELEMETRY INSIGHT COMPONENT */}
         {(() => {
           const isAgentExpanded = cardRowSpans.agent === 3 || expandedCardId === 'agent';
           return (
             <motion.div 
-              whileHover={{ scale: 1.015 }} 
-              transition={{ duration: 0.2, ease: "easeOut" }} 
-              className={cn(
-                "transition-all h-full col-span-full [grid-column:1/-1]",
-                isAgentExpanded
-                  ? "row-span-3"
-                  : gridLayoutMode === 'ops_focus'
-                    ? "row-span-3"
-                    : "row-span-2"
-              )}
-              style={{ gridColumn: '1 / -1' }}
+              whileHover={{ scale: 1.012, y: -2 }} 
+              transition={{ type: "spring", stiffness: 400, damping: 25 }} 
+              className="col-span-1 md:col-span-2 lg:col-span-12 rounded-3xl transition-all h-full cursor-pointer"
             >
               <AgentInsightCard 
                 className="h-full"
@@ -1353,7 +1552,10 @@ export const ModernBentoDashboard: React.FC<ModernBentoDashboardProps> = ({
           );
         })()}
 
+          </div>
+        </div>
       </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 7. SYMMETRICAL FLOATING NEO-DOCK NAVIGATION                               */}

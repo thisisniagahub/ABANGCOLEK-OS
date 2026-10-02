@@ -5,6 +5,16 @@
 
 import { supabase } from './supabaseClient';
 
+export interface ToolExecutionStep {
+  id: string;
+  step_name: string;
+  step_type: 'prompt_evaluation' | 'tool_invocation' | 'data_transformation' | 'workspace_sync' | 'verification' | 'db_commit';
+  latency_ms: number;
+  timestamp: string;
+  status: 'SUCCESS' | 'ERROR' | 'TIMEOUT';
+  details?: string;
+}
+
 export interface AgentTaskLog {
   id: string;
   task_id: string;
@@ -17,6 +27,7 @@ export interface AgentTaskLog {
   user_query: string;
   model: string;
   error_message?: string;
+  steps?: ToolExecutionStep[];
 }
 
 export interface ToolPerformanceMetric {
@@ -46,6 +57,117 @@ export interface TimeSeriesPerformancePoint {
 
 // Baseline mock/seed dataset of 40+ realistic tool invocations logged in Supabase
 const INITIAL_PERFORMANCE_SEED: AgentTaskLog[] = [
+  // Operations Exceeding 5 Seconds (>5.0s) for Transparency & Audit
+  {
+    id: 'TLOG-099',
+    task_id: 'TSK-2041',
+    tool_name: 'generate_yearly_report',
+    tool_category: 'Analisis & Laporan',
+    latency_ms: 6420,
+    status: 'SUCCESS',
+    tokens_used: 2850,
+    timestamp: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+    user_query: 'Jana audit tahunan kargo bas TBS, rekod jualan 2026 & rekonsiliasi stokis',
+    model: 'gemini-3.8-flash',
+    steps: [
+      {
+        id: 'stp-1',
+        step_name: '1. Pertanyaan Semantik & Resolusi Entiti',
+        step_type: 'prompt_evaluation',
+        latency_ms: 620,
+        timestamp: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+        status: 'SUCCESS',
+        details: 'Analisis parameter laporan tahunan dan skop tarikh jualan'
+      },
+      {
+        id: 'stp-2',
+        step_name: '2. Panggilan API Pangkalan Data Supabase',
+        step_type: 'tool_invocation',
+        latency_ms: 1840,
+        timestamp: new Date(Date.now() - 4 * 60 * 1000 + 620).toISOString(),
+        status: 'SUCCESS',
+        details: 'Menarik 3,420 baris rekod pesanan dan konsainan bas ekspres'
+      },
+      {
+        id: 'stp-3',
+        step_name: '3. Transformasi Data & Matriks Untung-Rugi (MYR)',
+        step_type: 'data_transformation',
+        latency_ms: 1980,
+        timestamp: new Date(Date.now() - 4 * 60 * 1000 + 2460).toISOString(),
+        status: 'SUCCESS',
+        details: 'Agregat metrik GMV (RM128,450) dan margin keuntungan ejen'
+      },
+      {
+        id: 'stp-4',
+        step_name: '4. Sinkronisasi Dokumen Google Workspace',
+        step_type: 'workspace_sync',
+        latency_ms: 1350,
+        timestamp: new Date(Date.now() - 4 * 60 * 1000 + 4440).toISOString(),
+        status: 'SUCCESS',
+        details: 'Menjana fail Google Docs & Sheets laporan rasmi'
+      },
+      {
+        id: 'stp-5',
+        step_name: '5. Verifikasi Integriti Invarian JEV System-1',
+        step_type: 'verification',
+        latency_ms: 630,
+        timestamp: new Date(Date.now() - 4 * 60 * 1000 + 5790).toISOString(),
+        status: 'SUCCESS',
+        details: 'Pengesahan 0 anomali dan penutupan transaksi berjaya'
+      }
+    ]
+  },
+  {
+    id: 'TLOG-098',
+    task_id: 'TSK-2038',
+    tool_name: 'canva_generate_design',
+    tool_category: 'Gedung Plugins',
+    latency_ms: 5380,
+    status: 'SUCCESS',
+    tokens_used: 1940,
+    timestamp: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
+    user_query: 'Reka kempen visual 4-variasi kombo kuah colek & jeruk mangga untuk TikTok',
+    model: 'gemini-3.8-flash',
+    steps: [
+      {
+        id: 'stp-11',
+        step_name: '1. Pemprosesan Prompt Gaya Jenama Abang Colek',
+        step_type: 'prompt_evaluation',
+        latency_ms: 710,
+        timestamp: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
+        status: 'SUCCESS',
+        details: 'Penyesuaian palet warna oren cili dan teks neon'
+      },
+      {
+        id: 'stp-12',
+        step_name: '2. Panggilan Plugin Canva SDK Eksternal',
+        step_type: 'tool_invocation',
+        latency_ms: 2840,
+        timestamp: new Date(Date.now() - 14 * 60 * 1000 + 710).toISOString(),
+        status: 'SUCCESS',
+        details: 'Render grafik resolusi tinggi 1080x1920 & variasi 1:1'
+      },
+      {
+        id: 'stp-13',
+        step_name: '3. Pemampatan Aset Visual & Pengehosan CDN',
+        step_type: 'data_transformation',
+        latency_ms: 1210,
+        timestamp: new Date(Date.now() - 14 * 60 * 1000 + 3550).toISOString(),
+        status: 'SUCCESS',
+        details: 'Optimumkan saiz fail PNG untuk capaian mobile pantas'
+      },
+      {
+        id: 'stp-14',
+        step_name: '4. Verifikasi Output & Penyerahan URL',
+        step_type: 'verification',
+        latency_ms: 620,
+        timestamp: new Date(Date.now() - 14 * 60 * 1000 + 4760).toISOString(),
+        status: 'SUCCESS',
+        details: 'URL reka bentuk aktif sedia untuk perkongsian krew'
+      }
+    ]
+  },
+
   // 1. Logistics & Bus Tools (High frequency, optimized latency)
   {
     id: 'TLOG-001',
@@ -373,6 +495,13 @@ class SupabaseAgentPerformanceService {
       const stored = localStorage.getItem('abangcolek_agent_task_logs');
       if (stored) {
         this.logs = JSON.parse(stored);
+        // Ensure operations exceeding 5s are present for transparency audit
+        const hasLongOps = this.logs.some(l => l.latency_ms >= 5000);
+        if (!hasLongOps) {
+          const longSeeds = INITIAL_PERFORMANCE_SEED.filter(l => l.latency_ms >= 5000);
+          this.logs = [...longSeeds, ...this.logs];
+          this.saveToStorage();
+        }
       } else {
         this.logs = [...INITIAL_PERFORMANCE_SEED];
         this.saveToStorage();
@@ -433,7 +562,8 @@ class SupabaseAgentPerformanceService {
       timestamp: d.created_at || d.timestamp || new Date().toISOString(),
       user_query: d.user_query || d.description || d.title || `Tugasan agen: ${rawTool}`,
       model: d.model || 'gemini-3.8-flash',
-      error_message: d.error_message || d.error
+      error_message: d.error_message || d.error,
+      steps: d.steps
     };
   }
 

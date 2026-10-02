@@ -12,7 +12,53 @@ import {
   signOut as fbSignOut,
   User 
 } from 'firebase/auth';
-import firebaseConfig from './firebaseConfig';
+
+export interface FirebaseAppletConfig {
+  projectId: string;
+  appId: string;
+  apiKey: string;
+  authDomain: string;
+  firestoreDatabaseId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  measurementId?: string;
+  oAuthClientId?: string;
+  recaptchaSiteKey?: string;
+}
+
+// 1. Secure object fallback from environment variables or project defaults
+const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : ({} as Record<string, any>);
+
+const fallbackFirebaseConfig: FirebaseAppletConfig = {
+  projectId: env.VITE_FIREBASE_PROJECT_ID || "jumping-welder-fw1xt",
+  appId: env.VITE_FIREBASE_APP_ID || "1:362107811694:web:bc38952304f3a09821737f",
+  apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSyCu_3SqDFo3dO1Rw1xHuPGqx-Z5MmQcJuY",
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || `${env.VITE_FIREBASE_PROJECT_ID || "jumping-welder-fw1xt"}.firebaseapp.com`,
+  firestoreDatabaseId: env.VITE_FIREBASE_DATABASE_ID || "ai-studio-remixabangcoleko-fdbc0ab3-bf88-4d43-9836-e87a41417dea",
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || `${env.VITE_FIREBASE_PROJECT_ID || "jumping-welder-fw1xt"}.firebasestorage.app`,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "362107811694",
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || "",
+  oAuthClientId: env.VITE_FIREBASE_OAUTH_CLIENT_ID || "362107811694-ce2lg146uok385hug9fs122agrumtblh.apps.googleusercontent.com",
+  recaptchaSiteKey: env.VITE_FIREBASE_RECAPTCHA_SITE_KEY || ""
+};
+
+// 2. Safely attempt to import the local config file directly if it exists in the project root
+let rootConfig: Partial<FirebaseAppletConfig> = {};
+try {
+  // Vite root-level glob directly checking for config in project root without fragile relative paths
+  const rootConfigs = import.meta.glob<Record<string, any>>('/firebase-applet-config.json', { eager: true });
+  const rootKey = Object.keys(rootConfigs)[0];
+  if (rootKey && rootConfigs[rootKey]) {
+    rootConfig = (rootConfigs[rootKey].default || rootConfigs[rootKey]) as Partial<FirebaseAppletConfig>;
+  }
+} catch {
+  // Fallback cleanly if absent
+}
+
+export const firebaseConfig: FirebaseAppletConfig = {
+  ...fallbackFirebaseConfig,
+  ...rootConfig
+};
 
 export const SCOPES = [
   'https://www.googleapis.com/auth/drive',
