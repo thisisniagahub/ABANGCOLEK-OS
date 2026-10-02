@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, 
   Plus, 
@@ -17,7 +18,8 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Building,
-  RotateCcw
+  RotateCcw,
+  X
 } from 'lucide-react';
 import { 
   fetchSupabaseOrders, 
@@ -40,6 +42,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   const [isLive, setIsLive] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [refundConfirmOrder, setRefundConfirmOrder] = useState<{ id: string; amount: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
 
@@ -87,10 +90,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
     loadOrders();
   };
 
-  const handleRefund = async (orderId: string, amount: number) => {
-    if (!confirm(`Sahkan bayar balik (refund) RM ${amount} bagi pesanan ${orderId}?`)) return;
+  const handleExecuteRefund = async (orderId: string) => {
     setSyncing(true);
     await updateSupabaseOrderStatus(orderId, 'Refunded', 'LEAKAGE / Penutup Botol Kurier Longgar');
+    setRefundConfirmOrder(null);
     setSyncing(false);
     loadOrders();
   };
@@ -353,7 +356,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                 <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
                   {order.status !== 'Refunded' && (
                     <button 
-                      onClick={() => handleRefund(order.order_id, order.amount)}
+                      onClick={() => setRefundConfirmOrder({ id: order.order_id, amount: order.amount })}
                       className="px-3.5 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                     >
                       <RotateCcw size={12} />
@@ -373,6 +376,59 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
           )}
         </div>
       </div>
+
+      {/* In-App Refund Confirmation Modal (Replacing window.confirm) */}
+      <AnimatePresence>
+        {refundConfirmOrder && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#141624] border border-red-800/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-red-400">
+                  <AlertTriangle size={20} />
+                  <h3 className="text-base font-bold text-white">Sahkan Bayar Balik (Refund)</h3>
+                </div>
+                <button 
+                  onClick={() => setRefundConfirmOrder(null)} 
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                Adakah anda pasti mahu memproses bayar balik berjumlah <strong className="text-[#CFFF5E]">RM {refundConfirmOrder.amount}</strong> bagi pesanan <strong className="text-white">#{refundConfirmOrder.id}</strong>?
+              </p>
+              
+              <div className="p-3 rounded-2xl bg-black/40 border border-white/5 text-xs text-zinc-400">
+                Alasan Piawai: <span className="text-amber-300 font-mono">LEAKAGE / Penutup Botol Kurier Longgar</span>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRefundConfirmOrder(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={syncing}
+                  onClick={() => handleExecuteRefund(refundConfirmOrder.id)}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                >
+                  {syncing ? 'Memproses...' : 'Sahkan Bayar Balik'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

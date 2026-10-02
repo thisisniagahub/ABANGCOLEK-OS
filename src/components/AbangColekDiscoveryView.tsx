@@ -976,11 +976,24 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(hook.text);
-                          alert(`Cangkuk disalin: "${hook.text}"`);
+                          setCopiedHookId(hook.id);
+                          setTimeout(() => setCopiedHookId(null), 2000);
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-white border border-black/10 hover:bg-zinc-100 text-zinc-700 font-bold text-[10px] transition-colors cursor-pointer"
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                          copiedHookId === hook.id 
+                            ? "bg-[#CFFF5E] text-black border-[#CFFF5E]" 
+                            : "bg-white border-black/10 hover:bg-zinc-100 text-zinc-700"
+                        )}
                       >
-                        Salin Hook
+                        {copiedHookId === hook.id ? (
+                          <>
+                            <Check size={11} />
+                            <span>Disalin!</span>
+                          </>
+                        ) : (
+                          <span>Salin Hook</span>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1229,12 +1242,28 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
                   </a>
                   <button
                     onClick={() => {
-                      alert("Fail rujukan kekal telah disimpan dalam /docs/AUDIT_TERPERINCI_REPO_ABANG_COLEK_ECOSYSTEM.md dalam direktori projek.");
+                      navigator.clipboard.writeText('/docs/AUDIT_TERPERINCI_REPO_ABANG_COLEK_ECOSYSTEM.md');
+                      setCopiedTagline('audit-file');
+                      setTimeout(() => setCopiedTagline(null), 2500);
                     }}
-                    className="px-4 py-1.5 rounded-full bg-black text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-zinc-800 transition-colors cursor-pointer"
+                    className={cn(
+                      "px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer",
+                      copiedTagline === 'audit-file' 
+                        ? "bg-[#CFFF5E] text-black shadow-sm" 
+                        : "bg-black text-white hover:bg-zinc-800"
+                    )}
                   >
-                    <Download size={13} />
-                    <span>Sahkan Lokasi Fail</span>
+                    {copiedTagline === 'audit-file' ? (
+                      <>
+                        <Check size={13} />
+                        <span>Path Disalin ke Papan Keratan!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download size={13} />
+                        <span>Salin Laluan Fail</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

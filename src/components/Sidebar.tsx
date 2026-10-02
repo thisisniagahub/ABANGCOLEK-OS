@@ -26,19 +26,16 @@ import {
   Mic,
   Zap,
   ChevronDown,
-  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
-  X,
-  Sparkles,
-  ShieldCheck,
-  CheckCircle2,
-  ExternalLink
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { subscribeAuth } from '@/services/googleAuth';
 import { User as FbUser } from 'firebase/auth';
 import { useSupabaseAuth } from '@/services/supabaseAuth';
+import { appStore } from '@/services/store';
+import { busFreightManager } from '@/services/busFreightService';
 
 export interface SidebarProps {
   activeTab: string;
@@ -50,6 +47,17 @@ export interface SidebarProps {
   onToggleCollapse?: () => void;
   isMobile?: boolean;
   onCloseMobile?: () => void;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  badge?: string;
+  dotColor?: string;
+  dotPulse?: boolean;
+  activeCount?: number | string;
+  tooltipText?: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
@@ -66,6 +74,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [googleUser, setGoogleUser] = useState<FbUser | null>(null);
   const { user: supabaseUser, role, quickStaffSignIn, signOut: supabaseSignOut } = useSupabaseAuth();
   
+  // Real-time live counts from application state
+  const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(() => {
+    return appStore.getOrders().filter(o => o.status === 'Processing' || o.status === 'Delayed').length;
+  });
+
+  const [activeBusCount, setActiveBusCount] = useState<number>(() => {
+    return busFreightManager.getConsignments().filter(c => c.status !== 'COLLECTED').length;
+  });
+
   // Collapsible Accordions for navigation sections
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
@@ -77,28 +94,198 @@ export const Sidebar: React.FC<SidebarProps> = ({
     });
   }, []);
 
-  const workspaceItems = [
-    { id: 'discovery', label: 'Abang Colek Hub', icon: Flame, badge: 'v4.2' },
-    { id: 'chat', label: 'Agent Chat', icon: Bot },
-    { id: 'bus_freight', label: 'Ekspres Bas & Ejen', icon: Truck, badge: 'SOP 1 Jam' },
-    { id: 'plugins', label: 'Gedung Plugins', icon: Zap, badge: '12 Aktif' },
-    { id: 'gmail', label: 'Gmail', icon: Mail },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'docs', label: 'Docs', icon: FileText },
-    { id: 'sheets', label: 'Sheets', icon: FileSpreadsheet },
-    { id: 'forms', label: 'Forms', icon: FolderOpen, badge: googleUser ? 'Synced' : undefined },
-    { id: 'meet', label: 'Meet', icon: Video },
-    { id: 'chat_workspace', label: 'Chat', icon: MessageSquare },
-    { id: 'maps', label: 'Logistics Map', icon: MapPin },
+  // Subscribe to live order updates and bus freight events
+  useEffect(() => {
+    const unsubOrders = appStore.subscribe(() => {
+      const orders = appStore.getOrders();
+      setPendingOrdersCount(orders.filter(o => o.status === 'Processing' || o.status === 'Delayed').length);
+    });
+
+    const unsubBus = busFreightManager.subscribe(() => {
+      const consignments = busFreightManager.getConsignments();
+      setActiveBusCount(consignments.filter(c => c.status !== 'COLLECTED').length);
+    });
+
+    return () => {
+      unsubOrders();
+      unsubBus();
+    };
+  }, []);
+
+  const workspaceItems: NavItem[] = [
+    { 
+      id: 'discovery', 
+      label: 'Abang Colek Hub', 
+      icon: Flame, 
+      badge: 'v4.2',
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: false,
+      tooltipText: 'Hab Operasi & Ekosistem Utama Abang Colek (v4.2)'
+    },
+    { 
+      id: 'chat', 
+      label: 'Agent Chat', 
+      icon: Bot, 
+      badge: isToolOrPluginInProgress ? 'Live' : 'Gemini',
+      dotColor: isToolOrPluginInProgress ? 'bg-[#FF4757]' : 'bg-[#CFFF5E]',
+      dotPulse: Boolean(isToolOrPluginInProgress),
+      tooltipText: isToolOrPluginInProgress ? 'Ejen AI Sedang Memproses Arahan (Live)' : 'Ejen AI Pintar Bersedia (Gemini 2.5 Flash)'
+    },
+    { 
+      id: 'bus_freight', 
+      label: 'Ekspres Bas & Ejen', 
+      icon: Truck, 
+      badge: `${activeBusCount} Bas`,
+      activeCount: activeBusCount,
+      dotColor: 'bg-[#FFC107]',
+      dotPulse: activeBusCount > 0,
+      tooltipText: `${activeBusCount} Konsinan Bas Ekspres Sedang Bergerak / Aktif`
+    },
+    { 
+      id: 'plugins', 
+      label: 'Gedung Plugins', 
+      icon: Zap, 
+      badge: '12 Aktif',
+      activeCount: 12,
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: false,
+      tooltipText: '12 Plugin Integrasi Sistem Berfungsi'
+    },
+    { 
+      id: 'gmail', 
+      label: 'Gmail', 
+      icon: Mail,
+      badge: '1 Aduan',
+      activeCount: 1,
+      dotColor: 'bg-[#FF4757]',
+      dotPulse: true,
+      tooltipText: '1 Emel Aduan Kualiti Botol Bocor Menunggu Respons'
+    },
+    { 
+      id: 'calendar', 
+      label: 'Calendar', 
+      icon: Calendar,
+      badge: '1 Sesi',
+      activeCount: 1,
+      dotColor: 'bg-[#00F0FF]',
+      dotPulse: false,
+      tooltipText: '1 Sesi Taklimat Stokis Terengganu Hari Ini (3:00 PM)'
+    },
+    { 
+      id: 'tasks', 
+      label: 'Tasks', 
+      icon: CheckSquare,
+      badge: '3 Tugas',
+      activeCount: 3,
+      dotColor: 'bg-[#8C7DFF]',
+      dotPulse: false,
+      tooltipText: '3 Tugasan QC Penutup Botol & Audit Inventori'
+    },
+    { 
+      id: 'docs', 
+      label: 'Docs', 
+      icon: FileText,
+      badge: 'SOP',
+      dotColor: 'bg-[#8C7DFF]',
+      dotPulse: false,
+      tooltipText: 'SOP Piawaian Kualiti & Pembungkusan Kargo'
+    },
+    { 
+      id: 'sheets', 
+      label: 'Sheets', 
+      icon: FileSpreadsheet,
+      badge: 'Auto',
+      dotColor: 'bg-[#10B981]',
+      dotPulse: false,
+      tooltipText: 'Lejar Jualan Terkini Diselaraskan Automatik'
+    },
+    { 
+      id: 'forms', 
+      label: 'Forms', 
+      icon: FolderOpen, 
+      badge: googleUser ? 'Synced' : 'Lokal',
+      dotColor: googleUser ? 'bg-[#00F0FF]' : 'bg-zinc-500',
+      dotPulse: false,
+      tooltipText: googleUser ? 'Borang Pendaftaran Ejen Diselaraskan (Google Forms)' : 'Borang Pendaftaran Ejen (Mod Luar Talian)'
+    },
+    { 
+      id: 'meet', 
+      label: 'Meet', 
+      icon: Video,
+      badge: 'Pop-Up',
+      dotColor: 'bg-[#00F0FF]',
+      dotPulse: false,
+      tooltipText: 'Bilik Sidang Maya Google Meet Krew Karnival'
+    },
+    { 
+      id: 'chat_workspace', 
+      label: 'Chat', 
+      icon: MessageSquare,
+      badge: 'Krew',
+      dotColor: 'bg-[#FFC107]',
+      dotPulse: false,
+      tooltipText: 'Saluran Sembang Krew Gerai & Pemandu Bas TBS'
+    },
+    { 
+      id: 'maps', 
+      label: 'Logistics Map', 
+      icon: MapPin,
+      badge: '3 Hab',
+      activeCount: 3,
+      dotColor: 'bg-[#00F0FF]',
+      dotPulse: false,
+      tooltipText: '3 Hab Terminal Utama (TBS, MBKT, JB) Dalam Radar'
+    },
   ];
 
-  const analyticsItems = [
-    { id: 'agent_performance', label: 'Prestasi Agen AI', icon: Gauge, badge: 'Recharts' },
-    { id: 'dashboards', label: 'Dashboards', icon: Activity },
-    { id: 'reports', label: 'Reports', icon: Search },
-    { id: 'orders', label: 'Orders', icon: Database },
-    { id: 'reviews', label: 'Reviews', icon: Briefcase },
+  const analyticsItems: NavItem[] = [
+    { 
+      id: 'agent_performance', 
+      label: 'Prestasi Agen AI', 
+      icon: Gauge, 
+      badge: '99.4%',
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: true,
+      tooltipText: 'Kesihatan Agen: 99.4% Uptime • Recharts Telemetri Live'
+    },
+    { 
+      id: 'dashboards', 
+      label: 'Dashboards', 
+      icon: Activity,
+      badge: 'Live',
+      dotColor: 'bg-[#FFC107]',
+      dotPulse: false,
+      tooltipText: 'Papan Pemuka Bento Berketumpatan Tinggi & Visual Grid'
+    },
+    { 
+      id: 'reports', 
+      label: 'Reports', 
+      icon: Search,
+      badge: 'JEV',
+      dotColor: 'bg-[#8C7DFF]',
+      dotPulse: false,
+      tooltipText: 'Laporan Integriti JEV System-1 & Analisis Kerosakan'
+    },
+    { 
+      id: 'orders', 
+      label: 'Orders', 
+      icon: Database,
+      badge: `${pendingOrdersCount} Baru`,
+      activeCount: pendingOrdersCount,
+      dotColor: pendingOrdersCount > 0 ? 'bg-[#00F0FF]' : 'bg-[#CFFF5E]',
+      dotPulse: pendingOrdersCount > 0,
+      tooltipText: `${pendingOrdersCount} Pesanan Baharu Dalam Proses & Menunggu Semakan`
+    },
+    { 
+      id: 'reviews', 
+      label: 'Reviews', 
+      icon: Briefcase,
+      badge: '1 Aduan',
+      activeCount: 1,
+      dotColor: 'bg-[#FF4757]',
+      dotPulse: true,
+      tooltipText: '1 Aduan Kebocoran Botol (LEAKAGE Triage Diperlukan)'
+    },
   ];
 
   const handleItemClick = (id: string) => {
@@ -108,7 +295,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  // Compact Mode (Collapsed Sidebar on Desktop)
+  // Compact Mode (Collapsed Sidebar on Desktop: 76px)
   if (isCollapsed && !isMobile) {
     return (
       <aside 
@@ -121,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onToggleCollapse}
             className="w-10 h-10 rounded-2xl bg-[#141624] border border-white/10 hover:border-[#CFFF5E]/50 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md group"
-            title="Buka Sidebar Penuh"
+            title="Kembangkan Sidebar Penuh (295px)"
           >
             <PanelLeftOpen size={18} className="text-[#CFFF5E] group-hover:scale-110 transition-transform" />
           </button>
@@ -143,7 +330,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="text-white text-[11px] leading-tight font-black">
                 {role === 'stockist_kt' ? 'Kak Siti (KT)' : role === 'crew_toppen' ? 'Wan (JB)' : 'Megat Epull'}
               </p>
-              <p className="text-[9px] text-[#CFFF5E] font-medium">Buka Pusat Perintah</p>
+              <p className="text-[9px] text-[#CFFF5E] font-medium">Buka Pusat Perintah (Ctrl+K)</p>
             </div>
           </div>
 
@@ -173,7 +360,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                     <button 
                       onClick={() => setShowVoicePopover(false)}
-                      className="text-zinc-400 hover:text-white p-0.5"
+                      className="text-zinc-400 hover:text-white p-0.5 cursor-pointer"
                     >
                       <X size={12} />
                     </button>
@@ -207,7 +394,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Center: Scrollable Icon-Only Nav Items */}
+        {/* Center: Scrollable Icon-Only Nav Items with Status Indicator Dots */}
         <nav className="flex-1 w-full flex flex-col items-center gap-1.5 py-4 overflow-y-auto no-scrollbar">
           {/* Workspace Items */}
           {workspaceItems.map((item) => {
@@ -230,13 +417,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {isExecuting ? (
                     <span className="relative flex items-center justify-center">
                       <item.icon size={18} className="text-[#CFFF5E] animate-pulse" />
-                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4757] opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4757]" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#FF4757]" />
                       </span>
                     </span>
                   ) : (
                     <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                  )}
+
+                  {/* Status Indicator Dot on Top-Right Corner */}
+                  {!isExecuting && item.dotColor && (
+                    <span className="absolute top-1 right-1 flex h-2 w-2 pointer-events-none">
+                      {item.dotPulse && (
+                        <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", item.dotColor)} />
+                      )}
+                      <span className={cn("relative inline-flex rounded-full h-2 w-2 border border-[#0C0E16]", item.dotColor)} />
+                    </span>
                   )}
 
                   {/* Active Indicator Bar on Left */}
@@ -245,12 +442,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   )}
                 </button>
 
-                {/* Floating Tooltip */}
-                <div className="absolute left-14 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-[#141624] border border-white/15 text-white text-[11px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50 flex items-center gap-1.5">
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="text-[9px] px-1 py-0.2 rounded bg-white/10 text-[#CFFF5E] font-mono">
-                      {item.badge}
+                {/* Floating Tooltip with Status Awareness */}
+                <div className="absolute left-14 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-[#141624] border border-white/15 text-white text-[11px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50 flex flex-col gap-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn("w-2 h-2 rounded-full", item.dotColor || "bg-[#CFFF5E]")} />
+                    <span className="text-white font-extrabold">{item.label}</span>
+                    {item.badge && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#CFFF5E] font-mono">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  {item.tooltipText && (
+                    <span className="text-[10px] text-zinc-400 font-normal">
+                      {item.tooltipText}
                     </span>
                   )}
                 </div>
@@ -276,17 +481,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   aria-label={item.label}
                 >
                   <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                  
+                  {/* Status Indicator Dot on Top-Right Corner */}
+                  {item.dotColor && (
+                    <span className="absolute top-1 right-1 flex h-2 w-2 pointer-events-none">
+                      {item.dotPulse && (
+                        <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", item.dotColor)} />
+                      )}
+                      <span className={cn("relative inline-flex rounded-full h-2 w-2 border border-[#0C0E16]", item.dotColor)} />
+                    </span>
+                  )}
+
                   {isActive && (
                     <span className="absolute -left-1 top-2 bottom-2 w-1 rounded-r-full bg-[#CFFF5E]" />
                   )}
                 </button>
 
-                {/* Tooltip */}
-                <div className="absolute left-14 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-[#141624] border border-white/15 text-white text-[11px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50 flex items-center gap-1.5">
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="text-[9px] px-1 py-0.2 rounded bg-white/10 text-[#FFC107] font-mono">
-                      {item.badge}
+                {/* Floating Tooltip */}
+                <div className="absolute left-14 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-[#141624] border border-white/15 text-white text-[11px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50 flex flex-col gap-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn("w-2 h-2 rounded-full", item.dotColor || "bg-[#FFC107]")} />
+                    <span className="text-white font-extrabold">{item.label}</span>
+                    {item.badge && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#FFC107] font-mono">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  {item.tooltipText && (
+                    <span className="text-[10px] text-zinc-400 font-normal">
+                      {item.tooltipText}
                     </span>
                   )}
                 </div>
@@ -325,7 +549,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     );
   }
 
-  // Full Expanded Sidebar (Desktop or Mobile Slide-Over Drawer)
+  // Full Expanded Sidebar (Desktop: 295px or Mobile Slide-Over Drawer: up to 320px)
   return (
     <aside 
       aria-label="Pohon Navigasi Utama"
@@ -374,7 +598,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={onToggleCollapse}
               className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-              title="Kuncupkan Sidebar"
+              title="Kuncupkan Sidebar (76px)"
             >
               <PanelLeftClose size={14} />
             </button>
@@ -453,7 +677,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
       
-      {/* Navigation Tree with Accordion Sections */}
+      {/* Navigation Tree with Accordion Sections & Status Indicator Dots */}
       <nav className="flex-1 space-y-3.5 pr-1 overflow-y-auto min-h-0 text-[13px] no-scrollbar">
         {/* Accordion 1: Workspace & AI */}
         <div>
@@ -462,10 +686,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
             className="w-full px-2.5 py-1.5 mb-1.5 flex items-center justify-between text-zinc-400 hover:text-white rounded-lg transition-colors cursor-pointer group"
           >
-            <span className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-zinc-300 group-hover:text-white">
-              <span>🌶️</span>
-              <span>Workspace & AI</span>
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-zinc-300 group-hover:text-white flex items-center gap-1.5">
+                <span>🌶️</span>
+                <span>Workspace & AI</span>
+              </span>
+              
+              {/* Category-Level Activity Status Dot */}
+              <span className="relative flex h-2 w-2">
+                {isToolOrPluginInProgress ? (
+                  <>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4757] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4757]" />
+                  </>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#CFFF5E]" />
+                )}
+              </span>
+            </div>
+
             <div className="flex items-center gap-1.5">
               <span className="text-[9.5px] font-mono text-zinc-400 group-hover:text-[#CFFF5E]">
                 {workspaceItems.length}
@@ -501,6 +740,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
                           : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
                       )}
+                      title={item.tooltipText}
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         {isExecuting ? (
@@ -534,21 +774,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <span className="truncate text-xs">{item.label}</span>
                       </div>
 
-                      {isExecuting ? (
-                        <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 bg-[#FF4757] text-white">
-                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                          <span>Live</span>
-                        </span>
-                      ) : item.badge && (
-                        <span className={cn(
-                          "text-[9px] font-mono tracking-tight shrink-0",
-                          isActive 
-                            ? "text-[#CFFF5E] font-bold" 
-                            : "text-zinc-500 group-hover:text-zinc-300"
-                        )}>
-                          {item.badge}
-                        </span>
-                      )}
+                      {/* Right: Status Indicator Dot & Contextual Badge */}
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {isExecuting ? (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 bg-[#FF4757] text-white shadow-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                            <span>Live</span>
+                          </span>
+                        ) : (
+                          <>
+                            {/* Small Status Indicator Dot */}
+                            {item.dotColor && (
+                              <span className="relative flex h-2 w-2 shrink-0">
+                                {item.dotPulse && (
+                                  <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", item.dotColor)} />
+                                )}
+                                <span className={cn("relative inline-flex rounded-full h-2 w-2", item.dotColor)} />
+                              </span>
+                            )}
+
+                            {/* Clean Typographic Badge (Zero-Pill Discipline) */}
+                            {item.badge && (
+                              <span className={cn(
+                                "text-[9.5px] font-mono tracking-tight",
+                                isActive 
+                                  ? "text-[#CFFF5E] font-bold" 
+                                  : "text-zinc-400 group-hover:text-zinc-200"
+                              )}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
@@ -564,10 +822,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
             className="w-full px-2.5 py-1.5 mb-1.5 flex items-center justify-between text-zinc-400 hover:text-white rounded-lg transition-colors cursor-pointer group"
           >
-            <span className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-zinc-300 group-hover:text-white">
-              <span>📊</span>
-              <span>Operasi & Analitik</span>
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-zinc-300 group-hover:text-white flex items-center gap-1.5">
+                <span>📊</span>
+                <span>Operasi & Analitik</span>
+              </span>
+
+              {/* Category-Level Activity Indicator Dot (Amber for pending tasks/alerts) */}
+              <span className="relative flex h-2 w-2">
+                {pendingOrdersCount > 0 && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFC107] opacity-75" />
+                )}
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFC107]" />
+              </span>
+            </div>
+
             <div className="flex items-center gap-1.5">
               <span className="text-[9.5px] font-mono text-zinc-400 group-hover:text-[#FFC107]">
                 {analyticsItems.length}
@@ -600,6 +869,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
                           : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
                       )}
+                      title={item.tooltipText}
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         <item.icon 
@@ -612,14 +882,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         />
                         <span className="truncate text-xs">{item.label}</span>
                       </div>
-                      {item.badge && (
-                        <span className={cn(
-                          "text-[9px] font-mono tracking-tight shrink-0",
-                          isActive ? "text-[#CFFF5E] font-bold" : "text-zinc-500 group-hover:text-zinc-300"
-                        )}>
-                          {item.badge}
-                        </span>
-                      )}
+
+                      {/* Right: Status Indicator Dot & Contextual Badge */}
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {item.dotColor && (
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            {item.dotPulse && (
+                              <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", item.dotColor)} />
+                            )}
+                            <span className={cn("relative inline-flex rounded-full h-2 w-2", item.dotColor)} />
+                          </span>
+                        )}
+
+                        {item.badge && (
+                          <span className={cn(
+                            "text-[9.5px] font-mono tracking-tight",
+                            isActive ? "text-[#CFFF5E] font-bold" : "text-zinc-400 group-hover:text-zinc-200"
+                          )}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
                     </button>
                   );
                 })}

@@ -333,7 +333,8 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
   const handleCreateConsignment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!driverName || !busPlateNo || !agentName) {
-      alert('Sila lengkapkan maklumat No Plat Bas, Driver dan Ejen!');
+      setActionNotice('Ralat: Sila lengkapkan maklumat No Plat Bas, Driver dan Ejen!');
+      setTimeout(() => setActionNotice(null), 4000);
       return;
     }
 
