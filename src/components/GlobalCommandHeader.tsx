@@ -24,7 +24,10 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Keyboard
+  Keyboard,
+  ShoppingBag,
+  Globe,
+  Terminal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -177,6 +180,69 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
               )}
             </button>
           )}
+        </div>
+
+        {/* Surface & Mode Switcher: Landing, Store, Cockpit, Dev */}
+        <div className="hidden md:flex items-center gap-1 bg-[#141624] p-1 rounded-2xl border border-white/10 shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab('landing')}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+              activeTab === 'landing'
+                ? "bg-[#CFFF5E] text-black shadow-md font-extrabold"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            )}
+            title="Laman Utama Jenama (Landing Page)"
+          >
+            <Globe size={13} />
+            <span>Laman Utama</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('ecommerce_store')}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+              activeTab === 'ecommerce_store'
+                ? "bg-[#CFFF5E] text-black shadow-md font-extrabold"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            )}
+            title="Kedai E-Commerce Pembeli"
+          >
+            <ShoppingBag size={13} />
+            <span>Kedai Beli</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('discovery')}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+              activeTab !== 'landing' && activeTab !== 'ecommerce_store' && activeTab !== 'dev_console'
+                ? "bg-[#1E2235] text-[#CFFF5E] border border-[#CFFF5E]/40 shadow-xs font-extrabold"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            )}
+            title="Pusat Operasi Staf / HQ (ABANGCOLEK OS)"
+          >
+            <Zap size={13} />
+            <span>Pusat Operasi</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('dev_console')}
+            className={cn(
+              "px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer font-mono",
+              activeTab === 'dev_console'
+                ? "bg-purple-600 text-white shadow-md font-extrabold"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            )}
+            title="Konsol Pembangun & Diagnostik"
+          >
+            <Terminal size={13} />
+            <span>Dev</span>
+          </button>
         </div>
 
         {/* Center: Omni-Search Command Trigger (Orbital Style) */}

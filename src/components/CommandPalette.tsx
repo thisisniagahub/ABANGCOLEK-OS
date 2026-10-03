@@ -33,7 +33,10 @@ import {
   CornerDownLeft,
   X,
   HardDrive,
-  ShoppingBag
+  ShoppingBag,
+  Globe,
+  Tag,
+  Terminal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -83,6 +86,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const commandItems: CommandItem[] = useMemo(() => {
     return [
       // Workspaces & AI
+      {
+        id: 'nav-landing',
+        title: 'Laman Utama Jenama (Landing Page)',
+        subtitle: 'Halaman utama pembeli, video viral 4K TikTok, testimoni pelanggan & jingle',
+        category: 'Workspaces',
+        icon: Globe,
+        badge: 'Portal',
+        keywords: ['landing', 'home', 'utama', 'portal', 'video', 'tiktok', 'jingle', 'testimoni'],
+        action: () => {
+          onNavigateTab('landing');
+          onClose();
+        },
+      },
       {
         id: 'nav-discovery',
         title: 'Abang Colek Hub',
@@ -158,6 +174,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         keywords: ['prestasi', 'agent', 'performance', 'latency', 'telemetri', 'recharts', 'chart'],
         action: () => {
           onNavigateTab('agent_performance');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-admin-products',
+        title: 'Pengurusan Inventori & Produk (Admin CRUD)',
+        subtitle: 'Tambah produk baru, kemas kini harga runcit & borong, semak baki stok',
+        category: 'Workspaces',
+        icon: Tag,
+        badge: 'Admin CRUD',
+        keywords: ['produk', 'products', 'admin', 'crud', 'harga', 'stok', 'tambah', 'edit', 'inventori'],
+        action: () => {
+          onNavigateTab('admin_products');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-dev-console',
+        title: 'Konsol Pembangun (Dev Diagnostics)',
+        subtitle: 'Telemetri sistem, pemeriksa skema JSON, log peristiwa masa nyata & alat benih',
+        category: 'Workspaces',
+        icon: Terminal,
+        badge: 'Dev Mode',
+        keywords: ['dev', 'developer', 'console', 'terminal', 'diagnostik', 'telemetry', 'json', 'state'],
+        action: () => {
+          onNavigateTab('dev_console');
           onClose();
         },
       },

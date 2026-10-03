@@ -61,6 +61,9 @@ import { MeetView } from '@/components/MeetView';
 import { ChatWorkspaceView } from '@/components/ChatWorkspaceView';
 import { DriveView } from '@/components/DriveView';
 import { EcommerceStoreView } from '@/components/EcommerceStoreView';
+import { CustomerLandingPage } from '@/components/CustomerLandingPage';
+import { AdminProductManager } from '@/components/AdminProductManager';
+import { DeveloperConsoleView } from '@/components/DeveloperConsoleView';
 import { subscribeAuth } from '@/services/googleAuth';
 import { User as FbUser } from 'firebase/auth';
 import { OrdersView } from '@/components/OrdersView';
@@ -1065,6 +1068,12 @@ export default function App() {
           '9': 'drive',
           's': 'ecommerce_store',
           'S': 'ecommerce_store',
+          'l': 'landing',
+          'L': 'landing',
+          'p': 'admin_products',
+          'P': 'admin_products',
+          'c': 'dev_console',
+          'C': 'dev_console',
         };
         if (tabShortcuts[e.key]) {
           e.preventDefault();
@@ -1199,7 +1208,19 @@ export default function App() {
                 setActiveTab={setActiveTab}
               />
             )}
+            {activeTab === 'landing' && (
+              <CustomerLandingPage 
+                onNavigateToStore={() => setActiveTab('ecommerce_store')}
+                onNavigateToCockpit={() => setActiveTab('discovery')}
+                onTrackOrder={() => setActiveTab('ecommerce_store')}
+                cartCount={0}
+                onOpenCart={() => setActiveTab('ecommerce_store')}
+                onQuickAddToCart={() => setActiveTab('ecommerce_store')}
+              />
+            )}
             {activeTab === 'ecommerce_store' && <EcommerceStoreView onAction={handleAction} onNavigateTab={setActiveTab} />}
+            {activeTab === 'admin_products' && <AdminProductManager onAction={handleAction} />}
+            {activeTab === 'dev_console' && <DeveloperConsoleView onAction={handleAction} />}
             {activeTab === 'bus_freight' && <BusFreightView onAction={handleAction} />}
             {activeTab === 'agent_performance' && <AgentPerformanceView onAction={handleAction} />}
             {activeTab === 'plugins' && <PluginsView onAction={handleAction} />}

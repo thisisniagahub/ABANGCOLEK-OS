@@ -33,30 +33,14 @@ import {
   Banknote,
   Package,
   Award,
-  Zap
+  Zap,
+  Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { insertSupabaseOrder } from '@/services/supabaseOrders';
 import { OFFICIAL_DRIVE_FOLDERS } from '@/services/googleDrive';
-
-export interface ProductItem {
-  id: string;
-  name: string;
-  subtitle: string;
-  category: 'retail' | 'combo' | 'wholesale' | 'sides';
-  price: number;
-  originalPrice?: number;
-  unit: string;
-  image: string;
-  badge?: string;
-  badgeColor?: string;
-  spiceOptions?: string[];
-  description: string;
-  highlights: string[];
-  driveSource: string;
-  stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'PRE_ORDER';
-  minOrder?: number;
-}
+import { productService, ProductItem } from '@/services/productService';
+import { appStore, OrderItem } from '@/services/store';
 
 export interface CartItem {
   product: ProductItem;
@@ -238,6 +222,36 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
   
+  // Live products from productService
+  const [productsList, setProductsList] = useState<ProductItem[]>(() => productService.getProducts());
+  
+  // Order Tracking State
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [trackOrderIdInput, setTrackOrderIdInput] = useState('');
+  const [foundOrder, setFoundOrder] = useState<OrderItem | null>(null);
+  const [hasSearchedOrder, setHasSearchedOrder] = useState(false);
+
+  useEffect(() => {
+    const unsub = productService.subscribe(() => {
+      setProductsList(productService.getProducts());
+    });
+    return unsub;
+  }, []);
+
+  const handleSearchTracking = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!trackOrderIdInput.trim()) return;
+    const cleanId = trackOrderIdInput.trim().toUpperCase();
+    const allOrders = appStore.getOrders();
+    const match = allOrders.find(o => 
+      o.order_id.toUpperCase().includes(cleanId) || 
+      (o.tracking_number && o.tracking_number.toUpperCase().includes(cleanId)) ||
+      o.customer_id.toLowerCase().includes(trackOrderIdInput.trim().toLowerCase())
+    );
+    setFoundOrder(match || null);
+    setHasSearchedOrder(true);
+  };
+  
   // Jingle audio player
   const [isPlayingJingle, setIsPlayingJingle] = useState(false);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
@@ -315,7 +329,7 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
   const totalAmount = subtotal + shippingFee;
 
   // Filter products
-  const filteredProducts = STORE_PRODUCTS.filter(p => {
+  const filteredProducts = productsList.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -486,14 +500,32 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
               </span>
             </button>
 
-            {/* Drive Link Shortcut */}
-            <div className="flex items-center gap-2 text-[11px] text-zinc-400">
-              <span>Bahan rujukan:</span>
+            {/* Drive Link Shortcut & Action Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setTrackingModalOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Truck size={13} className="text-[#00F0FF]" />
+                <span>Kesan Pesanan</span>
+              </button>
+
+              {onNavigateTab && (
+                <button
+                  onClick={() => onNavigateTab('admin_products')}
+                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-[#CFFF5E] hover:text-black text-zinc-400 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-white/10"
+                >
+                  <Tag size={13} />
+                  <span>Urus Produk (Admin)</span>
+                </button>
+              )}
+
               <button 
                 onClick={() => onNavigateTab && onNavigateTab('drive')}
-                className="underline hover:text-[#CFFF5E] font-medium flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-[#CFFF5E] border border-white/10 text-xs font-medium flex items-center gap-1 cursor-pointer"
               >
-                Drive Hub 2 Folder <ExternalLink size={10} />
+                <span>Drive 2 Folder</span>
+                <ExternalLink size={10} />
               </button>
             </div>
           </div>
@@ -520,7 +552,7 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
               </p>
             </div>
             <button
-              onClick={() => handleAddToCart(STORE_PRODUCTS[1], 1)}
+              onClick={() => handleAddToCart(productsList[1] || productsList[0], 1)}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-[#00F0FF] hover:text-black text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
             >
               + Tambah
@@ -546,7 +578,7 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
               </p>
             </div>
             <button
-              onClick={() => handleAddToCart(STORE_PRODUCTS[3], 1)}
+              onClick={() => handleAddToCart(productsList[3] || productsList[0], 1)}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-[#FFC107] hover:text-black text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
             >
               + Tambah
@@ -1351,6 +1383,124 @@ export const EcommerceStoreView: React.FC<EcommerceStoreViewProps> = ({ onAction
                   <ArrowRight size={14} />
                 </button>
               </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Sticky Bottom Cart Bar (Pinterest Style) */}
+      <AnimatePresence>
+        {cartItemCount > 0 && !isCartOpen && !isCheckoutOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-lg p-3 rounded-2xl bg-[#141624]/95 backdrop-blur-xl border border-[#CFFF5E]/40 shadow-[0_10px_35px_rgba(0,0,0,0.8)] flex items-center justify-between gap-3 pointer-events-auto"
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative w-10 h-10 rounded-xl bg-[#CFFF5E] text-black flex items-center justify-center font-black">
+                <ShoppingCart size={18} />
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#FF4757] text-white text-[10px] font-black flex items-center justify-center border-2 border-black">
+                  {cartItemCount}
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] text-zinc-400 block leading-tight">{cartItemCount} item dalam beg</span>
+                <span className="text-base font-black text-white font-mono leading-tight">RM{subtotal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsCheckoutOpen(true)}
+              className="px-5 py-2.5 rounded-xl bg-[#CFFF5E] hover:bg-[#d8ff6b] text-black font-black text-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(207,255,94,0.3)] cursor-pointer"
+            >
+              <span>Bayar Sekarang</span>
+              <ArrowRight size={14} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Track Order Modal */}
+      <AnimatePresence>
+        {trackingModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setTrackingModalOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md rounded-3xl bg-[#141624] border border-white/20 shadow-2xl p-6 space-y-4"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <Truck size={18} className="text-[#00F0FF]" />
+                  <h3 className="font-extrabold text-base text-white">Semak Status Pesanan</h3>
+                </div>
+                <button
+                  onClick={() => setTrackingModalOpen(false)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSearchTracking} className="space-y-3">
+                <label className="text-xs text-zinc-400 block">
+                  Masukkan ID Pesanan atau Nombor Tracking anda:
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={trackOrderIdInput}
+                    onChange={(e) => setTrackOrderIdInput(e.target.value)}
+                    placeholder="cth: AC-ORD-1001 atau nama"
+                    className="flex-1 bg-[#181B2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#00F0FF]"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#00F0FF] text-black font-bold text-xs rounded-xl cursor-pointer"
+                  >
+                    Cari
+                  </button>
+                </div>
+              </form>
+
+              {hasSearchedOrder && (
+                <div className="pt-2">
+                  {foundOrder ? (
+                    <div className="p-3.5 rounded-2xl bg-[#181B2C] border border-emerald-500/30 space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-[#CFFF5E] font-bold">{foundOrder.order_id}</span>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold",
+                          foundOrder.status === 'Delivered' ? "bg-emerald-950 text-emerald-400" :
+                          foundOrder.status === 'Delayed' ? "bg-amber-950 text-amber-400" :
+                          "bg-blue-950 text-blue-400"
+                        )}>
+                          {foundOrder.status}
+                        </span>
+                      </div>
+                      <p className="text-white font-bold">{foundOrder.customer_id}</p>
+                      <p className="text-zinc-400 text-[11px] truncate">{foundOrder.items}</p>
+                      <div className="flex justify-between text-zinc-400 text-[10.5px] pt-1 border-t border-white/5">
+                        <span>Destinasi: {foundOrder.city}</span>
+                        <span className="font-mono text-white">RM{foundOrder.amount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3.5 rounded-2xl bg-[#181B2C] border border-white/10 text-center text-xs text-zinc-400">
+                      Tiada rekod ditemui untuk "{trackOrderIdInput}". Sila pastikan format ID pesanan betul.
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           </>
         )}
