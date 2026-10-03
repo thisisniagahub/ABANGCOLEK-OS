@@ -32,7 +32,8 @@ import {
   ArrowRight,
   CornerDownLeft,
   X,
-  HardDrive
+  HardDrive,
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -92,6 +93,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         keywords: ['hub', 'discovery', 'brand', 'pitch', 'deck', 'tiktok', 'jingle', 'booth', 'wocs'],
         action: () => {
           onNavigateTab('discovery');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-ecommerce-store',
+        title: 'Kedai E-Commerce & Borong Ejen',
+        subtitle: 'Katalog botol 350ml, kombo viral MakanFest, pakej borong karton & WhatsApp checkout',
+        category: 'Workspaces',
+        icon: ShoppingBag,
+        badge: 'Beli Online',
+        keywords: ['store', 'kedai', 'ecommerce', 'beli', 'botol', 'kuah', 'borong', 'makanfest', 'kombo', 'troli', 'duitnow'],
+        action: () => {
+          onNavigateTab('ecommerce_store');
           onClose();
         },
       },

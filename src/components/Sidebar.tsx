@@ -29,7 +29,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   X,
-  HardDrive
+  HardDrive,
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { subscribeAuth } from '@/services/googleAuth';
@@ -122,6 +123,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       dotColor: 'bg-[#CFFF5E]',
       dotPulse: false,
       tooltipText: 'Hab Operasi & Ekosistem Utama Abang Colek (v4.2)'
+    },
+    { 
+      id: 'ecommerce_store', 
+      label: 'Kedai E-Commerce', 
+      icon: ShoppingBag, 
+      badge: 'Beli Online',
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: true,
+      tooltipText: 'Kedai E-Commerce Rasmi & Pesanan Borong Ejen (Data 2 Folder)'
     },
     { 
       id: 'chat', 

@@ -60,6 +60,7 @@ import { MapsView } from '@/components/MapsView';
 import { MeetView } from '@/components/MeetView';
 import { ChatWorkspaceView } from '@/components/ChatWorkspaceView';
 import { DriveView } from '@/components/DriveView';
+import { EcommerceStoreView } from '@/components/EcommerceStoreView';
 import { subscribeAuth } from '@/services/googleAuth';
 import { User as FbUser } from 'firebase/auth';
 import { OrdersView } from '@/components/OrdersView';
@@ -1062,6 +1063,8 @@ export default function App() {
           '7': 'gmail',
           '8': 'calendar',
           '9': 'drive',
+          's': 'ecommerce_store',
+          'S': 'ecommerce_store',
         };
         if (tabShortcuts[e.key]) {
           e.preventDefault();
@@ -1196,6 +1199,7 @@ export default function App() {
                 setActiveTab={setActiveTab}
               />
             )}
+            {activeTab === 'ecommerce_store' && <EcommerceStoreView onAction={handleAction} onNavigateTab={setActiveTab} />}
             {activeTab === 'bus_freight' && <BusFreightView onAction={handleAction} />}
             {activeTab === 'agent_performance' && <AgentPerformanceView onAction={handleAction} />}
             {activeTab === 'plugins' && <PluginsView onAction={handleAction} />}

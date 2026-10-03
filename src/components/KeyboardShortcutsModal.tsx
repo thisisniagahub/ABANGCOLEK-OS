@@ -22,7 +22,8 @@ import {
   Mail,
   Calendar,
   Sparkles,
-  HardDrive
+  HardDrive,
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -66,6 +67,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
         { keys: ['Alt', '7'], label: 'Gmail (Triage Aduan)', tabId: 'gmail', icon: Mail },
         { keys: ['Alt', '8'], label: 'Calendar (Jadual Hab)', tabId: 'calendar', icon: Calendar },
         { keys: ['Alt', '9'], label: 'Google Drive Hub (2 Folder)', tabId: 'drive', icon: HardDrive },
+        { keys: ['Alt', 'S'], label: 'Kedai E-Commerce & Borong', tabId: 'ecommerce_store', icon: ShoppingBag },
       ]
     }
   ];
