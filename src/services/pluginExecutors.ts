@@ -155,6 +155,12 @@ export interface DriveSearchResult {
     size: string;
     modifiedTime: string;
     url: string;
+    folder?: string;
+  }>;
+  folders?: Array<{
+    id: string;
+    name: string;
+    url: string;
   }>;
 }
 
@@ -704,39 +710,71 @@ export async function executeAppleHealthSummary(): Promise<{ success: boolean; d
 }
 
 // 11. Google Drive Executor
-export async function executeGoogleDriveSearch(args: { query?: string }): Promise<{ success: boolean; data: DriveSearchResult; message: string }> {
+export async function executeGoogleDriveSearch(args: { query?: string; folderId?: string }): Promise<{ success: boolean; data: DriveSearchResult; message: string }> {
   pluginManager.recordUsage('google_drive');
   const q = args.query || 'Abang Colek';
+  const folders = [
+    {
+      id: '1P18SM35nzxjeQ3JuU_RZtVmHAVGhtigD',
+      name: 'Folder Aset & Dokumen Operasi (1)',
+      url: 'https://drive.google.com/drive/folders/1P18SM35nzxjeQ3JuU_RZtVmHAVGhtigD?usp=drive_link'
+    },
+    {
+      id: '1utE0vsgEmzYvyAAJfpiLFN6MQYE7uhbO',
+      name: 'Folder Media & Bahan Kempen (2)',
+      url: 'https://drive.google.com/drive/folders/1utE0vsgEmzYvyAAJfpiLFN6MQYE7uhbO?usp=drive_link'
+    }
+  ];
   const files = [
     {
-      name: 'Katalog Produk & Harga Borong Ejen Abang Colek 2026.pdf',
-      mimeType: 'application/pdf',
-      size: '2.4 MB',
-      modifiedTime: '25 Sep 2026',
-      url: 'https://drive.google.com/file/d/ac_katalog_2026/view'
-    },
-    {
-      name: 'SOP Piawaian Pembungkusan & Ujian Kedap Penutup Botol.docx',
+      name: 'SOP_Piawaian_Kualiti_Pembungkusan_Botol_Kuah_Colek_2026.docx',
       mimeType: 'application/vnd.google-apps.document',
-      size: '480 KB',
-      modifiedTime: '28 Sep 2026',
-      url: 'https://docs.google.com/document/d/ac_sop_packaging/view'
+      size: '245 KB',
+      modifiedTime: '01 Okt 2026',
+      url: 'https://drive.google.com/drive/folders/1P18SM35nzxjeQ3JuU_RZtVmHAVGhtigD?usp=drive_link',
+      folder: 'Folder Aset & Dokumen Operasi (1)'
     },
     {
-      name: 'Penjejak Stokis Terengganu & Konsainan Gerai Toppen JB.xlsx',
+      name: 'Pakej_Vektor_Logo_Rasmi_Abang_Colek_HD.ai',
+      mimeType: 'application/illustrator',
+      size: '12.4 MB',
+      modifiedTime: '28 Sep 2026',
+      url: 'https://drive.google.com/drive/folders/1P18SM35nzxjeQ3JuU_RZtVmHAVGhtigD?usp=drive_link',
+      folder: 'Folder Aset & Dokumen Operasi (1)'
+    },
+    {
+      name: 'Video_TikTok_Hook_Colek_Buah_Viral_4K.mp4',
+      mimeType: 'video/mp4',
+      size: '48.2 MB',
+      modifiedTime: '01 Okt 2026',
+      url: 'https://drive.google.com/drive/folders/1utE0vsgEmzYvyAAJfpiLFN6MQYE7uhbO?usp=drive_link',
+      folder: 'Folder Media & Bahan Kempen (2)'
+    },
+    {
+      name: 'Lejar_Konsainan_Ekspres_Bas_TBS_Stokis_KT_JB.xlsx',
       mimeType: 'application/vnd.google-apps.spreadsheet',
-      size: '1.1 MB',
-      modifiedTime: 'Semalam',
-      url: 'https://docs.google.com/spreadsheets/d/ac_inventory_tracker/view'
+      size: '890 KB',
+      modifiedTime: '02 Okt 2026',
+      url: 'https://drive.google.com/drive/folders/1P18SM35nzxjeQ3JuU_RZtVmHAVGhtigD?usp=drive_link',
+      folder: 'Folder Aset & Dokumen Operasi (1)'
+    },
+    {
+      name: 'Jingle_Rasmi_Kasi_Lagi_Lagi_Master_WAV.wav',
+      mimeType: 'audio/wav',
+      size: '32.1 MB',
+      modifiedTime: '18 Sep 2026',
+      url: 'https://drive.google.com/drive/folders/1utE0vsgEmzYvyAAJfpiLFN6MQYE7uhbO?usp=drive_link',
+      folder: 'Folder Media & Bahan Kempen (2)'
     }
   ];
   return {
     success: true,
     data: {
       query: q,
-      files
+      files,
+      folders
     },
-    message: `Dijumpai ${files.length} fail berkaitan dalam Google Drive.`
+    message: `Dijumpai fail dan 2 folder rasmi Google Drive (Aset & Media) Abang Colek.`
   };
 }
 

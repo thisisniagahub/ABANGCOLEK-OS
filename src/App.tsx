@@ -59,6 +59,7 @@ import { SheetsView } from '@/components/SheetsView';
 import { MapsView } from '@/components/MapsView';
 import { MeetView } from '@/components/MeetView';
 import { ChatWorkspaceView } from '@/components/ChatWorkspaceView';
+import { DriveView } from '@/components/DriveView';
 import { subscribeAuth } from '@/services/googleAuth';
 import { User as FbUser } from 'firebase/auth';
 import { OrdersView } from '@/components/OrdersView';
@@ -71,6 +72,8 @@ import { ModernBentoDashboard } from '@/components/ModernBentoDashboard';
 import { GlobalCommandHeader } from '@/components/GlobalCommandHeader';
 import { FloatingNeoDock } from '@/components/FloatingNeoDock';
 import { Sidebar } from '@/components/Sidebar';
+import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
+import { useResponsiveSidebar } from '@/hooks/useResponsiveSidebar';
 
 // --- Components ---
 
@@ -978,17 +981,92 @@ export default function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   
   // Responsive Sidebar States: Desktop Collapse & Mobile Slide-Over Drawer
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isDockMinimized, setIsDockMinimized] = useState(false);
+
+  // Automatically switch between expanded and collapsed states based on viewport width
+  useResponsiveSidebar({
+    setIsSidebarCollapsed,
+    breakpoint: 768,
+    onBreakpointChange: (isMobile) => {
+      // Auto-close mobile drawer when transitioning to desktop
+      if (!isMobile) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+  });
 
   const { quickStaffSignIn } = useSupabaseAuth();
 
-  // Global Ctrl+K / Cmd+K keyboard shortcut listener
+  // Global Keyboard Shortcuts (Ctrl+K, ?, Alt+1..8, Alt+B, Alt+D, Esc)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInput = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        (activeElement as HTMLElement).isContentEditable
+      );
+
+      // Close modals on Escape
+      if (e.key === 'Escape') {
+        setIsCommandPaletteOpen(false);
+        setIsShortcutsOpen(false);
+        setIsMobileMenuOpen(false);
+        return;
+      }
+
+      // Omni Command Palette: Ctrl+K or Cmd+K
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      // Quick Help Modal: ? (when not typing in an input field)
+      if (e.key === '?' && !isInput) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+        return;
+      }
+
+      // Layout Controls
+      if (e.altKey && (e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        setIsSidebarCollapsed((prev) => !prev);
+        return;
+      }
+
+      if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        setIsDockMinimized((prev) => !prev);
+        return;
+      }
+
+      // Tab Navigation via Alt + Number (1-8)
+      if (e.altKey) {
+        const tabShortcuts: Record<string, string> = {
+          '1': 'discovery',
+          '2': 'dashboards',
+          '3': 'chat',
+          '4': 'bus_freight',
+          '5': 'orders',
+          '6': 'plugins',
+          '7': 'gmail',
+          '8': 'calendar',
+          '9': 'drive',
+        };
+        if (tabShortcuts[e.key]) {
+          e.preventDefault();
+          setActiveTab(tabShortcuts[e.key]);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -1086,6 +1164,7 @@ export default function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebarCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
       />
 
       {/* Unified Master Shell: Mobile-First CSS Grid (1-col on mobile, dynamic [76px/295px_1fr] on md:) */}
@@ -1103,7 +1182,7 @@ export default function App() {
           onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         />
 
-        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-4 bg-[#090A10]">
+        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-24 md:pb-24 bg-[#090A10]">
           <div className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
             {activeTab === 'discovery' && <AbangColekDiscoveryView onAction={handleAction} />}
             {activeTab === 'chat' && (
@@ -1122,6 +1201,7 @@ export default function App() {
             {activeTab === 'plugins' && <PluginsView onAction={handleAction} />}
             {activeTab === 'gmail' && <GmailView onAction={handleAction} />}
             {activeTab === 'calendar' && <CalendarView onAction={handleAction} />}
+            {activeTab === 'drive' && <DriveView onAction={handleAction} />}
             {activeTab === 'tasks' && <TasksView onAction={handleAction} />}
             {activeTab === 'docs' && <DocsView onAction={handleAction} />}
             {activeTab === 'sheets' && <SheetsView onAction={handleAction} />}
@@ -1189,6 +1269,9 @@ export default function App() {
         setActiveTab={setActiveTab} 
         isToolOrPluginInProgress={isToolOrPluginInProgress}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        isMinimized={isDockMinimized}
+        onToggleMinimize={() => setIsDockMinimized(prev => !prev)}
       />
 
       {/* Global Command Palette (Ctrl+K / Cmd+K) */}
@@ -1206,6 +1289,16 @@ export default function App() {
         onSwitchStaff={(role) => {
           quickStaffSignIn(role);
           setIsCommandPaletteOpen(false);
+        }}
+      />
+
+      {/* Keyboard Shortcuts Modal (?) */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+        onNavigateTab={(tab) => {
+          setActiveTab(tab);
+          setIsShortcutsOpen(false);
         }}
       />
     </div>

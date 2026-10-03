@@ -24,7 +24,9 @@ import {
   Video,
   MessageSquare,
   MapPin,
-  Briefcase
+  Briefcase,
+  Keyboard,
+  HardDrive
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -36,15 +38,29 @@ interface FloatingNeoDockProps {
   setActiveTab: (tab: string) => void;
   isToolOrPluginInProgress?: boolean;
   onOpenCommandPalette?: () => void;
+  onOpenShortcuts?: () => void;
+  isMinimized?: boolean;
+  onToggleMinimize?: () => void;
 }
 
 export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
   activeTab,
   setActiveTab,
   isToolOrPluginInProgress,
-  onOpenCommandPalette
+  onOpenCommandPalette,
+  onOpenShortcuts,
+  isMinimized: controlledMinimized,
+  onToggleMinimize
 }) => {
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [localMinimized, setLocalMinimized] = useState(false);
+  const isMinimized = controlledMinimized !== undefined ? controlledMinimized : localMinimized;
+  const toggleMinimize = () => {
+    if (onToggleMinimize) {
+      onToggleMinimize();
+    } else {
+      setLocalMinimized(!localMinimized);
+    }
+  };
 
   // Live Counts for Activity Indicators on Dock
   const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(() => {
@@ -75,58 +91,67 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
       id: 'discovery', 
       label: 'Hub', 
       icon: Flame,
-      dotColor: 'bg-[#CFFF5E]'
+      dotColor: 'bg-[#CFFF5E]',
+      shortcut: 'Alt+1'
     },
     { 
       id: 'dashboards', 
       label: 'Bento', 
       icon: Activity,
-      dotColor: 'bg-[#FFC107]'
+      dotColor: 'bg-[#FFC107]',
+      shortcut: 'Alt+2'
     },
     { 
       id: 'chat', 
       label: 'Ejen AI', 
       icon: Bot,
       dotColor: isToolOrPluginInProgress ? 'bg-[#FF4757]' : 'bg-[#CFFF5E]',
-      dotPulse: isToolOrPluginInProgress
+      dotPulse: isToolOrPluginInProgress,
+      shortcut: 'Alt+3'
     },
     { 
       id: 'bus_freight', 
       label: 'Bas TBS', 
       icon: Truck,
       dotColor: 'bg-[#FFC107]',
-      count: activeBusCount > 0 ? activeBusCount : undefined
+      count: activeBusCount > 0 ? activeBusCount : undefined,
+      shortcut: 'Alt+4'
     },
     { 
       id: 'orders', 
       label: 'Pesanan', 
       icon: Database,
       dotColor: pendingOrdersCount > 0 ? 'bg-[#00F0FF]' : undefined,
-      count: pendingOrdersCount > 0 ? pendingOrdersCount : undefined
+      count: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
+      shortcut: 'Alt+5'
     },
     { 
       id: 'plugins', 
       label: 'Plugins', 
       icon: Zap,
-      dotColor: 'bg-[#CFFF5E]'
+      dotColor: 'bg-[#CFFF5E]',
+      shortcut: 'Alt+6'
     },
     { 
       id: 'gmail', 
       label: 'Gmail', 
       icon: Mail,
       dotColor: 'bg-[#FF4757]',
-      count: 1
+      count: 1,
+      shortcut: 'Alt+7'
     },
     { 
       id: 'calendar', 
       label: 'Jadual', 
       icon: Calendar,
-      dotColor: 'bg-[#00F0FF]'
+      dotColor: 'bg-[#00F0FF]',
+      shortcut: 'Alt+8'
     },
   ];
 
   // Secondary items lookup when user is viewing tabs outside the primary 8
   const secondaryItemsMap: Record<string, { label: string; icon: React.ElementType }> = {
+    drive: { label: 'Drive Hub', icon: HardDrive },
     agent_performance: { label: 'Prestasi AI', icon: Gauge },
     tasks: { label: 'Tugasan QC', icon: CheckSquare },
     docs: { label: 'SOP Docs', icon: FileText },
@@ -153,7 +178,7 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            onClick={() => setIsMinimized(false)}
+            onClick={toggleMinimize}
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#10121C]/90 backdrop-blur-2xl border border-white/20 shadow-[0_12px_30px_rgba(0,0,0,0.8)] text-zinc-300 hover:text-white transition-all cursor-pointer group hover:border-[#CFFF5E]/40"
             title="Kembangkan Dok Bawah"
           >
@@ -189,7 +214,7 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
                       ? "bg-[#CFFF5E] text-black shadow-[0_0_20px_rgba(207,255,94,0.45)] scale-105" 
                       : "text-zinc-400 hover:text-white hover:bg-white/[0.08]"
                   )}
-                  title={item.label}
+                  title={`${item.label}${item.shortcut ? ` (${item.shortcut})` : ''}`}
                 >
                   {isExecuting ? (
                     <div className="relative flex items-center justify-center">
@@ -278,11 +303,22 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
               </button>
             )}
 
+            {/* Quick Keyboard Shortcuts Trigger on dock */}
+            {onOpenShortcuts && (
+              <button
+                onClick={onOpenShortcuts}
+                className="p-2 rounded-full bg-[#181A28] hover:bg-[#202438] text-zinc-300 hover:text-white border border-white/10 hover:border-[#CFFF5E]/40 transition-all cursor-pointer shrink-0"
+                title="Pintasan Papan Kekunci (?)"
+              >
+                <Keyboard size={14} className="text-[#CFFF5E]" />
+              </button>
+            )}
+
             {/* Minimize Dock Toggle Button */}
             <button
-              onClick={() => setIsMinimized(true)}
+              onClick={toggleMinimize}
               className="p-1.5 rounded-full bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white transition-colors cursor-pointer shrink-0"
-              title="Kuncupkan Dok (Sembunyi)"
+              title="Kuncupkan Dok (Alt+D)"
               aria-label="Kuncupkan Dok"
             >
               <ChevronDown size={14} />

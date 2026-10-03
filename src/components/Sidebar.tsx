@@ -28,7 +28,8 @@ import {
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
-  X
+  X,
+  HardDrive
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { subscribeAuth } from '@/services/googleAuth';
@@ -198,6 +199,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       dotColor: 'bg-[#10B981]',
       dotPulse: false,
       tooltipText: 'Lejar Jualan Terkini Diselaraskan Automatik'
+    },
+    { 
+      id: 'drive', 
+      label: 'Drive Hub', 
+      icon: HardDrive, 
+      badge: '2 Folder',
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: false,
+      tooltipText: 'Hab 2 Folder Google Drive (Aset Jenama & Media TikTok)'
     },
     { 
       id: 'forms', 

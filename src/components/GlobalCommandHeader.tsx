@@ -23,7 +23,8 @@ import {
   Laptop,
   Menu,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Keyboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ interface GlobalCommandHeaderProps {
   onToggleMobileMenu?: () => void;
   isSidebarCollapsed?: boolean;
   onToggleSidebarCollapse?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
@@ -47,7 +49,8 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
   onAction,
   onToggleMobileMenu,
   isSidebarCollapsed = false,
-  onToggleSidebarCollapse
+  onToggleSidebarCollapse,
+  onOpenShortcuts
 }) => {
   const { user, role, quickStaffSignIn } = useSupabaseAuth();
   const [timeString, setTimeString] = useState<string>('');
@@ -256,6 +259,19 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
             <Download size={13} className="text-[#CFFF5E] group-hover:-translate-y-0.5 transition-transform" />
             <span className="hidden md:inline">Eksport .XLS</span>
           </button>
+
+          {/* Keyboard Shortcuts Cheatsheet Trigger Button */}
+          {onOpenShortcuts && (
+            <button
+              type="button"
+              onClick={onOpenShortcuts}
+              className="hidden sm:flex items-center justify-center p-2 rounded-full bg-[#181B2C] hover:bg-[#22263C] text-zinc-300 hover:text-white border border-white/10 hover:border-[#CFFF5E]/40 transition-all cursor-pointer shadow-xs"
+              title="Pintasan Papan Kekunci (?)"
+              aria-label="Pintasan Papan Kekunci"
+            >
+              <Keyboard size={13} className="text-[#CFFF5E]" />
+            </button>
+          )}
 
           {/* Quick Staff Role Switcher */}
           <div className="relative">

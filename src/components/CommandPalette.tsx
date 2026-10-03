@@ -31,7 +31,8 @@ import {
   Sparkles,
   ArrowRight,
   CornerDownLeft,
-  X
+  X,
+  HardDrive
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -181,6 +182,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         keywords: ['tasks', 'tugasan', 'todo', 'checklist', 'senarai'],
         action: () => {
           onNavigateTab('tasks');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-drive',
+        title: 'Google Drive Hub (2 Folder Rasmi)',
+        subtitle: 'Akses fail SOP, aset jenama, video TikTok & lejar daripada 2 folder perkongsian Google Drive',
+        category: 'Google Workspace',
+        icon: HardDrive,
+        badge: 'Drive',
+        keywords: ['drive', 'folder', 'fail', 'dokumen', 'aset', 'video', 'tiktok', 'google drive', '1P18SM35', '1utE0vsg'],
+        action: () => {
+          onNavigateTab('drive');
           onClose();
         },
       },

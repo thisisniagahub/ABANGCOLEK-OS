@@ -185,7 +185,7 @@ export async function insertSupabaseOrder(newOrder: {
  */
 export async function updateSupabaseOrderStatus(
   orderId: string, 
-  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded',
+  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded' | 'Cancelled',
   refundReason?: string
 ): Promise<{ success: boolean; synced: boolean; error?: string }> {
   // Sync local store

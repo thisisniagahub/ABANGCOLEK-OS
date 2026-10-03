@@ -43,7 +43,9 @@ import {
   AlertTriangle,
   TrendingUp,
   X,
-  Copy
+  Copy,
+  Printer,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -119,6 +121,7 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
   // Modals & Notices
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedConsignmentForQr, setSelectedConsignmentForQr] = useState<BusConsignment | null>(null);
+  const [selectedConsignmentForWaybill, setSelectedConsignmentForWaybill] = useState<BusConsignment | null>(null);
   const [copiedNoticeId, setCopiedNoticeId] = useState<string | null>(null);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
@@ -1548,9 +1551,18 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
 
                           <button
                             onClick={() => handleCopyNotice(c, 'agent')}
-                            className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium transition-all"
+                            className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium transition-all cursor-pointer"
                           >
                             {copiedNoticeId === `${c.id}-agent` ? 'Disalin! ✓' : 'Salin Mesej'}
+                          </button>
+
+                          <button
+                            onClick={() => setSelectedConsignmentForWaybill(c)}
+                            className="px-3 py-1.5 rounded-xl bg-zinc-900 text-white hover:bg-black font-semibold text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                            title="Cetak Waybill Kargo Rasmi"
+                          >
+                            <Printer size={13} className="text-[#CFFF5E]" />
+                            <span>Cetak Waybill</span>
                           </button>
                         </div>
                       </div>
@@ -2039,6 +2051,142 @@ export const BusFreightView: React.FC<BusFreightViewProps> = ({ onAction }) => {
               >
                 Tutup Resit
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL: CETAK WAYBILL KARGO RASMI (OFFICIAL BUS FREIGHT CONSIGNMENT NOTE) */}
+      <AnimatePresence>
+        {selectedConsignmentForWaybill && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs overflow-y-auto">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="w-full max-w-2xl bg-white text-zinc-900 rounded-3xl shadow-2xl border border-black/10 overflow-hidden p-6 sm:p-8 space-y-5 my-8"
+            >
+              {/* Printable Waybill Area */}
+              <div id="printable-waybill" className="space-y-4 border-2 border-black/80 rounded-2xl p-5 bg-white select-text">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b-2 border-black/80 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-black text-[#CFFF5E] flex items-center justify-center font-black text-sm">
+                      AC
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-black tracking-tight text-black uppercase">
+                        ABANGCOLEK LOGISTIK EKSPRES
+                      </h2>
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                        Official Intercity Bus Cargo Consignment Note
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">No. Waybill</span>
+                    <span className="font-mono font-black text-base text-black bg-zinc-100 px-2 py-0.5 rounded border border-black/10">
+                      {selectedConsignmentForWaybill.id}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Route Grid */}
+                <div className="grid grid-cols-2 gap-3 text-xs bg-zinc-50 p-3 rounded-xl border border-black/10">
+                  <div>
+                    <span className="text-[9.5px] uppercase font-extrabold text-zinc-400 block">Stesen Pelepasan (Asal)</span>
+                    <p className="font-black text-zinc-900 mt-0.5">{selectedConsignmentForWaybill.originTerminal}</p>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">Masa Berlepas: <strong className="text-zinc-900">{selectedConsignmentForWaybill.departureTime}</strong></p>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] uppercase font-extrabold text-zinc-400 block">Terminal Destinasi (Ambilan)</span>
+                    <p className="font-black text-zinc-900 mt-0.5">{selectedConsignmentForWaybill.destinationTerminal}</p>
+                    <p className="text-[11px] text-emerald-700 mt-0.5">Anggaran Tiba (ETA): <strong>{selectedConsignmentForWaybill.estimatedArrivalTime}</strong></p>
+                  </div>
+                </div>
+
+                {/* Party Details: Bus Driver & Agent */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl border border-black/10 bg-white space-y-1">
+                    <span className="text-[9.5px] uppercase font-extrabold text-zinc-400 block">Pemandu Bas & Kenderaan</span>
+                    <p className="font-bold text-zinc-900">{selectedConsignmentForWaybill.companyName}</p>
+                    <p className="font-mono font-bold text-xs bg-zinc-100 inline-block px-1.5 py-0.5 rounded">Plat: {selectedConsignmentForWaybill.busPlateNo}</p>
+                    <p className="text-[11px] text-zinc-600">Pemandu: {selectedConsignmentForWaybill.driverName} ({selectedConsignmentForWaybill.driverPhone})</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-black/10 bg-white space-y-1">
+                    <span className="text-[9.5px] uppercase font-extrabold text-zinc-400 block">Ejen Penerima Rasmi</span>
+                    <p className="font-bold text-zinc-900">{selectedConsignmentForWaybill.agentName}</p>
+                    <p className="text-[11px] text-zinc-600">Hab: <strong className="text-zinc-900">{selectedConsignmentForWaybill.agentHub}</strong> · Tel: {selectedConsignmentForWaybill.agentPhone}</p>
+                    <p className="text-[10px] text-zinc-500 truncate">{selectedConsignmentForWaybill.destinationAddress}</p>
+                  </div>
+                </div>
+
+                {/* Cargo Manifest Table */}
+                <div className="border border-black/10 rounded-xl overflow-hidden text-xs">
+                  <div className="bg-zinc-100 px-3 py-2 font-bold text-zinc-700 flex justify-between text-[11px]">
+                    <span>Keterangan Barangan Kargo</span>
+                    <span>Kuantiti / Botol</span>
+                  </div>
+                  <div className="p-3 flex justify-between items-center bg-white border-t border-black/5">
+                    <div>
+                      <p className="font-bold text-zinc-900">{selectedConsignmentForWaybill.packageDescription}</p>
+                      <p className="text-[10px] text-zinc-500">Produk Makanan Tempatan: Kuah Colek Buah Asli (Pakej Kotak)</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-zinc-900">{selectedConsignmentForWaybill.boxCount} Kotak</p>
+                      <p className="text-[10px] font-bold text-zinc-500">({selectedConsignmentForWaybill.bottleCount} Botol 500g)</p>
+                    </div>
+                  </div>
+                  <div className="bg-zinc-50 px-3 py-2 border-t border-black/10 flex justify-between items-center text-xs">
+                    <span className="font-extrabold text-zinc-700">Yuran Tambang Kargo Bas:</span>
+                    <span className="font-black text-sm text-black">
+                      RM {selectedConsignmentForWaybill.cargoFeeMyr.toFixed(2)} (PAID DUITNOW)
+                    </span>
+                  </div>
+                </div>
+
+                {/* Acknowledgement / Sign-off Block */}
+                <div className="grid grid-cols-2 gap-4 pt-2 text-[10px] text-zinc-500">
+                  <div className="border-t border-dashed border-black/40 pt-2">
+                    <p className="font-bold text-zinc-700">Tandatangan & Cop Serahan (HQ / Driver):</p>
+                    <div className="h-10 mt-1" />
+                    <p>Nama: {selectedConsignmentForWaybill.driverName}</p>
+                  </div>
+                  <div className="border-t border-dashed border-black/40 pt-2">
+                    <p className="font-bold text-zinc-700">Akuan Penerimaan (Ejen Terminal):</p>
+                    <div className="h-10 mt-1" />
+                    <p>Nama: {selectedConsignmentForWaybill.agentName}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Controls */}
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2 text-xs text-zinc-500">
+                  <ShieldCheck size={14} className="text-emerald-600" />
+                  <span>Waybill sah untuk rujukan tuntutan kargo bas di terminal.</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedConsignmentForWaybill(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                  <button
+                    onClick={() => {
+                      window.print();
+                    }}
+                    className="px-5 py-2 rounded-xl text-xs font-black bg-black text-white hover:bg-zinc-800 transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Printer size={14} className="text-[#CFFF5E]" />
+                    <span>Cetak Sekarang (Print)</span>
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
