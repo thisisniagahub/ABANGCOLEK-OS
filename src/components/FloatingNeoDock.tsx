@@ -27,7 +27,8 @@ import {
   Briefcase,
   Keyboard,
   HardDrive,
-  ShoppingBag
+  ShoppingBag,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -152,6 +153,8 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
 
   // Secondary items lookup when user is viewing tabs outside the primary 8
   const secondaryItemsMap: Record<string, { label: string; icon: React.ElementType }> = {
+    command_center: { label: 'Command Center', icon: Activity },
+    workspace_hub: { label: 'Workspace Hub', icon: Layers },
     ecommerce_store: { label: 'Kedai E-Commerce', icon: ShoppingBag },
     drive: { label: 'Drive Hub', icon: HardDrive },
     agent_performance: { label: 'Prestasi AI', icon: Gauge },

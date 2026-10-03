@@ -58,7 +58,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
     {
       group: 'Navigasi Tab Utama (Pintas Terus)',
       items: [
-        { keys: ['Alt', '1'], label: 'Abang Colek Hub Pintar', tabId: 'discovery', icon: Flame },
+        { keys: ['Alt', '1'], label: 'Command Center (Live OS)', tabId: 'command_center', icon: Activity },
         { keys: ['Alt', '2'], label: 'Modern Bento Dashboard', tabId: 'dashboards', icon: Activity },
         { keys: ['Alt', '3'], label: 'Agent Chat (AI Operations)', tabId: 'chat', icon: Bot },
         { keys: ['Alt', '4'], label: 'Ekspres Bas & Ejen (TBS)', tabId: 'bus_freight', icon: Truck },
@@ -67,6 +67,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
         { keys: ['Alt', '7'], label: 'Gmail (Triage Aduan)', tabId: 'gmail', icon: Mail },
         { keys: ['Alt', '8'], label: 'Calendar (Jadual Hab)', tabId: 'calendar', icon: Calendar },
         { keys: ['Alt', '9'], label: 'Google Drive Hub (2 Folder)', tabId: 'drive', icon: HardDrive },
+        { keys: ['Alt', 'W'], label: 'Google Workspace Hub (9-in-1)', tabId: 'workspace_hub', icon: Layers },
         { keys: ['Alt', 'S'], label: 'Kedai E-Commerce & Borong', tabId: 'ecommerce_store', icon: ShoppingBag },
       ]
     }

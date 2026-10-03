@@ -36,7 +36,8 @@ import {
   ShoppingBag,
   Globe,
   Tag,
-  Terminal
+  Terminal,
+  Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -85,6 +86,33 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   // Construct command list
   const commandItems: CommandItem[] = useMemo(() => {
     return [
+      // Primary Command Center
+      {
+        id: 'nav-command-center',
+        title: 'Abang Colek Command Center',
+        subtitle: 'Pusat perintah bersepadu: 4 KPI utama, Needs Attention queue, Radar Logistik & Timeline',
+        category: 'Workspaces',
+        icon: Activity,
+        badge: 'Live OS',
+        keywords: ['command', 'center', 'os', 'kpi', 'attention', 'radar', 'timeline', 'utama'],
+        action: () => {
+          onNavigateTab('command_center');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-workspace-hub',
+        title: 'Google Workspace Hub (9-in-1)',
+        subtitle: 'Pusat sehenti 9 aplikasi: Gmail, Calendar, Drive, Sheets, Tasks, Docs, Forms, Meet, Chat',
+        category: 'Workspaces',
+        icon: Layers,
+        badge: '9-in-1',
+        keywords: ['workspace', 'hub', 'google', 'gmail', 'calendar', 'drive', 'sheets', 'tasks', 'docs', 'forms'],
+        action: () => {
+          onNavigateTab('workspace_hub');
+          onClose();
+        },
+      },
       // Workspaces & AI
       {
         id: 'nav-landing',

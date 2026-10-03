@@ -35,7 +35,8 @@ import {
   Tag,
   Terminal,
   Layers,
-  ChevronRight
+  ChevronRight,
+  LayoutDashboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { subscribeAuth } from '@/services/googleAuth';
@@ -106,11 +107,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Collapsible Accordion states per category (all open by default for visibility)
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    storefront: true,
+    command: true,
+    commerce: true,
     operations: true,
-    ai_intelligence: true,
+    intelligence: true,
     workspace: true,
-    analytics_dev: true,
+    system: true,
   });
 
   const toggleCategory = (categoryId: string) => {
@@ -122,21 +124,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const expandAllCategories = () => {
     setOpenCategories({
-      storefront: true,
+      command: true,
+      commerce: true,
       operations: true,
-      ai_intelligence: true,
+      intelligence: true,
       workspace: true,
-      analytics_dev: true,
+      system: true,
     });
   };
 
   const collapseAllCategories = () => {
     setOpenCategories({
-      storefront: false,
+      command: false,
+      commerce: false,
       operations: false,
-      ai_intelligence: false,
+      intelligence: false,
       workspace: false,
-      analytics_dev: false,
+      system: false,
     });
   };
 
@@ -166,25 +170,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
   }, []);
 
-  // Organized Categories Architecture
+  // Master Operating System Navigation Architecture
   const categories: NavCategory[] = useMemo(() => [
     {
-      id: 'storefront',
-      label: 'Jualan & Pelanggan',
-      tagline: 'Portal Kedai & Pemasaran',
-      icon: ShoppingBag,
-      accentColor: 'text-emerald-400',
-      badgeText: 'Pelanggan',
+      id: 'command',
+      label: 'Command (Pusat Kawalan)',
+      tagline: 'Gambaran Operasi Bersepadu',
+      icon: Activity,
+      accentColor: 'text-[#CFFF5E]',
+      badgeText: 'Live OS',
       items: [
         { 
-          id: 'landing', 
-          label: 'Laman Utama Brand', 
-          icon: Globe, 
-          badge: 'Portal',
-          dotColor: 'bg-[#00F0FF]',
+          id: 'command_center', 
+          label: 'Command Center', 
+          icon: Activity, 
+          badge: 'Live OS',
+          dotColor: 'bg-[#CFFF5E]',
+          dotPulse: true,
+          tooltipText: 'Pusat Perintah Utama: 4 KPI, Needs Attention, Radar Logistik & Timeline',
+          keywords: ['command', 'center', 'utama', 'kpi', 'live', 'attention', 'radar', 'timeline']
+        },
+        { 
+          id: 'dashboards', 
+          label: 'Papan Pemuka Bento', 
+          icon: LayoutDashboard, 
+          badge: 'Bento',
+          dotColor: 'bg-[#FFC107]',
           dotPulse: false,
-          tooltipText: 'Halaman Utama & Pemasaran Pelanggan Abang Colek',
-          keywords: ['landing', 'home', 'portal', 'web', 'promosi', 'jenama']
+          tooltipText: 'Papan Pemuka Bento Berketumpatan Tinggi & Analitik Visual Grid',
+          keywords: ['dashboard', 'pemuka', 'bento', 'analitik', 'graf', 'metrik']
+        },
+      ]
+    },
+    {
+      id: 'commerce',
+      label: 'Commerce & Jualan',
+      tagline: 'Pesanan, Kedai & Produk',
+      icon: ShoppingBag,
+      accentColor: 'text-emerald-400',
+      badgeText: pendingOrdersCount > 0 ? `${pendingOrdersCount} Baru` : undefined,
+      items: [
+        { 
+          id: 'orders', 
+          label: 'Pengurusan Pesanan', 
+          icon: Database,
+          badge: pendingOrdersCount > 0 ? `${pendingOrdersCount} Baru` : 'Semua',
+          activeCount: pendingOrdersCount,
+          dotColor: pendingOrdersCount > 0 ? 'bg-[#00F0FF]' : 'bg-[#CFFF5E]',
+          dotPulse: pendingOrdersCount > 0,
+          tooltipText: `${pendingOrdersCount} Pesanan Baharu Dalam Proses & Menunggu Semakan`,
+          keywords: ['orders', 'pesanan', 'order', 'pelanggan', 'lejar', 'invoice', 'resit']
         },
         { 
           id: 'ecommerce_store', 
@@ -205,41 +240,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: false,
           tooltipText: 'Pengurusan Inventori, Tambah & Edit Produk E-Commerce',
           keywords: ['produk', 'katalog', 'stok', 'crud', 'harga', 'inventori', 'botol']
+        },
+        { 
+          id: 'landing', 
+          label: 'Laman Utama Brand', 
+          icon: Globe, 
+          badge: 'Portal',
+          dotColor: 'bg-[#00F0FF]',
+          dotPulse: false,
+          tooltipText: 'Halaman Utama & Pemasaran Pelanggan Abang Colek',
+          keywords: ['landing', 'home', 'portal', 'web', 'promosi', 'jenama']
         }
       ]
     },
     {
       id: 'operations',
       label: 'Operasi & Logistik',
-      tagline: 'Hab Pesanan & Konsainan Bas',
+      tagline: 'Kargo Bas, Terminal & QC',
       icon: Truck,
       accentColor: 'text-[#FFC107]',
       badgeText: activeBusCount > 0 ? `${activeBusCount} Bas` : undefined,
       items: [
         { 
-          id: 'discovery', 
-          label: 'Abang Colek Hub', 
-          icon: Flame, 
-          badge: 'v4.2',
-          dotColor: 'bg-[#CFFF5E]',
-          dotPulse: false,
-          tooltipText: 'Hab Operasi & Ekosistem Utama Abang Colek (v4.2)',
-          keywords: ['hub', 'cockpit', 'operasi', 'utama', 'hq']
-        },
-        { 
-          id: 'orders', 
-          label: 'Pengurusan Pesanan', 
-          icon: Database,
-          badge: pendingOrdersCount > 0 ? `${pendingOrdersCount} Baru` : 'Semua',
-          activeCount: pendingOrdersCount,
-          dotColor: pendingOrdersCount > 0 ? 'bg-[#00F0FF]' : 'bg-[#CFFF5E]',
-          dotPulse: pendingOrdersCount > 0,
-          tooltipText: `${pendingOrdersCount} Pesanan Baharu Dalam Proses & Menunggu Semakan`,
-          keywords: ['orders', 'pesanan', 'order', 'pelanggan', 'lejar', 'invoice', 'resit']
-        },
-        { 
           id: 'bus_freight', 
-          label: 'Ekspres Bas & Ejen', 
+          label: 'Ekspres Bas & Logistik', 
           icon: Truck, 
           badge: `${activeBusCount} Bas`,
           activeCount: activeBusCount,
@@ -269,13 +293,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: true,
           tooltipText: '1 Aduan Kebocoran Botol (LEAKAGE Triage Diperlukan)',
           keywords: ['reviews', 'aduan', 'qc', 'leakage', 'bocor', 'kualiti']
+        },
+        { 
+          id: 'discovery', 
+          label: 'Hab Abang Colek', 
+          icon: Flame, 
+          badge: 'v4.2',
+          dotColor: 'bg-[#CFFF5E]',
+          dotPulse: false,
+          tooltipText: 'Hab Operasi & Ekosistem Utama Abang Colek (v4.2)',
+          keywords: ['hub', 'cockpit', 'operasi', 'utama', 'hq']
         }
       ]
     },
     {
-      id: 'ai_intelligence',
-      label: 'Ejen AI & Automasi',
-      tagline: 'Gemini Assistant & Plugin',
+      id: 'intelligence',
+      label: 'Ejen AI & Intelligence',
+      tagline: 'Gemini Assistant, JEV & Plugin',
       icon: Bot,
       accentColor: 'text-[#CFFF5E]',
       badgeText: isToolOrPluginInProgress ? 'Live' : 'Gemini',
@@ -310,17 +344,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: true,
           tooltipText: 'Kesihatan Agen: 99.4% Uptime • Recharts Telemetri Live',
           keywords: ['telemetri', 'prestasi', 'agent', 'performance', 'uptime', 'kesihatan']
+        },
+        { 
+          id: 'reports', 
+          label: 'Laporan Integriti JEV', 
+          icon: Search, 
+          badge: 'JEV',
+          dotColor: 'bg-[#8C7DFF]',
+          dotPulse: false,
+          tooltipText: 'Laporan Integriti JEV System-1 & Analisis Kerosakan Botol',
+          keywords: ['reports', 'laporan', 'jev', 'audit', 'integriti']
         }
       ]
     },
     {
       id: 'workspace',
       label: 'Google Workspace',
-      tagline: 'Produktiviti & Komunikasi Rasmi',
+      tagline: 'Pusat Produktiviti & Rekod',
       icon: Layers,
       accentColor: 'text-[#8C7DFF]',
       badgeText: googleUser ? 'Synced' : 'Offline',
       items: [
+        { 
+          id: 'workspace_hub', 
+          label: 'Workspace Hub', 
+          icon: Layers, 
+          badge: '9-in-1',
+          dotColor: 'bg-[#8C7DFF]',
+          dotPulse: false,
+          tooltipText: 'Pusat 9 Aplikasi Google Workspace (Gmail, Calendar, Drive, Sheets, Tasks, Docs, Forms, Meet, Chat)',
+          keywords: ['workspace', 'hub', 'google', 'suite', 'pejabat', 'rekod']
+        },
         { 
           id: 'gmail', 
           label: 'Gmail Rasmi', 
@@ -331,17 +385,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: true,
           tooltipText: '1 Emel Aduan Kualiti Botol Bocor Menunggu Respons',
           keywords: ['gmail', 'emel', 'email', 'surat', 'inbox']
-        },
-        { 
-          id: 'calendar', 
-          label: 'Google Calendar', 
-          icon: Calendar,
-          badge: '1 Sesi',
-          activeCount: 1,
-          dotColor: 'bg-[#00F0FF]',
-          dotPulse: false,
-          tooltipText: '1 Sesi Taklimat Stokis Terengganu Hari Ini (3:00 PM)',
-          keywords: ['calendar', 'jadual', 'sesi', 'tarikh', 'temujanji']
         },
         { 
           id: 'drive', 
@@ -362,88 +405,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: false,
           tooltipText: 'Lejar Jualan Terkini Diselaraskan Automatik',
           keywords: ['sheets', 'lejar', 'excel', 'spreadsheet', 'akaun']
-        },
-        { 
-          id: 'tasks', 
-          label: 'Google Tasks', 
-          icon: CheckSquare,
-          badge: '3 Tugas',
-          activeCount: 3,
-          dotColor: 'bg-[#8C7DFF]',
-          dotPulse: false,
-          tooltipText: '3 Tugasan QC Penutup Botol & Audit Inventori',
-          keywords: ['tasks', 'tugas', 'todo', 'senarai', 'qc']
-        },
-        { 
-          id: 'docs', 
-          label: 'SOP & Dokumen', 
-          icon: FileText,
-          badge: 'SOP',
-          dotColor: 'bg-[#8C7DFF]',
-          dotPulse: false,
-          tooltipText: 'SOP Piawaian Kualiti & Pembungkusan Kargo',
-          keywords: ['docs', 'sop', 'piawaian', 'prosedur', 'kualiti']
-        },
-        { 
-          id: 'forms', 
-          label: 'Borang Pendaftaran', 
-          icon: FolderOpen, 
-          badge: googleUser ? 'Synced' : 'Lokal',
-          dotColor: googleUser ? 'bg-[#00F0FF]' : 'bg-zinc-500',
-          dotPulse: false,
-          tooltipText: googleUser ? 'Borang Pendaftaran Ejen Diselaraskan (Google Forms)' : 'Borang Pendaftaran Ejen (Mod Luar Talian)',
-          keywords: ['forms', 'borang', 'pendaftaran', 'ejen', 'survey']
-        },
-        { 
-          id: 'meet', 
-          label: 'Google Meet', 
-          icon: Video,
-          badge: 'Bilik Maya',
-          dotColor: 'bg-[#00F0FF]',
-          dotPulse: false,
-          tooltipText: 'Bilik Sidang Maya Google Meet Krew Karnival',
-          keywords: ['meet', 'sidang', 'video', 'mesyuarat', 'call']
-        },
-        { 
-          id: 'chat_workspace', 
-          label: 'Sembang Krew', 
-          icon: MessageSquare,
-          badge: 'Krew',
-          dotColor: 'bg-[#FFC107]',
-          dotPulse: false,
-          tooltipText: 'Saluran Sembang Krew Gerai & Pemandu Bas TBS',
-          keywords: ['chat_workspace', 'sembang', 'krew', 'mesej', 'komunikasi']
         }
       ]
     },
     {
-      id: 'analytics_dev',
-      label: 'Analitik & Sistem',
-      tagline: 'Pemantauan & Diagnostik',
+      id: 'system',
+      label: 'Sistem & Pembangun',
+      tagline: 'Diagnostik & Alat Developer',
       icon: Terminal,
-      accentColor: 'text-indigo-400',
-      badgeText: 'Sistem',
+      accentColor: 'text-zinc-400',
+      badgeText: 'Dev',
       items: [
-        { 
-          id: 'dashboards', 
-          label: 'Papan Pemuka Bento', 
-          icon: Activity,
-          badge: 'Live',
-          dotColor: 'bg-[#FFC107]',
-          dotPulse: false,
-          tooltipText: 'Papan Pemuka Bento Berketumpatan Tinggi & Visual Grid',
-          keywords: ['dashboard', 'pemuka', 'bento', 'analitik', 'graf', 'metrik']
-        },
-        { 
-          id: 'reports', 
-          label: 'Laporan Integriti JEV', 
-          icon: Search,
-          badge: 'JEV',
-          dotColor: 'bg-[#8C7DFF]',
-          dotPulse: false,
-          tooltipText: 'Laporan Integriti JEV System-1 & Analisis Kerosakan',
-          keywords: ['reports', 'laporan', 'jev', 'audit', 'integriti']
-        },
         { 
           id: 'dev_console', 
           label: 'Konsol Pembangun', 

@@ -64,6 +64,8 @@ import { EcommerceStoreView } from '@/components/EcommerceStoreView';
 import { CustomerLandingPage } from '@/components/CustomerLandingPage';
 import { AdminProductManager } from '@/components/AdminProductManager';
 import { DeveloperConsoleView } from '@/components/DeveloperConsoleView';
+import { CommandCenterView } from '@/components/CommandCenterView';
+import { WorkspaceHubView } from '@/components/WorkspaceHubView';
 import { subscribeAuth } from '@/services/googleAuth';
 import { User as FbUser } from 'firebase/auth';
 import { OrdersView } from '@/components/OrdersView';
@@ -974,7 +976,7 @@ const DashboardsView = ({
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('discovery');
+  const [activeTab, setActiveTab] = useState('command_center');
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentTool, setCurrentTool] = useState<ToolCall | null>(null);
@@ -1057,7 +1059,7 @@ export default function App() {
       // Tab Navigation via Alt + Number (1-8)
       if (e.altKey) {
         const tabShortcuts: Record<string, string> = {
-          '1': 'discovery',
+          '1': 'command_center',
           '2': 'dashboards',
           '3': 'chat',
           '4': 'bus_freight',
@@ -1066,6 +1068,9 @@ export default function App() {
           '7': 'gmail',
           '8': 'calendar',
           '9': 'drive',
+          '0': 'discovery',
+          'w': 'workspace_hub',
+          'W': 'workspace_hub',
           's': 'ecommerce_store',
           'S': 'ecommerce_store',
           'l': 'landing',
@@ -1196,6 +1201,8 @@ export default function App() {
 
         <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-24 md:pb-24 bg-[#090A10]">
           <div className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
+            {activeTab === 'command_center' && <CommandCenterView onAction={handleAction} onNavigateTab={setActiveTab} />}
+            {activeTab === 'workspace_hub' && <WorkspaceHubView onAction={handleAction} />}
             {activeTab === 'discovery' && <AbangColekDiscoveryView onAction={handleAction} />}
             {activeTab === 'chat' && (
               <ChatInterface 
