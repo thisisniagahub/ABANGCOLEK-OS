@@ -107,12 +107,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Collapsible Accordion states per category (all open by default for visibility)
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    command: true,
-    commerce: true,
-    operations: true,
-    intelligence: true,
-    workspace: true,
-    system: true,
+    operations_core: true,
+    network_scale: true,
+    brand_growth: true,
+    system_intelligence: true,
   });
 
   const toggleCategory = (categoryId: string) => {
@@ -124,23 +122,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const expandAllCategories = () => {
     setOpenCategories({
-      command: true,
-      commerce: true,
-      operations: true,
-      intelligence: true,
-      workspace: true,
-      system: true,
+      operations_core: true,
+      network_scale: true,
+      brand_growth: true,
+      system_intelligence: true,
     });
   };
 
   const collapseAllCategories = () => {
     setOpenCategories({
-      command: false,
-      commerce: false,
-      operations: false,
-      intelligence: false,
-      workspace: false,
-      system: false,
+      operations_core: false,
+      network_scale: false,
+      brand_growth: false,
+      system_intelligence: false,
     });
   };
 
@@ -170,19 +164,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
   }, []);
 
-  // Master Operating System Navigation Architecture
+  // Master Operating System Navigation Architecture: 4 Clean Workflow Groups
   const categories: NavCategory[] = useMemo(() => [
     {
-      id: 'command',
-      label: 'Command (Pusat Kawalan)',
-      tagline: 'Gambaran Operasi Bersepadu',
+      id: 'operations_core',
+      label: 'Teras Operasi',
+      tagline: 'Pusat Kawalan, Pesanan & Logistik',
       icon: Activity,
       accentColor: 'text-[#CFFF5E]',
-      badgeText: 'Live OS',
+      badgeText: pendingOrdersCount > 0 ? `${pendingOrdersCount} Pesanan` : 'Live OS',
       items: [
         { 
           id: 'command_center', 
-          label: 'Command Center', 
+          label: 'Pusat Perintah Utama', 
           icon: Activity, 
           badge: 'Live OS',
           dotColor: 'bg-[#CFFF5E]',
@@ -190,26 +184,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           tooltipText: 'Pusat Perintah Utama: 4 KPI, Needs Attention, Radar Logistik & Timeline',
           keywords: ['command', 'center', 'utama', 'kpi', 'live', 'attention', 'radar', 'timeline']
         },
-        { 
-          id: 'dashboards', 
-          label: 'Papan Pemuka Bento', 
-          icon: LayoutDashboard, 
-          badge: 'Bento',
-          dotColor: 'bg-[#FFC107]',
-          dotPulse: false,
-          tooltipText: 'Papan Pemuka Bento Berketumpatan Tinggi & Analitik Visual Grid',
-          keywords: ['dashboard', 'pemuka', 'bento', 'analitik', 'graf', 'metrik']
-        },
-      ]
-    },
-    {
-      id: 'commerce',
-      label: 'Commerce & Jualan',
-      tagline: 'Pesanan, Kedai & Produk',
-      icon: ShoppingBag,
-      accentColor: 'text-emerald-400',
-      badgeText: pendingOrdersCount > 0 ? `${pendingOrdersCount} Baru` : undefined,
-      items: [
         { 
           id: 'orders', 
           label: 'Pengurusan Pesanan', 
@@ -221,46 +195,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           tooltipText: `${pendingOrdersCount} Pesanan Baharu Dalam Proses & Menunggu Semakan`,
           keywords: ['orders', 'pesanan', 'order', 'pelanggan', 'lejar', 'invoice', 'resit']
         },
-        { 
-          id: 'ecommerce_store', 
-          label: 'Kedai E-Commerce', 
-          icon: ShoppingBag, 
-          badge: 'Beli Online',
-          dotColor: 'bg-[#CFFF5E]',
-          dotPulse: true,
-          tooltipText: 'Kedai E-Commerce Rasmi, Troli & Pesanan Borong Ejen',
-          keywords: ['kedai', 'store', 'shop', 'ecommerce', 'beli', 'troli', 'cart', 'borong']
-        },
-        { 
-          id: 'admin_products', 
-          label: 'Urus Produk & Stok', 
-          icon: Tag,
-          badge: 'CRUD',
-          dotColor: 'bg-[#CFFF5E]',
-          dotPulse: false,
-          tooltipText: 'Pengurusan Inventori, Tambah & Edit Produk E-Commerce',
-          keywords: ['produk', 'katalog', 'stok', 'crud', 'harga', 'inventori', 'botol']
-        },
-        { 
-          id: 'landing', 
-          label: 'Laman Utama Brand', 
-          icon: Globe, 
-          badge: 'Portal',
-          dotColor: 'bg-[#00F0FF]',
-          dotPulse: false,
-          tooltipText: 'Halaman Utama & Pemasaran Pelanggan Abang Colek',
-          keywords: ['landing', 'home', 'portal', 'web', 'promosi', 'jenama']
-        }
-      ]
-    },
-    {
-      id: 'operations',
-      label: 'Operasi & Logistik',
-      tagline: 'Kargo Bas, Terminal & QC',
-      icon: Truck,
-      accentColor: 'text-[#FFC107]',
-      badgeText: activeBusCount > 0 ? `${activeBusCount} Bas` : undefined,
-      items: [
         { 
           id: 'bus_freight', 
           label: 'Ekspres Bas & Logistik', 
@@ -274,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         },
         { 
           id: 'maps', 
-          label: 'Radar Peta Logistik', 
+          label: 'Radar Peta Terminal', 
           icon: MapPin, 
           badge: '3 Hab',
           activeCount: 3,
@@ -282,6 +216,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
           dotPulse: false,
           tooltipText: '3 Hab Terminal Utama (TBS, MBKT, JB) Dalam Radar',
           keywords: ['maps', 'peta', 'radar', 'gps', 'terminal', 'lokasi', 'tbs']
+        }
+      ]
+    },
+    {
+      id: 'network_scale',
+      label: 'Rangkaian & Skala',
+      tagline: 'Katalog, Kedai, QC & Lejar',
+      icon: ShoppingBag,
+      accentColor: 'text-emerald-400',
+      badgeText: 'Komersial',
+      items: [
+        { 
+          id: 'ecommerce_store', 
+          label: 'Kedai E-Commerce & Borong', 
+          icon: ShoppingBag, 
+          badge: 'Katalog',
+          dotColor: 'bg-[#CFFF5E]',
+          dotPulse: true,
+          tooltipText: 'Kedai E-Commerce Rasmi, Troli & Pesanan Borong Ejen',
+          keywords: ['kedai', 'store', 'shop', 'ecommerce', 'beli', 'troli', 'cart', 'borong']
+        },
+        { 
+          id: 'admin_products', 
+          label: 'Urus Produk & Stok', 
+          icon: Tag,
+          badge: 'Inventori',
+          dotColor: 'bg-[#CFFF5E]',
+          dotPulse: false,
+          tooltipText: 'Pengurusan Inventori, Tambah & Edit Produk E-Commerce',
+          keywords: ['produk', 'katalog', 'stok', 'crud', 'harga', 'inventori', 'botol']
         },
         { 
           id: 'reviews', 
@@ -295,24 +259,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
           keywords: ['reviews', 'aduan', 'qc', 'leakage', 'bocor', 'kualiti']
         },
         { 
-          id: 'discovery', 
-          label: 'Hab Abang Colek', 
-          icon: Flame, 
-          badge: 'v4.2',
-          dotColor: 'bg-[#CFFF5E]',
+          id: 'sheets', 
+          label: 'Lejar Google Sheets', 
+          icon: FileSpreadsheet,
+          badge: 'Auto',
+          dotColor: 'bg-[#10B981]',
           dotPulse: false,
-          tooltipText: 'Hab Operasi & Ekosistem Utama Abang Colek (v4.2)',
-          keywords: ['hub', 'cockpit', 'operasi', 'utama', 'hq']
+          tooltipText: 'Lejar Jualan Terkini Diselaraskan Automatik',
+          keywords: ['sheets', 'lejar', 'excel', 'spreadsheet', 'akaun']
         }
       ]
     },
     {
-      id: 'intelligence',
-      label: 'Ejen AI & Intelligence',
-      tagline: 'Gemini Assistant, JEV & Plugin',
+      id: 'brand_growth',
+      label: 'Penjenamaan & Media',
+      tagline: 'Aset Visual, Identiti & Media',
+      icon: Flame,
+      accentColor: 'text-[#FFC107]',
+      badgeText: '18 Aset',
+      items: [
+        { 
+          id: 'discovery', 
+          label: 'Hab Jenama & Aset Media', 
+          icon: Flame, 
+          badge: '18 Aset',
+          dotColor: 'bg-[#FFC107]',
+          dotPulse: false,
+          tooltipText: 'Hab Ekosistem Jenama Rasmi, Galeri Aset & Lagu Tema',
+          keywords: ['brand', 'discovery', 'aset', 'logo', 'maskot', 'media', 'lagu']
+        },
+        { 
+          id: 'landing', 
+          label: 'Laman Utama Brand', 
+          icon: Globe, 
+          badge: 'Portal',
+          dotColor: 'bg-[#00F0FF]',
+          dotPulse: false,
+          tooltipText: 'Halaman Utama & Pemasaran Pelanggan Abang Colek',
+          keywords: ['landing', 'home', 'portal', 'web', 'promosi', 'jenama']
+        },
+        { 
+          id: 'drive', 
+          label: 'Folder Media Drive', 
+          icon: HardDrive, 
+          badge: '2 Folder',
+          dotColor: 'bg-[#CFFF5E]',
+          dotPulse: false,
+          tooltipText: 'Hab 2 Folder Google Drive (Aset Jenama & Media TikTok)',
+          keywords: ['drive', 'fail', 'folder', 'media', 'dokumen', 'storage']
+        }
+      ]
+    },
+    {
+      id: 'system_intelligence',
+      label: 'Kecerdasan & Sistem',
+      tagline: 'Ejen AI, Workspace & Konsol Dev',
       icon: Bot,
-      accentColor: 'text-[#CFFF5E]',
-      badgeText: isToolOrPluginInProgress ? 'Live' : 'Gemini',
+      accentColor: 'text-[#8C7DFF]',
+      badgeText: isToolOrPluginInProgress ? 'Live' : 'AI Pro',
       items: [
         { 
           id: 'chat', 
@@ -325,19 +329,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           keywords: ['ai', 'chat', 'gemini', 'assistant', 'bot', 'tanya', 'agen']
         },
         { 
-          id: 'plugins', 
-          label: 'Gedung Plugins', 
-          icon: Zap, 
-          badge: '12 Aktif',
-          activeCount: 12,
-          dotColor: 'bg-[#CFFF5E]',
-          dotPulse: false,
-          tooltipText: '12 Plugin Integrasi Sistem Berfungsi',
-          keywords: ['plugin', 'gedung', 'integrasi', 'tools', 'toolshed']
-        },
-        { 
           id: 'agent_performance', 
-          label: 'Prestasi Ejen AI', 
+          label: 'Prestasi & Telemetri AI', 
           icon: Gauge, 
           badge: '99.4%',
           dotColor: 'bg-[#CFFF5E]',
@@ -346,28 +339,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           keywords: ['telemetri', 'prestasi', 'agent', 'performance', 'uptime', 'kesihatan']
         },
         { 
-          id: 'reports', 
-          label: 'Laporan Integriti JEV', 
-          icon: Search, 
-          badge: 'JEV',
-          dotColor: 'bg-[#8C7DFF]',
-          dotPulse: false,
-          tooltipText: 'Laporan Integriti JEV System-1 & Analisis Kerosakan Botol',
-          keywords: ['reports', 'laporan', 'jev', 'audit', 'integriti']
-        }
-      ]
-    },
-    {
-      id: 'workspace',
-      label: 'Google Workspace',
-      tagline: 'Pusat Produktiviti & Rekod',
-      icon: Layers,
-      accentColor: 'text-[#8C7DFF]',
-      badgeText: googleUser ? 'Synced' : 'Offline',
-      items: [
-        { 
           id: 'workspace_hub', 
-          label: 'Workspace Hub', 
+          label: 'Hab Google Workspace', 
           icon: Layers, 
           badge: '9-in-1',
           dotColor: 'bg-[#8C7DFF]',
@@ -375,47 +348,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           tooltipText: 'Pusat 9 Aplikasi Google Workspace (Gmail, Calendar, Drive, Sheets, Tasks, Docs, Forms, Meet, Chat)',
           keywords: ['workspace', 'hub', 'google', 'suite', 'pejabat', 'rekod']
         },
-        { 
-          id: 'gmail', 
-          label: 'Gmail Rasmi', 
-          icon: Mail,
-          badge: '1 Aduan',
-          activeCount: 1,
-          dotColor: 'bg-[#FF4757]',
-          dotPulse: true,
-          tooltipText: '1 Emel Aduan Kualiti Botol Bocor Menunggu Respons',
-          keywords: ['gmail', 'emel', 'email', 'surat', 'inbox']
-        },
-        { 
-          id: 'drive', 
-          label: 'Drive Hub', 
-          icon: HardDrive, 
-          badge: '2 Folder',
-          dotColor: 'bg-[#CFFF5E]',
-          dotPulse: false,
-          tooltipText: 'Hab 2 Folder Google Drive (Aset Jenama & Media TikTok)',
-          keywords: ['drive', 'fail', 'folder', 'media', 'dokumen', 'storage']
-        },
-        { 
-          id: 'sheets', 
-          label: 'Google Sheets', 
-          icon: FileSpreadsheet,
-          badge: 'Auto',
-          dotColor: 'bg-[#10B981]',
-          dotPulse: false,
-          tooltipText: 'Lejar Jualan Terkini Diselaraskan Automatik',
-          keywords: ['sheets', 'lejar', 'excel', 'spreadsheet', 'akaun']
-        }
-      ]
-    },
-    {
-      id: 'system',
-      label: 'Sistem & Pembangun',
-      tagline: 'Diagnostik & Alat Developer',
-      icon: Terminal,
-      accentColor: 'text-zinc-400',
-      badgeText: 'Dev',
-      items: [
         { 
           id: 'dev_console', 
           label: 'Konsol Pembangun', 
@@ -669,6 +601,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
         isMobile ? "w-full max-w-[320px] border-r border-white/15 shadow-2xl" : "hidden md:flex w-[295px] border-r border-white/[0.08]"
       )}
     >
+      {/* 0. Official Brand Header Lockup */}
+      <div 
+        onClick={() => handleItemClick('command_center')}
+        className="mb-2.5 px-2 py-1.5 flex items-center justify-between cursor-pointer group rounded-2xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 hover:border-white/10 transition-all"
+        title="Abang Colek Enterprise OS • Pusat Perintah"
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <img 
+            src="/assets/brand/ABANG-COLEX-LOGO-2.png" 
+            alt="Abang Colek" 
+            className="h-9 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,193,7,0.3)] group-hover:scale-105 transition-transform"
+            onError={(e) => {
+              e.currentTarget.src = '/assets/brand/ABANG-COLEX-LOGO-3.png';
+            }}
+          />
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black tracking-tight text-white">ABANGCOLEK</span>
+              <span className="text-[8.5px] px-1 py-0.2 rounded bg-[#CFFF5E] text-black font-black">OS</span>
+            </div>
+            <span className="text-[9.5px] text-zinc-400 font-mono truncate">Command Center</span>
+          </div>
+        </div>
+        <img 
+          src="/assets/brand/MASKOT-1.PNG" 
+          alt="Maskot" 
+          className="w-6 h-6 object-contain group-hover:rotate-6 transition-transform shrink-0" 
+        />
+      </div>
+
       {/* 1. Header: Operator Profile Card & Collapse Controls */}
       <div className="mb-2.5 p-2.5 rounded-2xl bg-[#141624] border border-white/10 shadow-lg flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -719,14 +681,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           )}
 
-          {/* Mobile Drawer Close Button */}
+          {/* Mobile Drawer Close Button (>= 44px Touch Target) */}
           {isMobile && onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
               title="Tutup Menu"
+              aria-label="Tutup Laci Menu Operasi"
             >
-              <X size={15} />
+              <X size={18} />
             </button>
           )}
         </div>
@@ -814,7 +777,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!filterQuery && (
           <div className="flex items-center justify-between px-1 pt-1.5 text-[10px] text-zinc-400">
             <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-400">
-              5 Kategori Operasi
+              4 Kategori Aliran Kerja
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -918,7 +881,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             key={item.id}
                             onClick={() => handleItemClick(item.id)}
                             className={cn(
-                              "w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl font-medium transition-all text-left group cursor-pointer relative",
+                              "w-full flex items-center justify-between px-2.5 py-2 md:py-1.5 min-h-[44px] md:min-h-0 rounded-xl font-medium transition-all text-left group cursor-pointer relative",
                               isActive 
                                 ? "bg-[#161826] text-[#CFFF5E] border border-[#CFFF5E]/40 font-black shadow-[0_0_15px_rgba(207,255,94,0.15)]" 
                                 : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"

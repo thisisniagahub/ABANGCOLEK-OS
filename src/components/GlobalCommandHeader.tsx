@@ -27,12 +27,15 @@ import {
   Keyboard,
   ShoppingBag,
   Globe,
-  Terminal
+  Terminal,
+  Bot,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useSupabaseAuth } from '@/services/supabaseAuth';
 import { appStore } from '@/services/store';
+import { VoiceCommandButton } from '@/components/VoiceCommandButton';
 
 interface GlobalCommandHeaderProps {
   onOpenCommandPalette: () => void;
@@ -43,6 +46,9 @@ interface GlobalCommandHeaderProps {
   isSidebarCollapsed?: boolean;
   onToggleSidebarCollapse?: () => void;
   onOpenShortcuts?: () => void;
+  onToggleAiSidecar?: () => void;
+  isAiSidecarOpen?: boolean;
+  onOpenVoiceCommand?: () => void;
 }
 
 export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
@@ -53,7 +59,10 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
   onToggleMobileMenu,
   isSidebarCollapsed = false,
   onToggleSidebarCollapse,
-  onOpenShortcuts
+  onOpenShortcuts,
+  onToggleAiSidecar,
+  isAiSidecarOpen = false,
+  onOpenVoiceCommand
 }) => {
   const { user, role, quickStaffSignIn } = useSupabaseAuth();
   const [timeString, setTimeString] = useState<string>('');
@@ -132,7 +141,7 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
           </button>
 
           <button 
-            onClick={() => setActiveTab('discovery')}
+            onClick={() => setActiveTab('command_center')}
             className="flex items-center gap-2.5 md:gap-3 group text-left transition-transform active:scale-95 cursor-pointer"
           >
             <div className="relative">
@@ -152,14 +161,14 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
                 <span className="text-[15px] md:text-[17px] font-black tracking-tight text-white flex items-center gap-1">
                   ABANGCOLEK<span className="text-[#CFFF5E]">™</span>
                 </span>
-                <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#CFFF5E] text-black tracking-wider uppercase shadow-[0_0_10px_rgba(207,255,94,0.3)]">
-                  OS PRO
+                <span className="text-[10px] font-mono font-bold text-zinc-400">
+                  Enterprise
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-zinc-400 tracking-wider flex items-center gap-1">
-                <span>Enterprise Tactical Cockpit</span>
-                <span className="text-zinc-600">•</span>
-                <span className="text-[#FFC107]">v4.2</span>
+              <span className="text-[10px] text-zinc-400 tracking-wider flex items-center gap-1">
+                <span>Pusat Perintah Operasi</span>
+                <span className="text-zinc-600">·</span>
+                <span className="text-[#FFC107] font-mono">v4.2</span>
               </span>
             </div>
           </button>
@@ -182,21 +191,21 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
           )}
         </div>
 
-        {/* Surface & Mode Switcher: Landing, Store, Cockpit, Dev */}
+        {/* Surface & Mode Switcher: Command Center, Store, Brand Hub, Landing, Dev */}
         <div className="hidden md:flex items-center gap-1 bg-[#141624] p-1 rounded-2xl border border-white/10 shrink-0">
           <button
             type="button"
-            onClick={() => setActiveTab('landing')}
+            onClick={() => setActiveTab('command_center')}
             className={cn(
               "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab === 'landing'
-                ? "bg-[#CFFF5E] text-black shadow-md font-extrabold"
+              activeTab === 'command_center'
+                ? "bg-[#CFFF5E] text-black shadow-md font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             )}
-            title="Laman Utama Jenama (Landing Page)"
+            title="Pusat Perintah Utama (Kokpit Tindakan)"
           >
-            <Globe size={13} />
-            <span>Laman Utama</span>
+            <Activity size={13} />
+            <span>Pusat Perintah</span>
           </button>
 
           <button
@@ -205,10 +214,10 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
             className={cn(
               "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
               activeTab === 'ecommerce_store'
-                ? "bg-[#CFFF5E] text-black shadow-md font-extrabold"
+                ? "bg-[#CFFF5E] text-black shadow-md font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             )}
-            title="Kedai E-Commerce Pembeli"
+            title="Kedai E-Commerce & Borong"
           >
             <ShoppingBag size={13} />
             <span>Kedai Beli</span>
@@ -219,14 +228,29 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
             onClick={() => setActiveTab('discovery')}
             className={cn(
               "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab !== 'landing' && activeTab !== 'ecommerce_store' && activeTab !== 'dev_console'
-                ? "bg-[#1E2235] text-[#CFFF5E] border border-[#CFFF5E]/40 shadow-xs font-extrabold"
+              activeTab === 'discovery'
+                ? "bg-[#CFFF5E] text-black shadow-md font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             )}
-            title="Pusat Operasi Staf / HQ (ABANGCOLEK OS)"
+            title="Hab Jenama, Media & Pitch Deck"
           >
-            <Zap size={13} />
-            <span>Pusat Operasi</span>
+            <Flame size={13} />
+            <span>Hab Jenama</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('landing')}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+              activeTab === 'landing'
+                ? "bg-[#CFFF5E] text-black shadow-md font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            )}
+            title="Laman Utama Jenama (Landing Page)"
+          >
+            <Globe size={13} />
+            <span>Laman Utama</span>
           </button>
 
           <button
@@ -235,7 +259,7 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
             className={cn(
               "px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer font-mono",
               activeTab === 'dev_console'
-                ? "bg-purple-600 text-white shadow-md font-extrabold"
+                ? "bg-purple-600 text-white shadow-md font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             )}
             title="Konsol Pembangun & Diagnostik"
@@ -245,11 +269,11 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
           </button>
         </div>
 
-        {/* Center: Omni-Search Command Trigger (Orbital Style) */}
-        <div className="hidden lg:flex flex-1 max-w-xl mx-4">
+        {/* Center: Omni-Search Command Trigger + Push-to-Talk Voice Button */}
+        <div className="hidden lg:flex flex-1 max-w-xl mx-4 items-center gap-2">
           <button
             onClick={onOpenCommandPalette}
-            className="w-full flex items-center justify-between px-4 py-2 rounded-full bg-[#141624] hover:bg-[#181B2C] border border-white/10 hover:border-[#CFFF5E]/40 text-zinc-400 hover:text-white transition-all shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] group cursor-pointer"
+            className="flex-1 flex items-center justify-between px-4 py-2 rounded-full bg-[#141624] hover:bg-[#181B2C] border border-white/10 hover:border-[#CFFF5E]/40 text-zinc-400 hover:text-white transition-all shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] group cursor-pointer"
             title="Buka Pusat Perintah Global (Ctrl+K)"
           >
             <div className="flex items-center gap-2.5 min-w-0">
@@ -260,18 +284,29 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center gap-1 text-[11px] text-zinc-400">
-                <Mic size={13} className="text-[#8C7DFF]" />
-              </div>
               <kbd className="px-2 py-0.5 rounded-md bg-white/10 text-white font-mono text-[10px] font-bold border border-white/15 shadow-xs">
                 Ctrl+K
               </kbd>
             </div>
           </button>
+
+          {/* Global Push-to-Talk Voice Command Trigger */}
+          <VoiceCommandButton 
+            onOpenOverlay={onOpenVoiceCommand}
+            variant="header"
+          />
         </div>
 
         {/* Right: Team Stack, Live MYT Clock, XLS Export & Role Switcher */}
-        <div className="flex items-center gap-2.5 md:gap-3.5 shrink-0">
+        <div className="flex items-center gap-2 md:gap-3.5 shrink-0">
+          {/* Mobile Voice Command Quick Action Trigger (>= 44px touch target) */}
+          <div className="lg:hidden">
+            <VoiceCommandButton 
+              onOpenOverlay={onOpenVoiceCommand}
+              variant="minimal"
+            />
+          </div>
+
           {/* Live MYT Time Cockpit */}
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141624] border border-white/10 text-[11px] font-mono">
             <span className="relative flex h-2 w-2">
@@ -319,12 +354,30 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
           {/* Instant XLS Export Button */}
           <button
             onClick={handleExportData}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181B2C] hover:bg-[#22263C] text-zinc-200 hover:text-white border border-white/10 text-[11px] font-bold transition-all shadow-xs cursor-pointer group"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181B2C] hover:bg-[#22263C] text-zinc-200 hover:text-white border border-white/10 text-[11px] font-bold transition-all shadow-xs cursor-pointer group"
             title="Muat turun lejar operasi format .CSV / .XLS"
           >
             <Download size={13} className="text-[#CFFF5E] group-hover:-translate-y-0.5 transition-transform" />
             <span className="hidden md:inline">Eksport .XLS</span>
           </button>
+
+          {/* Ask AI Sidecar Trigger */}
+          {onToggleAiSidecar && (
+            <button
+              type="button"
+              onClick={onToggleAiSidecar}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shadow-xs border",
+                isAiSidecarOpen
+                  ? "bg-[#CFFF5E] text-black border-[#CFFF5E]"
+                  : "bg-[#181B2C] hover:bg-[#22263C] text-zinc-200 border-white/10 hover:border-[#CFFF5E]/40"
+              )}
+              title="Togol AI Sidecar (Alt+A)"
+            >
+              <Bot size={13} className={isAiSidecarOpen ? "text-black" : "text-[#CFFF5E]"} />
+              <span className="hidden sm:inline">Ask AI</span>
+            </button>
+          )}
 
           {/* Keyboard Shortcuts Cheatsheet Trigger Button */}
           {onOpenShortcuts && (

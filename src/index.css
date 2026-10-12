@@ -2,6 +2,7 @@
 
 @layer base {
   :root {
+    /* Legacy brand colors */
     --bg-obsidian: #090a10;
     --card-obsidian: #12141f;
     --border-obsidian: rgba(255, 255, 255, 0.08);
@@ -9,6 +10,21 @@
     --digital-periwinkle: #8c7dff;
     --colek-gold: #ffc107;
     --sambal-red: #ff4757;
+
+    /* Semantic OS Design Tokens */
+    --os-bg: #090a10;
+    --os-surface: #0d0f19;
+    --os-surface-elevated: #141624;
+    --os-border: rgba(255, 255, 255, 0.08);
+    --os-border-hover: rgba(255, 255, 255, 0.16);
+    --os-text: #f4f4f6;
+    --os-text-muted: #94a3b8;
+    --os-accent: #cfff5e;
+    --os-accent-secondary: #8c7dff;
+    --os-success: #10b981;
+    --os-warning: #ffc107;
+    --os-danger: #ff4757;
+    --os-info: #00f0ff;
   }
 
   body {
@@ -49,4 +65,14 @@
 
 .glow-periwinkle {
   box-shadow: 0 0 25px rgba(140, 125, 255, 0.25);
+}
+
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.animate-border-beam {
+  animation: border-beam var(--duration, 8s) infinite linear;
 }

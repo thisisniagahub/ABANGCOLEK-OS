@@ -77,9 +77,13 @@ import { CommandPalette } from '@/components/CommandPalette';
 import { ModernBentoDashboard } from '@/components/ModernBentoDashboard';
 import { GlobalCommandHeader } from '@/components/GlobalCommandHeader';
 import { FloatingNeoDock } from '@/components/FloatingNeoDock';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { Sidebar } from '@/components/Sidebar';
+import { AISidecar } from '@/components/AISidecar';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useResponsiveSidebar } from '@/hooks/useResponsiveSidebar';
+import { VoiceCommandOverlay } from '@/components/VoiceCommandOverlay';
+import { voiceCommandService, ParsedVoiceCommand } from '@/services/voiceCommandService';
 
 // --- Components ---
 
@@ -985,6 +989,7 @@ export default function App() {
   const [isToolExecuting, setIsToolExecuting] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isVoiceOverlayOpen, setIsVoiceOverlayOpen] = useState(false);
   
   // Responsive Sidebar States: Desktop Collapse & Mobile Slide-Over Drawer
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -996,6 +1001,50 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isDockMinimized, setIsDockMinimized] = useState(false);
+  const [isAiSidecarOpen, setIsAiSidecarOpen] = useState(false);
+  const mainScrollRef = useRef<HTMLDivElement>(null);
+
+  // Quick Data Export (.XLS / CSV) shared across header and voice command
+  const handleExportData = () => {
+    const orders = appStore.getOrders();
+    const headers = ['Order ID', 'Pelanggan', 'Bandar', 'Item', 'Status', 'Jumlah (RM)', 'Tarikh'];
+    const rows = orders.map(o => [
+      o.order_id,
+      `"${o.customer_id}"`,
+      `"${o.city || 'Kuala Lumpur'}"`,
+      `"${o.items || ''}"`,
+      o.status,
+      o.amount,
+      o.date
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ABANGCOLEK_OPERASI_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Global Spoken Command Direct Operational Execution Handler
+  const handleExecuteVoiceCommand = async (command: ParsedVoiceCommand) => {
+    await voiceCommandService.executeCommand(command, {
+      setActiveTab,
+      handleSendMessage,
+      handleExportData,
+      onSwitchStaff: (role) => quickStaffSignIn(role),
+      onToggleSidecar: () => setIsAiSidecarOpen(prev => !prev),
+      onOpenPalette: () => setIsCommandPaletteOpen(true)
+    });
+  };
+
+  // Scroll to top immediately when activeTab changes
+  useEffect(() => {
+    mainScrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
 
   // Automatically switch between expanded and collapsed states based on viewport width
   useResponsiveSidebar({
@@ -1026,6 +1075,7 @@ export default function App() {
         setIsCommandPaletteOpen(false);
         setIsShortcutsOpen(false);
         setIsMobileMenuOpen(false);
+        setIsVoiceOverlayOpen(false);
         return;
       }
 
@@ -1033,6 +1083,13 @@ export default function App() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      // Toggle Voice Command: Alt + V
+      if (e.altKey && (e.key === 'v' || e.key === 'V')) {
+        e.preventDefault();
+        setIsVoiceOverlayOpen((prev) => !prev);
         return;
       }
 
@@ -1053,6 +1110,13 @@ export default function App() {
       if (e.altKey && (e.key === 'd' || e.key === 'D')) {
         e.preventDefault();
         setIsDockMinimized((prev) => !prev);
+        return;
+      }
+
+      // Toggle AI Sidecar: Alt + A
+      if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        setIsAiSidecarOpen((prev) => !prev);
         return;
       }
 
@@ -1154,7 +1218,7 @@ export default function App() {
   };
 
   return (
-    <div className="grid grid-rows-[auto_1fr] h-screen w-full font-sans text-zinc-100 bg-[#090A10] overflow-hidden selection:bg-[#CFFF5E] selection:text-black relative">
+    <div className="grid grid-rows-[auto_1fr] h-[100dvh] w-full font-sans text-zinc-100 bg-[#090A10] overflow-hidden selection:bg-[#CFFF5E] selection:text-black relative">
       {quotaExceeded && (
         <div className="bg-amber-950/90 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm shrink-0">
           <span>
@@ -1182,12 +1246,17 @@ export default function App() {
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebarCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        onToggleAiSidecar={() => setIsAiSidecarOpen(prev => !prev)}
+        isAiSidecarOpen={isAiSidecarOpen}
+        onOpenVoiceCommand={() => setIsVoiceOverlayOpen(true)}
       />
 
-      {/* Unified Master Shell: Mobile-First CSS Grid (1-col on mobile, dynamic [76px/295px_1fr] on md:) */}
+      {/* Unified Master Shell: Mobile-First CSS Grid with Collapsible Sidebar & AI Sidecar */}
       <div className={cn(
         "grid min-h-0 h-full w-full overflow-hidden relative transition-[grid-template-columns] duration-300",
-        isSidebarCollapsed ? "grid-cols-1 md:grid-cols-[76px_1fr]" : "grid-cols-1 md:grid-cols-[295px_1fr]"
+        isSidebarCollapsed 
+          ? (isAiSidecarOpen ? "grid-cols-1 md:grid-cols-[76px_1fr_340px] lg:grid-cols-[76px_1fr_380px]" : "grid-cols-1 md:grid-cols-[76px_1fr]")
+          : (isAiSidecarOpen ? "grid-cols-1 md:grid-cols-[295px_1fr_340px] lg:grid-cols-[295px_1fr_380px]" : "grid-cols-1 md:grid-cols-[295px_1fr]")
       )}>
         <Sidebar 
           activeTab={activeTab} 
@@ -1199,8 +1268,8 @@ export default function App() {
           onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         />
 
-        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-24 md:pb-24 bg-[#090A10]">
-          <div className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
+        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-24 bg-[#090A10]">
+          <div ref={mainScrollRef} className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
             {activeTab === 'command_center' && <CommandCenterView onAction={handleAction} onNavigateTab={setActiveTab} />}
             {activeTab === 'workspace_hub' && <WorkspaceHubView onAction={handleAction} />}
             {activeTab === 'discovery' && <AbangColekDiscoveryView onAction={handleAction} />}
@@ -1251,6 +1320,43 @@ export default function App() {
             Intelligence & Discovery via <a href="https://github.com/thisisabangcolek-web/Abang-Colek.git" target="_blank" className="underline hover:text-zinc-400 font-medium">ABANGCOLEK Discovery Engine (v4.2.0)</a>
           </div>
         </main>
+
+        {/* Desktop AI Sidecar Dock */}
+        <div className="hidden md:block h-full overflow-hidden">
+          <AISidecar 
+            isOpen={isAiSidecarOpen}
+            onToggle={() => setIsAiSidecarOpen(prev => !prev)}
+            context={{
+              workspace: activeTab,
+              page: activeTab,
+              userRole: 'hq_admin',
+              timestamp: new Date().toISOString()
+            }}
+            onSendMessage={handleSendMessage}
+            history={history}
+            isProcessing={isProcessing}
+            streamingText={streamingText}
+          />
+        </div>
+      </div>
+
+      {/* Mobile AI Sidecar Floating Drawer */}
+      <div className="md:hidden">
+        <AISidecar 
+          isOpen={isAiSidecarOpen}
+          onToggle={() => setIsAiSidecarOpen(prev => !prev)}
+          context={{
+            workspace: activeTab,
+            page: activeTab,
+            userRole: 'hq_admin',
+            timestamp: new Date().toISOString()
+          }}
+          onSendMessage={handleSendMessage}
+          history={history}
+          isProcessing={isProcessing}
+          streamingText={streamingText}
+          isMobile={true}
+        />
       </div>
 
       {/* Mobile Drawer (Slide-Over Navigation Tree) */}
@@ -1295,15 +1401,30 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Floating Neo-Dock (from Image 1 / Smart Cockpit Concept) */}
-      <FloatingNeoDock 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        isToolOrPluginInProgress={isToolOrPluginInProgress}
+      {/* Floating Neo-Dock (Desktop / Tablet Cockpit) */}
+      <div className="hidden md:block">
+        <FloatingNeoDock 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isToolOrPluginInProgress={isToolOrPluginInProgress}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onOpenShortcuts={() => setIsShortcutsOpen(true)}
+          isMinimized={isDockMinimized}
+          onToggleMinimize={() => setIsDockMinimized(prev => !prev)}
+          onOpenVoiceCommand={() => setIsVoiceOverlayOpen(true)}
+        />
+      </div>
+
+      {/* Mobile Bottom Navigation Dock (Thumb-Zone & 4 Primary Tabs + Drawer) */}
+      <MobileBottomNav 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        onToggleAiSidecar={() => setIsAiSidecarOpen(prev => !prev)}
+        isAiSidecarOpen={isAiSidecarOpen}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        onOpenShortcuts={() => setIsShortcutsOpen(true)}
-        isMinimized={isDockMinimized}
-        onToggleMinimize={() => setIsDockMinimized(prev => !prev)}
+        isToolOrPluginInProgress={isToolOrPluginInProgress}
+        onOpenVoiceCommand={() => setIsVoiceOverlayOpen(true)}
       />
 
       {/* Global Command Palette (Ctrl+K / Cmd+K) */}
@@ -1322,6 +1443,7 @@ export default function App() {
           quickStaffSignIn(role);
           setIsCommandPaletteOpen(false);
         }}
+        onOpenVoiceCommand={() => setIsVoiceOverlayOpen(true)}
       />
 
       {/* Keyboard Shortcuts Modal (?) */}
@@ -1332,6 +1454,13 @@ export default function App() {
           setActiveTab(tab);
           setIsShortcutsOpen(false);
         }}
+      />
+
+      {/* Global Voice Command Overlay (Push-to-Talk & Speech HUD) */}
+      <VoiceCommandOverlay 
+        isOpen={isVoiceOverlayOpen}
+        onClose={() => setIsVoiceOverlayOpen(false)}
+        onExecute={handleExecuteVoiceCommand}
       />
     </div>
   );

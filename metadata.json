@@ -2,5 +2,7 @@
   "name": "Remix ABANGCOLEK-OS",
   "description": "AI agent and operations suite with Gmail, Google Calendar, Sheets, Docs, Tasks, Forms, Meet, Chat, and Google Maps Platform integration.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

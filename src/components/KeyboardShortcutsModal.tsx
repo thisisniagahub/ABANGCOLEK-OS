@@ -43,6 +43,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
       group: 'Pusat Perintah & Bantuan',
       items: [
         { keys: ['Ctrl', 'K'], label: 'Buka Pusat Perintah Global (Omni-Search)' },
+        { keys: ['Alt', 'V'], label: 'Perintah Suara Global (Push-to-Talk HUD)' },
         { keys: ['?'], label: 'Buka Lembaran Pintasan Papan Kekunci ini' },
         { keys: ['Esc'], label: 'Tutup sebarang modal / popup aktif' },
       ]

@@ -46,9 +46,11 @@ import {
   Share2,
   Smartphone,
   Quote,
-  BookOpen
+  BookOpen,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandAssetReviewModal } from '@/components/BrandAssetReviewModal';
 import { 
   evaluateWithJev, 
   executeAutomatedJevAction, 
@@ -91,6 +93,9 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [deckFilter, setDeckFilter] = useState<string>('All');
   const [copiedSlide, setCopiedSlide] = useState(false);
+  
+  // Brand Asset Forensic Review Modal
+  const [isAssetReviewOpen, setIsAssetReviewOpen] = useState(false);
   
   // Real Persistent Workflows from Store
   const [workflows, setWorkflows] = useState<BusinessWorkflow[]>(appStore.getWorkflows());
@@ -2013,44 +2018,105 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
             </div>
 
             {/* Brand Assets Showcase from Sample-Image */}
-            <div className="p-6 rounded-3xl bg-white border border-black/10 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-black/5">
+            <div className="p-6 rounded-3xl bg-white border border-black/10 shadow-xs space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-black/5 gap-3">
                 <div>
-                  <h4 className="font-bold text-sm text-zinc-900">
-                    Aset Grafik & Media Rasmi yang Disahkan (/assets/brand/)
+                  <h4 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
+                    <span>Aset Grafik & Media Rasmi yang Disahkan (/assets/brand/)</span>
+                    <span className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-full font-mono font-bold">
+                      100% Sah
+                    </span>
                   </h4>
                   <p className="text-xs text-zinc-500 mt-0.5">
-                    18 fail imej resolusi tinggi serta lagu tema penuh telah dipindahkan terus ke direktori projek awam.
+                    18 fail imej resolusi tinggi serta lagu tema rasmi sedia digunakan merentasi seluruh sistem OS.
                   </p>
                 </div>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700">
-                  18 Fail Imej + 1 Audio
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsAssetReviewOpen(true)}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 text-white font-black text-xs hover:from-red-700 hover:to-amber-600 transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <Eye size={14} />
+                    <span>Pemeriksa Forensik Imej (18 Fail)</span>
+                  </button>
+                  <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-xl bg-zinc-100 text-zinc-700 font-mono">
+                    18 Imej + 1 Audio
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col items-center">
-                  <img src="/assets/brand/founder.png" alt="Founder Epull" className="w-16 h-16 rounded-full object-cover shadow-sm mb-2" />
-                  <span className="font-bold text-xs text-zinc-900">Pengasas Epull</span>
-                  <span className="text-[10px] text-zinc-400">founder.png</span>
+              {/* Grid 8 Featured Brand Visuals */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center">
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/ABANG-COLEX-LOGO-2.png" alt="Logo Rasmi V2" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Logo V2 Rasmi</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">1200x880 (Alpha)</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col items-center">
-                  <img src="/assets/brand/MASKOT-1.PNG" alt="Maskot Cili" className="w-16 h-16 object-contain mb-2" />
-                  <span className="font-bold text-xs text-zinc-900">Maskot Cili Padu</span>
-                  <span className="text-[10px] text-zinc-400">MASKOT-1.PNG</span>
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/ABANG-COLEX-LOGO-3.png" alt="Logo Rasmi V3" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Logo V3 (High-Contrast)</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">1200x880 (Alpha)</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col items-center">
-                  <img src="/assets/brand/ABANG-COLEX-LOGO-3.png" alt="Logo Rasmi" className="w-16 h-16 object-contain mb-2" />
-                  <span className="font-bold text-xs text-zinc-900">Logo V3 Rasmi</span>
-                  <span className="text-[10px] text-zinc-400">ABANG-COLEX-LOGO-3.png</span>
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/MASKOT-1.PNG" alt="Maskot Cili Padu #1" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Maskot #1 (Sambutan)</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">874x997 (Alpha)</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-zinc-50 border border-black/5 flex flex-col items-center">
-                  <img src="/assets/brand/MASKOT-LOGO.PNG" alt="Maskot Logo" className="w-16 h-16 object-contain mb-2" />
-                  <span className="font-bold text-xs text-zinc-900">Maskot Mangga & Cili</span>
-                  <span className="text-[10px] text-zinc-400">MASKOT-LOGO.PNG</span>
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/MASKOT-3.PNG" alt="Maskot Cili Padu #3" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Maskot #3 (Botol Signature)</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">874x997 (Alpha)</span>
+                </div>
+
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/MASKOT-5.PNG" alt="Maskot Cili Padu #5" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Maskot #5 (Cap Kejayaan)</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">874x802 (Alpha)</span>
+                </div>
+
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/MASKOT-LOGO.PNG" alt="Maskot Hypebeast Penuh" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Maskot Hypebeast Penuh</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">1312x2254 (Ultra-HD)</span>
+                </div>
+
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/founder.png" alt="Founder Megat Epull" className="w-16 h-16 rounded-full object-cover shadow-sm mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Megat Epull (Founder)</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">461x566 (Avatar)</span>
+                </div>
+
+                <div 
+                  onClick={() => setIsAssetReviewOpen(true)}
+                  className="p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-black/5 transition-all flex flex-col items-center cursor-pointer group"
+                >
+                  <img src="/assets/brand/Gemini_Generated_Image_5lbbwx5lbbwx5lbb.png" alt="Botol Sos Studio Shot" className="h-16 w-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-xs text-zinc-900">Botol 350ml Studio</span>
+                  <span className="text-[10px] text-zinc-400 font-mono">1600x2656 (Katalog)</span>
                 </div>
               </div>
             </div>
@@ -2075,6 +2141,11 @@ export const AbangColekDiscoveryView: React.FC<AbangColekDiscoveryViewProps> = (
             </div>
           </div>
         )}
+      {/* Brand Asset Forensic Review Modal */}
+      <BrandAssetReviewModal 
+        isOpen={isAssetReviewOpen}
+        onClose={() => setIsAssetReviewOpen(false)}
+      />
       </div>
     </div>
   );

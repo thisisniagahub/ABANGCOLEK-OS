@@ -24,7 +24,10 @@ import {
   Square,
   Download,
   Truck,
-  Sparkles
+  Sparkles,
+  MessageSquare,
+  Copy,
+  Check
 } from 'lucide-react';
 import { 
   fetchSupabaseOrders, 
@@ -36,6 +39,7 @@ import {
 } from '@/services/supabaseOrders';
 import { SUPABASE_CONFIG } from '@/services/supabaseClient';
 import { cn } from '@/lib/utils';
+import { SpotlightCard } from '@/components/ui/SpotlightCard';
 
 export interface OrdersViewProps {
   onAction?: (msg?: string) => void;
@@ -54,6 +58,13 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   // Bulk Actions Multi-Selection State
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [bulkActionSuccess, setBulkActionSuccess] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard?.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   // Form State
   const [newCust, setNewCust] = useState('');
@@ -194,7 +205,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   const refundedCount = orders.filter(o => o.status === 'Refunded').length;
 
   return (
-    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 bg-[#090A10] text-white overflow-y-auto">
+    <div className="w-full min-h-full p-2.5 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-24 bg-[#090A10] text-white">
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-4 sm:gap-5 md:gap-6">
         {/* Header with Live Supabase Status - Unified Responsive CSS Grid */}
         <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 border border-white/10 bg-[#121420] shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
@@ -406,8 +417,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
             filteredOrders.map((order, i) => {
               const isSelected = selectedOrderIds.has(order.order_id);
               return (
-                <div 
+                <SpotlightCard 
                   key={order.id || order.order_id || i} 
+                  spotlightColor={isSelected ? "rgba(207, 255, 94, 0.16)" : "rgba(255, 255, 255, 0.06)"}
+                  borderGlowColor={isSelected ? "rgba(207, 255, 94, 0.5)" : "rgba(255, 255, 255, 0.15)"}
                   className={cn(
                     "p-5 md:p-6 rounded-3xl border shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all group",
                     isSelected 
@@ -433,7 +446,19 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
 
                     <div className="space-y-2 min-w-0">
                       <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="font-black text-base md:text-lg text-white font-mono">{order.order_id}</h3>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyId(order.order_id)}
+                          className="flex items-center gap-1.5 font-black text-base md:text-lg text-white font-mono hover:text-[#CFFF5E] transition-colors cursor-pointer group"
+                          title="Klik untuk salin ID pesanan"
+                        >
+                          <span>{order.order_id}</span>
+                          {copiedId === order.order_id ? (
+                            <Check size={14} className="text-[#CFFF5E]" />
+                          ) : (
+                            <Copy size={13} className="text-zinc-500 group-hover:text-zinc-300 opacity-60 group-hover:opacity-100" />
+                          )}
+                        </button>
                         <span className="px-3 py-0.5 bg-[#181A2A] rounded-full text-xs font-bold text-zinc-300 border border-white/10 capitalize">
                           {order.city}
                         </span>
@@ -475,25 +500,38 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0 self-end md:self-center ml-9 md:ml-0">
+                  {/* Ergonomic One-Tap Actions for Mobile Thumb Zone */}
+                  <div className="flex items-center gap-2 flex-wrap shrink-0 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-white/5">
+                    <a
+                      href={`https://wa.me/601123456789?text=${encodeURIComponent(`Salam ${order.customer_name}, HQ Abang Colek ingin mengemas kini status pesanan #${order.order_id} (${order.items}).`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                      title="Hubungi WhatsApp Pelanggan"
+                    >
+                      <MessageSquare size={14} />
+                      <span>WhatsApp</span>
+                    </a>
+
                     {order.status !== 'Refunded' && (
                       <button 
                         onClick={() => setRefundConfirmOrder({ id: order.order_id, amount: order.amount })}
-                        className="px-3.5 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                        className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
                       >
-                        <RotateCcw size={12} />
+                        <RotateCcw size={13} />
                         <span>Bayar Balik (RM {order.amount})</span>
                       </button>
                     )}
+
                     <button 
                       onClick={() => onAction && onAction(`Siasat pesanan Supabase ${order.order_id} bagi pelanggan ${order.customer_name} di hab ${order.city} dengan JEV System-1.`)}
-                      className="px-3.5 py-1.5 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 hover:border-[#CFFF5E]/40 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                      className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 hover:border-[#CFFF5E]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
                     >
                       <span>Semak di Chat</span>
-                      <ArrowUpRight size={12} className="text-[#CFFF5E]" />
+                      <ArrowUpRight size={13} className="text-[#CFFF5E]" />
                     </button>
                   </div>
-                </div>
+                </SpotlightCard>
               );
             })
           )}

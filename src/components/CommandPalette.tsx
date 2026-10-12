@@ -37,7 +37,9 @@ import {
   Globe,
   Tag,
   Terminal,
-  Layers
+  Layers,
+  Eye,
+  Mic
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +60,7 @@ interface CommandPaletteProps {
   onNavigateTab: (tabId: string) => void;
   onTriggerAction?: (actionPrompt: string) => void;
   onSwitchStaff?: (role: 'hq_admin' | 'stockist_kt') => void;
+  onOpenVoiceCommand?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -66,6 +69,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onNavigateTab,
   onTriggerAction,
   onSwitchStaff,
+  onOpenVoiceCommand,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -395,6 +399,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
 
       // Quick Actions
+      {
+        id: 'act-voice-command',
+        title: 'Buka Perintah Suara Global (Push-to-Talk HUD)',
+        subtitle: 'Tahan butang untuk bercakap dan menukar arahan suara secara terus kepada tindakan operasi',
+        category: 'Tindakan Pantas',
+        icon: Mic,
+        badge: 'Alt+V 🎙️',
+        keywords: ['suara', 'voice', 'command', 'cakap', 'mic', 'mikrofon', 'speech', 'push to talk', 'audio'],
+        action: () => {
+          onClose();
+          if (onOpenVoiceCommand) onOpenVoiceCommand();
+        },
+      },
+      {
+        id: 'act-review-brand-assets',
+        title: 'Semakan Aset Visual Jenama & Maskot',
+        subtitle: 'Audit forensik 18 fail imej rasmi: resolusi, alpha PNG, kualiti, dan peranan visual',
+        category: 'Tindakan Pantas',
+        icon: Eye,
+        badge: '18 Fail',
+        keywords: ['image', 'imej', 'gambar', 'asset', 'aset', 'maskot', 'logo', 'review', 'audit'],
+        action: () => {
+          onNavigateTab('command_center');
+          onClose();
+        },
+      },
       {
         id: 'act-jingle',
         title: 'Mainkan Lagu Tema "Kasi Lagi-Lagi"',
