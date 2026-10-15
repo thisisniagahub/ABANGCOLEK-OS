@@ -25,7 +25,12 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install --prefer-offline --no-audit
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --prefer-offline --no-audit || npm install --no-audit
+          else
+            npm install --no-audit
+          fi
 
       - name: Verify Build
         run: npm run build
@@ -34,10 +39,24 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_w7MhqJ0ruVjh40a-QWGjgA_aUw3hAe3' }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCleOGxdOFU__Zb6hsO57jeQytdvxoh0wA' }}
 
+      - name: Check Vercel Credentials
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "::warning title=Missing VERCEL_TOKEN::VERCEL_TOKEN secret is not set in GitHub Repository Secrets. If deploying via Vercel Git Integration, this GitHub Action is optional."
+            echo "has_token=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_token=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy to Vercel (Production)
+        if: steps.check-secrets.outputs.has_token == 'true'
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod --yes'
           vercel-project-name: 'abangcolek-os'
           working-directory: ./
+

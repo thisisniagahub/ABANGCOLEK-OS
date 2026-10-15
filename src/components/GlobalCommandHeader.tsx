@@ -29,7 +29,8 @@ import {
   Globe,
   Terminal,
   Bot,
-  Activity
+  Activity,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -191,83 +192,56 @@ export const GlobalCommandHeader: React.FC<GlobalCommandHeaderProps> = ({
           )}
         </div>
 
-        {/* Surface & Mode Switcher: Command Center, Store, Brand Hub, Landing, Dev */}
-        <div className="hidden md:flex items-center gap-1 bg-[#141624] p-1 rounded-2xl border border-white/10 shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveTab('command_center')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab === 'command_center'
-                ? "bg-[#CFFF5E] text-black shadow-md font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            )}
-            title="Pusat Perintah Utama (Kokpit Tindakan)"
-          >
-            <Activity size={13} />
-            <span>Pusat Perintah</span>
-          </button>
+        {/* Contextual Tier & Breadcrumb Indicator (Master Directive Section 3) */}
+        {(() => {
+          const getBreadcrumb = (tab: string) => {
+            switch (tab) {
+              case 'command_center':
+                return { tier: 'Peringkat 1: Operasi Utama', title: 'Pusat Perintah Utama', icon: Activity };
+              case 'orders':
+                return { tier: 'Peringkat 1: Operasi Utama', title: 'Pengurusan Pesanan', icon: Activity };
+              case 'bus_freight':
+                return { tier: 'Peringkat 1: Operasi Utama', title: 'Ekspres Bas & Logistik TBS', icon: Activity };
+              case 'ecommerce_store':
+                return { tier: 'Peringkat 1: Operasi Utama', title: 'Kedai E-Commerce & Borong', icon: ShoppingBag };
+              case 'workspace_hub':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Google Workspace Hub (9-in-1)', icon: Layers };
+              case 'discovery':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Hab Jenama & Aset Media', icon: Flame };
+              case 'dashboards':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Analisis & Papan Bento', icon: Activity };
+              case 'agent_performance':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Prestasi & Telemetri AI', icon: Zap };
+              case 'admin_products':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Urus Produk & Stok', icon: ShoppingBag };
+              case 'reviews':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Aduan & QC Kualiti Botol', icon: Flame };
+              case 'landing':
+                return { tier: 'Peringkat 2: Ruang Kerja', title: 'Portal Pemasaran Pelanggan', icon: Globe };
+              case 'chat':
+                return { tier: 'Peringkat 3: Alat Sistem', title: 'Ejen Sembang Utama', icon: Bot };
+              case 'dev_console':
+                return { tier: 'Peringkat 3: Alat Sistem', title: 'Konsol Pembangun & API', icon: Terminal };
+              default:
+                return { tier: 'Operasi OS', title: 'Pusat Perintah', icon: Activity };
+            }
+          };
+          const crumb = getBreadcrumb(activeTab);
+          const Icon = crumb.icon;
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('ecommerce_store')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab === 'ecommerce_store'
-                ? "bg-[#CFFF5E] text-black shadow-md font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            )}
-            title="Kedai E-Commerce & Borong"
-          >
-            <ShoppingBag size={13} />
-            <span>Kedai Beli</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('discovery')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab === 'discovery'
-                ? "bg-[#CFFF5E] text-black shadow-md font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            )}
-            title="Hab Jenama, Media & Pitch Deck"
-          >
-            <Flame size={13} />
-            <span>Hab Jenama</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('landing')}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-              activeTab === 'landing'
-                ? "bg-[#CFFF5E] text-black shadow-md font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            )}
-            title="Laman Utama Jenama (Landing Page)"
-          >
-            <Globe size={13} />
-            <span>Laman Utama</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('dev_console')}
-            className={cn(
-              "px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer font-mono",
-              activeTab === 'dev_console'
-                ? "bg-purple-600 text-white shadow-md font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            )}
-            title="Konsol Pembangun & Diagnostik"
-          >
-            <Terminal size={13} />
-            <span>Dev</span>
-          </button>
-        </div>
+          return (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#141624] border border-white/10 shrink-0">
+              <span className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">
+                {crumb.tier}
+              </span>
+              <span className="text-zinc-600 text-xs">/</span>
+              <span className="text-xs font-black text-[#CFFF5E] flex items-center gap-1.5">
+                <Icon size={12} className="text-[#CFFF5E]" />
+                <span>{crumb.title}</span>
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Center: Omni-Search Command Trigger + Push-to-Talk Voice Button */}
         <div className="hidden lg:flex flex-1 max-w-xl mx-4 items-center gap-2">

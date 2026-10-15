@@ -8,7 +8,7 @@ import initialData from '../data.json';
 export interface OrderItem {
   order_id: string;
   customer_id: string;
-  status: 'Delivered' | 'Processing' | 'Delayed' | 'Refunded' | 'Cancelled';
+  status: 'Delivered' | 'Processing' | 'Delayed' | 'Refunded' | 'Cancelled' | 'Ready for Dispatch';
   amount: number;
   date: string;
   estimated_delivery?: string | null;

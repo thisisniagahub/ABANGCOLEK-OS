@@ -1120,18 +1120,17 @@ export default function App() {
         return;
       }
 
-      // Tab Navigation via Alt + Number (1-8)
+      // Tab Navigation via Alt + Number / Key
       if (e.altKey) {
         const tabShortcuts: Record<string, string> = {
           '1': 'command_center',
-          '2': 'dashboards',
-          '3': 'chat',
-          '4': 'bus_freight',
-          '5': 'orders',
-          '6': 'plugins',
-          '7': 'gmail',
-          '8': 'calendar',
-          '9': 'drive',
+          '2': 'orders',
+          '3': 'bus_freight',
+          '4': 'ecommerce_store',
+          '5': 'dashboards',
+          '6': 'agent_performance',
+          '7': 'reviews',
+          '8': 'chat',
           '0': 'discovery',
           'w': 'workspace_hub',
           'W': 'workspace_hub',
@@ -1268,7 +1267,7 @@ export default function App() {
           onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         />
 
-        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-24 bg-[#090A10]">
+        <main className="grid grid-rows-[1fr_auto] min-h-0 h-full w-full overflow-hidden relative p-1.5 sm:p-3 md:p-4 pb-20 md:pb-6 bg-[#090A10]">
           <div ref={mainScrollRef} className="min-h-0 h-full w-full overflow-y-auto no-scrollbar relative">
             {activeTab === 'command_center' && <CommandCenterView onAction={handleAction} onNavigateTab={setActiveTab} />}
             {activeTab === 'workspace_hub' && <WorkspaceHubView onAction={handleAction} />}

@@ -40,36 +40,42 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
 }) => {
   const shortcutGroups = [
     {
-      group: 'Pusat Perintah & Bantuan',
+      group: 'Pusat Perintah & Bantuan Sistem',
       items: [
-        { keys: ['Ctrl', 'K'], label: 'Buka Pusat Perintah Global (Omni-Search)' },
+        { keys: ['Ctrl', 'K'], label: 'Pusat Perintah Global (Omni-Search)' },
+        { keys: ['Alt', 'A'], label: 'Togol AI Sidecar Bersepadu' },
         { keys: ['Alt', 'V'], label: 'Perintah Suara Global (Push-to-Talk HUD)' },
         { keys: ['?'], label: 'Buka Lembaran Pintasan Papan Kekunci ini' },
-        { keys: ['Esc'], label: 'Tutup sebarang modal / popup aktif' },
+        { keys: ['Esc'], label: 'Tutup sebarang modal / laci aktif' },
       ]
     },
     {
-      group: 'Kawalan Paparan & Susun Atur',
+      group: 'Kawalan Paparan & Aliran Kerja',
       items: [
         { keys: ['Alt', 'B'], label: 'Togol Kuncup / Kembangkan Sidebar (76px ↔ 295px)' },
-        { keys: ['Alt', 'D'], label: 'Togol Kuncup / Kembangkan Dok Bawah' },
         { keys: ['Alt', 'X'], label: 'Eksport Data Operasi Segera (.CSV / .XLS)' },
       ]
     },
     {
-      group: 'Navigasi Tab Utama (Pintas Terus)',
+      group: 'Peringkat 1: Operasi Utama (Pintas Terus)',
       items: [
-        { keys: ['Alt', '1'], label: 'Command Center (Live OS)', tabId: 'command_center', icon: Activity },
-        { keys: ['Alt', '2'], label: 'Modern Bento Dashboard', tabId: 'dashboards', icon: Activity },
-        { keys: ['Alt', '3'], label: 'Agent Chat (AI Operations)', tabId: 'chat', icon: Bot },
-        { keys: ['Alt', '4'], label: 'Ekspres Bas & Ejen (TBS)', tabId: 'bus_freight', icon: Truck },
-        { keys: ['Alt', '5'], label: 'Pengurusan Pesanan (Supabase)', tabId: 'orders', icon: Database },
-        { keys: ['Alt', '6'], label: 'Gedung Plugins (12 Aktif)', tabId: 'plugins', icon: Zap },
-        { keys: ['Alt', '7'], label: 'Gmail (Triage Aduan)', tabId: 'gmail', icon: Mail },
-        { keys: ['Alt', '8'], label: 'Calendar (Jadual Hab)', tabId: 'calendar', icon: Calendar },
-        { keys: ['Alt', '9'], label: 'Google Drive Hub (2 Folder)', tabId: 'drive', icon: HardDrive },
+        { keys: ['Alt', '1'], label: 'Pusat Perintah Utama (Live OS)', tabId: 'command_center', icon: Activity },
+        { keys: ['Alt', '2'], label: 'Pengurusan Pesanan (Supabase)', tabId: 'orders', icon: Database },
+        { keys: ['Alt', '3'], label: 'Ekspres Bas & Logistik (TBS)', tabId: 'bus_freight', icon: Truck },
+        { keys: ['Alt', '4'], label: 'Kedai E-Commerce & Borong', tabId: 'ecommerce_store', icon: ShoppingBag },
+      ]
+    },
+    {
+      group: 'Peringkat 2 & 3: Ruang Kerja Sekunder & Alat Sistem',
+      items: [
+        { keys: ['Alt', '5'], label: 'Analisis & Papan Bento', tabId: 'dashboards', icon: Activity },
+        { keys: ['Alt', '6'], label: 'Prestasi & Telemetri AI', tabId: 'agent_performance', icon: Zap },
+        { keys: ['Alt', '7'], label: 'Aduan & QC Kualiti Botol', tabId: 'reviews', icon: Flame },
+        { keys: ['Alt', '8'], label: 'Ejen Sembang Utama', tabId: 'chat', icon: Bot },
+        { keys: ['Alt', '0'], label: 'Hab Jenama & Aset Media', tabId: 'discovery', icon: Flame },
         { keys: ['Alt', 'W'], label: 'Google Workspace Hub (9-in-1)', tabId: 'workspace_hub', icon: Layers },
-        { keys: ['Alt', 'S'], label: 'Kedai E-Commerce & Borong', tabId: 'ecommerce_store', icon: ShoppingBag },
+        { keys: ['Alt', 'P'], label: 'Urus Produk & Stok Inventori', tabId: 'admin_products', icon: ShoppingBag },
+        { keys: ['Alt', 'C'], label: 'Konsol Pembangun & API', tabId: 'dev_console', icon: Bot },
       ]
     }
   ];

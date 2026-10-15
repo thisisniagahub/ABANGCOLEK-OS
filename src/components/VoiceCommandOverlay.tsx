@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Global Voice Command Overlay & HUD for ABANGCOLEK-OS
- * 21st.dev style glassmorphic visualizer, dynamic audio frequency bars,
- * interim speech transcript streaming, microphone sensitivity toggle (for noisy pop-up stalls),
- * and instant operational dispatch.
+ * Features:
+ * - 9 Visually distinct operational states (Ready, Active, Recognizing, Interpreted, Awaiting Confirmation, Processing, Completed, Failed, Denied/Unsupported)
+ * - Microphone sensitivity noise gate toggle (Stall / Balanced / Quiet)
+ * - Manual text command entry fallback (for silent offices or unsupported browsers)
+ * - Truthful audio frequency visualizer (only animates when actively listening)
+ * - Touch-ergonomic layout (>= 44px touch targets)
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mic, 
@@ -31,7 +34,11 @@ import {
   ShieldCheck,
   Ear,
   Info,
-  Activity
+  Activity,
+  Keyboard,
+  Send,
+  AlertTriangle,
+  RotateCcw
 } from 'lucide-react';
 import { 
   voiceCommandService, 
@@ -88,6 +95,17 @@ const SENSITIVITY_OPTIONS: Array<{
   }
 ];
 
+export type VoiceStateLabel = 
+  | 'ready_to_listen'
+  | 'mic_active'
+  | 'recognizing'
+  | 'interpreted'
+  | 'awaiting_confirmation'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'denied_or_unsupported';
+
 export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
   isOpen,
   onClose,
@@ -97,6 +115,8 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
   const [state, setState] = useState<VoiceRecognitionState>(voiceCommandService.state);
   const [countdown, setCountdown] = useState<number>(3);
   const [showSensitivityInfo, setShowSensitivityInfo] = useState<boolean>(false);
+  const [manualText, setManualText] = useState<string>('');
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const executionScheduledRef = useRef(false);
 
   useEffect(() => {
@@ -105,9 +125,89 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
     });
   }, []);
 
+  // Compute exact explicit state for high-fidelity workflow compliance
+  const activeOperationalState: {
+    status: VoiceStateLabel;
+    title: string;
+    description: string;
+    color: string;
+    badgeBg: string;
+  } = useMemo(() => {
+    if (isCompleted) {
+      return {
+        status: 'completed',
+        title: 'Arahan Berjaya Dilaksanakan',
+        description: 'Tindakan telah diserahkan kepada enjin operasi.',
+        color: 'text-emerald-400',
+        badgeBg: 'bg-emerald-950/80 border-emerald-500/40'
+      };
+    }
+    if (!state.isSupported) {
+      return {
+        status: 'denied_or_unsupported',
+        title: 'Pelayar Tidak Menyokong Pengecaman Suara',
+        description: 'Gunakan input teks manual di bawah atau pelayar berasaskan Chromium.',
+        color: 'text-amber-400',
+        badgeBg: 'bg-amber-950/80 border-amber-500/40'
+      };
+    }
+    if (state.error) {
+      return {
+        status: 'failed',
+        title: 'Pengecaman Tidak Berjaya',
+        description: state.error,
+        color: 'text-red-400',
+        badgeBg: 'bg-red-950/80 border-red-500/40'
+      };
+    }
+    if (state.isProcessing) {
+      return {
+        status: 'processing',
+        title: 'Memproses Transkripsi Suara...',
+        description: 'Enjin NLU sedang menganalisis maksud dan parameter arahan.',
+        color: 'text-[#00F0FF]',
+        badgeBg: 'bg-cyan-950/80 border-cyan-500/40'
+      };
+    }
+    if (state.parsedCommand && !state.isListening) {
+      return {
+        status: 'awaiting_confirmation',
+        title: `Arahan Dikenal Pasti: ${state.parsedCommand.label}`,
+        description: `Ketetapan ${Math.round(state.parsedCommand.confidence * 100)}% • Sahkan tindakan di bawah`,
+        color: 'text-[#CFFF5E]',
+        badgeBg: 'bg-[#CFFF5E]/15 border-[#CFFF5E]/40'
+      };
+    }
+    if (state.isListening && (state.interimTranscript || state.finalTranscript)) {
+      return {
+        status: 'recognizing',
+        title: 'Mengecam Suara (Transcribing)...',
+        description: 'Sedang menukar gelombang suara ke teks arahan secara masa-nyata.',
+        color: 'text-[#CFFF5E]',
+        badgeBg: 'bg-[#CFFF5E]/15 border-[#CFFF5E]/40'
+      };
+    }
+    if (state.isListening) {
+      return {
+        status: 'mic_active',
+        title: 'Mikrofon Aktif — Bercakap Sekarang',
+        description: 'Sistem sedang mendengar input suara anda. Klik mikrofon bila selesai.',
+        color: 'text-[#CFFF5E]',
+        badgeBg: 'bg-[#CFFF5E]/20 border-[#CFFF5E]/50'
+      };
+    }
+    return {
+      status: 'ready_to_listen',
+      title: 'Sedia Mendengar Arahan',
+      description: 'Tekan butang mikrofon atau sebut arahan operasi bila aktif.',
+      color: 'text-zinc-300',
+      badgeBg: 'bg-white/5 border-white/10'
+    };
+  }, [state, isCompleted]);
+
   // When speech ends and a command is parsed, auto-execute with countdown or let user confirm
   useEffect(() => {
-    if (!state.isListening && state.parsedCommand && !state.isProcessing && !executionScheduledRef.current) {
+    if (!state.isListening && state.parsedCommand && !state.isProcessing && !executionScheduledRef.current && !isCompleted) {
       executionScheduledRef.current = true;
       setCountdown(2);
       
@@ -129,27 +229,47 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
 
     if (state.isListening) {
       executionScheduledRef.current = false;
+      setIsCompleted(false);
       setCountdown(3);
     }
-  }, [state.isListening, state.parsedCommand, state.isProcessing]);
+  }, [state.isListening, state.parsedCommand, state.isProcessing, isCompleted]);
 
   const handleConfirmExecution = () => {
     if (state.parsedCommand) {
-      onExecute(state.parsedCommand);
-      onClose();
+      setIsCompleted(true);
+      setTimeout(() => {
+        onExecute(state.parsedCommand!);
+        onClose();
+      }, 500);
     }
   };
 
   const handleSampleClick = (sampleText: string) => {
     const parsed = voiceCommandService.simulateSpokenCommand(sampleText);
-    onExecute(parsed);
-    onClose();
+    setIsCompleted(true);
+    setTimeout(() => {
+      onExecute(parsed);
+      onClose();
+    }, 400);
+  };
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualText.trim()) return;
+    const parsed = voiceCommandService.simulateSpokenCommand(manualText.trim());
+    setManualText('');
+    setIsCompleted(true);
+    setTimeout(() => {
+      onExecute(parsed);
+      onClose();
+    }, 400);
   };
 
   const handleToggleMic = () => {
     if (state.isListening) {
       voiceCommandService.stopListening();
     } else {
+      setIsCompleted(false);
       voiceCommandService.startListening();
     }
   };
@@ -182,13 +302,13 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.93, y: 20 }}
           transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-          className="relative w-full max-w-lg rounded-3xl bg-[#0D0F18] border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden z-10 flex flex-col max-h-[92vh]"
+          className="relative w-full max-w-lg rounded-3xl bg-[#0D0F18] border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] overflow-hidden z-10 flex flex-col max-h-[92vh]"
         >
           {/* Top Glow Ambient Accent */}
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#CFFF5E] via-[#00F0FF] to-[#8C7DFF]" />
           
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-2.5 shrink-0">
+          <div className="flex items-center justify-between px-5 pt-5 pb-2.5 shrink-0 border-b border-white/[0.06]">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-2xl bg-[#CFFF5E]/15 border border-[#CFFF5E]/30 flex items-center justify-center text-[#CFFF5E]">
                 <Radio size={16} className={state.isListening ? 'animate-pulse' : ''} />
@@ -200,25 +320,52 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                     VOICE-OS
                   </span>
                 </h3>
-                <p className="text-[11px] text-zinc-400">
-                  {state.isListening ? 'Mendengar arahan anda... (Lepaskan untuk laksana)' : 'Tekan & tahan butang untuk bercakap'}
+                <p className="text-[10.5px] text-zinc-400">
+                  Kawalan pertuturan pantas & operasi tanpa tangan
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
-              title="Tutup"
+              className="min-h-[40px] min-w-[40px] rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              title="Tutup (Esc)"
+              aria-label="Tutup Paparan Suara"
             >
               <X size={16} />
             </button>
           </div>
 
+          {/* Operational State Banner (Directive Section 8 Compliance) */}
+          <div className="px-5 pt-3">
+            <div className={cn(
+              "p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 transition-all",
+              activeOperationalState.badgeBg
+            )}>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={cn(
+                  "w-2 h-2 rounded-full shrink-0",
+                  state.isListening ? "bg-[#CFFF5E] animate-ping" : "bg-[#CFFF5E]"
+                )} />
+                <div className="min-w-0">
+                  <span className={cn("text-xs font-black block truncate leading-tight", activeOperationalState.color)}>
+                    {activeOperationalState.title}
+                  </span>
+                  <span className="text-[10px] text-zinc-400 block truncate leading-normal">
+                    {activeOperationalState.description}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[9.5px] font-mono uppercase font-bold text-zinc-400 shrink-0">
+                {activeOperationalState.status.replace(/_/g, ' ')}
+              </span>
+            </div>
+          </div>
+
           {/* Scrollable HUD Content */}
-          <div className="overflow-y-auto px-5 py-2 space-y-3 custom-scrollbar">
+          <div className="overflow-y-auto px-5 py-3 space-y-3 custom-scrollbar">
             
-            {/* --- Microphone Sensitivity Segmented Toggle (Touch Ergonomic >= 44px) --- */}
+            {/* Microphone Sensitivity Segmented Toggle (Touch Ergonomic >= 44px) */}
             <div className="p-3 rounded-2xl bg-[#141624]/90 border border-white/10 shadow-inner">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
@@ -230,7 +377,7 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowSensitivityInfo(!showSensitivityInfo)}
-                  className="text-[10px] text-zinc-400 hover:text-[#CFFF5E] flex items-center gap-1 transition-colors cursor-pointer py-0.5 px-1.5 rounded-md hover:bg-white/5"
+                  className="text-[10px] text-zinc-400 hover:text-[#CFFF5E] flex items-center gap-1 transition-colors cursor-pointer py-1 px-2 rounded-md hover:bg-white/5 min-h-[36px]"
                   title="Ketahui tentang penapis hingar gerai"
                 >
                   <Info size={11} />
@@ -285,7 +432,7 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                 })}
               </div>
 
-              {/* Sensitivity Mode Descriptor & Noise Filter Badge */}
+              {/* Descriptor & Noise Filter Badge */}
               <div className="mt-2.5 pt-2 border-t border-white/5 flex items-start justify-between gap-2 text-[10.5px]">
                 <div className="text-zinc-400 leading-snug">
                   <span className="font-bold text-zinc-300">{currentConfig.label}: </span>
@@ -318,8 +465,8 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
             </div>
 
             {/* Central Voice Wave & Mic Sphere */}
-            <div className="py-4 flex flex-col items-center justify-center relative">
-              {/* Visualizer Pulse Rings */}
+            <div className="py-2 flex flex-col items-center justify-center relative">
+              {/* Visualizer Pulse Rings (Only rendered when microphone is actively listening) */}
               <div className="relative flex items-center justify-center my-2">
                 {state.isListening && (
                   <>
@@ -347,6 +494,7 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                       : "bg-[#181B2C] text-zinc-300 hover:text-white border border-white/15 hover:border-[#CFFF5E]/50"
                   )}
                   title={state.isListening ? 'Klik untuk henti mendengar' : 'Klik untuk mula mendengar'}
+                  aria-label={state.isListening ? 'Henti Mendengar' : 'Mula Mendengar'}
                 >
                   {state.isListening ? (
                     <Mic size={26} className="animate-bounce" />
@@ -356,7 +504,7 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                 </button>
               </div>
 
-              {/* Audio Frequency Bars Animation (with Gate Reference Indicator) */}
+              {/* Audio Frequency Bars Animation (Honest Audio Metering) */}
               <div className="relative flex items-center gap-1.5 h-8 my-2 px-4 py-1 rounded-xl bg-black/30 border border-white/5">
                 {[40, 75, 55, 90, 60, 100, 70, 85, 45, 95, 65, 80, 50].map((h, i) => {
                   const isAboveGate = (state.audioLevel || 0) >= (currentConfig.noiseGateLevel || 0.16);
@@ -406,14 +554,6 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                 </motion.div>
               )}
 
-              {/* Error Message if any */}
-              {state.error && (
-                <div className="w-full mt-2 p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 flex items-center gap-2 text-xs text-red-300">
-                  <AlertCircle size={14} className="shrink-0 text-red-400" />
-                  <span>{state.error}</span>
-                </div>
-              )}
-
               {/* Detected Action Card (if recognized) */}
               {state.parsedCommand && (
                 <motion.div
@@ -443,14 +583,14 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                      className="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
                     >
                       Batal
                     </button>
                     <button
                       type="button"
                       onClick={handleConfirmExecution}
-                      className="px-4 py-1.5 rounded-xl text-xs font-black bg-[#CFFF5E] hover:bg-[#d8ff7a] text-black shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="min-h-[40px] px-4 py-1.5 rounded-xl text-xs font-black bg-[#CFFF5E] hover:bg-[#d8ff7a] text-black shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
                     >
                       <Check size={13} />
                       <span>Laksana Sekarang {countdown > 0 ? `(${countdown}s)` : ''}</span>
@@ -459,6 +599,28 @@ export const VoiceCommandOverlay: React.FC<VoiceCommandOverlayProps> = ({
                 </motion.div>
               )}
             </div>
+
+            {/* Manual Text Command Entry Fallback (Directive Section 8 Compliance) */}
+            <form onSubmit={handleManualSubmit} className="pt-2">
+              <div className="flex items-center gap-1.5 p-1 bg-[#121422] rounded-2xl border border-white/10 focus-within:border-[#CFFF5E]/50 transition-all">
+                <Keyboard size={15} className="text-zinc-500 ml-2.5 shrink-0" />
+                <input
+                  type="text"
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  placeholder="Atau taip arahan operasi manual di sini..."
+                  className="flex-1 bg-transparent px-2.5 py-2 text-xs text-white placeholder-zinc-500 outline-none min-h-[42px]"
+                />
+                <button
+                  type="submit"
+                  disabled={!manualText.trim()}
+                  className="px-3.5 py-2 rounded-xl bg-[#CFFF5E] hover:bg-[#d8ff7a] disabled:opacity-30 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-extrabold text-xs transition-all cursor-pointer flex items-center gap-1 shrink-0 min-h-[38px]"
+                >
+                  <span>Laksana</span>
+                  <ArrowRight size={12} />
+                </button>
+              </div>
+            </form>
 
           </div>
 

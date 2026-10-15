@@ -215,34 +215,12 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
 
   const dockItems: DockItemData[] = [
     { 
-      id: 'discovery', 
-      label: 'Hub Eksplorasi', 
-      icon: Flame,
-      dotColor: 'bg-[#CFFF5E]',
-      shortcut: 'Alt+1'
-    },
-    { 
-      id: 'dashboards', 
-      label: 'Bento Kokpit', 
+      id: 'command_center', 
+      label: 'Pusat Perintah Utama', 
       icon: Activity,
-      dotColor: 'bg-[#FFC107]',
-      shortcut: 'Alt+2'
-    },
-    { 
-      id: 'chat', 
-      label: 'Ejen AI JEV', 
-      icon: Bot,
-      dotColor: isToolOrPluginInProgress ? 'bg-[#FF4757]' : 'bg-[#CFFF5E]',
-      dotPulse: isToolOrPluginInProgress,
-      shortcut: 'Alt+3'
-    },
-    { 
-      id: 'bus_freight', 
-      label: 'Logistik Bas TBS', 
-      icon: Truck,
-      dotColor: 'bg-[#FFC107]',
-      count: activeBusCount > 0 ? activeBusCount : undefined,
-      shortcut: 'Alt+4'
+      dotColor: 'bg-[#CFFF5E]',
+      dotPulse: true,
+      shortcut: 'Alt+1'
     },
     { 
       id: 'orders', 
@@ -250,29 +228,22 @@ export const FloatingNeoDock: React.FC<FloatingNeoDockProps> = ({
       icon: Database,
       dotColor: pendingOrdersCount > 0 ? 'bg-[#00F0FF]' : undefined,
       count: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
-      shortcut: 'Alt+5'
+      shortcut: 'Alt+2'
     },
     { 
-      id: 'plugins', 
-      label: 'Arkitektur Plugin', 
-      icon: Zap,
+      id: 'bus_freight', 
+      label: 'Ekspres Bas TBS', 
+      icon: Truck,
+      dotColor: 'bg-[#FFC107]',
+      count: activeBusCount > 0 ? activeBusCount : undefined,
+      shortcut: 'Alt+3'
+    },
+    { 
+      id: 'ecommerce_store', 
+      label: 'Kedai E-Commerce', 
+      icon: ShoppingBag,
       dotColor: 'bg-[#CFFF5E]',
-      shortcut: 'Alt+6'
-    },
-    { 
-      id: 'gmail', 
-      label: 'Komunikasi Gmail', 
-      icon: Mail,
-      dotColor: 'bg-[#FF4757]',
-      count: 1,
-      shortcut: 'Alt+7'
-    },
-    { 
-      id: 'calendar', 
-      label: 'Kalendar Operasi', 
-      icon: Calendar,
-      dotColor: 'bg-[#00F0FF]',
-      shortcut: 'Alt+8'
+      shortcut: 'Alt+4'
     },
   ];
 

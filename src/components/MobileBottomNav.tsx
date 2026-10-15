@@ -204,17 +204,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           </span>
         </motion.button>
       </div>
-
-      {/* Floating Push-to-Talk Thumb Satellite (Touch Target >= 48px, 1-Hand Thumb Reachable) */}
-      {onOpenVoiceCommand && (
-        <div className="fixed bottom-[76px] right-3.5 z-40 pointer-events-auto">
-          <VoiceCommandButton 
-            onOpenOverlay={onOpenVoiceCommand}
-            variant="floating"
-            className="shadow-2xl shadow-black/90 border-[#CFFF5E]/30"
-          />
-        </div>
-      )}
     </nav>
   );
 };

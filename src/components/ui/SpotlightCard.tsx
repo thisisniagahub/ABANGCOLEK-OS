@@ -49,7 +49,7 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       className={cn(
-        "relative rounded-3xl border border-white/10 bg-[#0F111D] overflow-hidden transition-all duration-300",
+        "relative rounded-3xl border border-white/10 bg-[#0F111D] overflow-hidden transition-[background-color,border-color,box-shadow] duration-300",
         className
       )}
       {...props}

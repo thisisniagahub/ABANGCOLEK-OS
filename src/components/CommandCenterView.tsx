@@ -522,7 +522,15 @@ export const CommandCenterView: React.FC<CommandCenterViewProps> = ({
 
             <div className="space-y-2.5">
               {/* Task 1: Leakage Case AC-ORD-1023 */}
-              <div className="p-3 rounded-2xl bg-[#141624] border border-red-500/30 hover:border-red-500/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <motion.div 
+                whileHover={{ 
+                  scale: 1.02,
+                  boxShadow: "0 0 24px rgba(255, 71, 87, 0.35)",
+                  borderColor: "rgba(255, 71, 87, 0.85)"
+                }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="order-card-wrapper p-3 rounded-2xl bg-[#141624] border border-red-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+              >
                 <div className="flex items-start gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#FF4757] mt-1 shrink-0 animate-ping" />
                   <div>
@@ -584,10 +592,18 @@ export const CommandCenterView: React.FC<CommandCenterViewProps> = ({
                     Luluskan Gantian
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Task 2: Payment Pending AC-ORD-1028 */}
-              <div className="p-3.5 rounded-2xl bg-[#141624] border border-amber-500/30 hover:border-amber-500/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <motion.div 
+                whileHover={{ 
+                  scale: 1.02,
+                  boxShadow: "0 0 24px rgba(255, 193, 7, 0.35)",
+                  borderColor: "rgba(255, 193, 7, 0.85)"
+                }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="order-card-wrapper p-3.5 rounded-2xl bg-[#141624] border border-amber-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+              >
                 <div className="flex items-start gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#FFC107] mt-1 shrink-0" />
                   <div>
@@ -618,7 +634,7 @@ export const CommandCenterView: React.FC<CommandCenterViewProps> = ({
                     Sahkan Resit
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Task 3: Low Stock Alert */}
               <div className="p-3.5 rounded-2xl bg-[#141624] border border-orange-500/30 hover:border-orange-500/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">

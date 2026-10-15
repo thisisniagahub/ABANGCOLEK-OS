@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { 
   Database, 
   Plus, 
@@ -27,7 +27,8 @@ import {
   Sparkles,
   MessageSquare,
   Copy,
-  Check
+  Check,
+  XCircle
 } from 'lucide-react';
 import { 
   fetchSupabaseOrders, 
@@ -45,6 +46,247 @@ export interface OrdersViewProps {
   onAction?: (msg?: string) => void;
 }
 
+interface SwipeableOrderCardProps {
+  order: SupabaseOrder;
+  isSelected: boolean;
+  copiedId: string | null;
+  onCopyId: (id: string) => void;
+  onToggleSelect: (id: string) => void;
+  onMarkReadyForDispatch: (order: SupabaseOrder) => void;
+  onTriggerCancelModal: (order: SupabaseOrder) => void;
+  onOpenRefundModal: (order: { id: string; amount: number }) => void;
+  onAction?: (msg?: string) => void;
+}
+
+const SwipeableOrderCard: React.FC<SwipeableOrderCardProps> = ({
+  order,
+  isSelected,
+  copiedId,
+  onCopyId,
+  onToggleSelect,
+  onMarkReadyForDispatch,
+  onTriggerCancelModal,
+  onOpenRefundModal,
+  onAction
+}) => {
+  const x = useMotionValue(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+
+  // Dynamic visual feedback for underlay indicators while dragging
+  const dispatchOpacity = useTransform(x, [10, 75], [0, 1]);
+  const dispatchScale = useTransform(x, [10, 75], [0.85, 1.05]);
+
+  const cancelOpacity = useTransform(x, [-10, -75], [0, 1]);
+  const cancelScale = useTransform(x, [-10, -75], [0.85, 1.05]);
+
+  return (
+    <div className="relative rounded-3xl overflow-hidden select-none touch-pan-y group/swipe">
+      {/* Right-Swipe Underlay (Reveal on Left: Ready for Dispatch) */}
+      <motion.div
+        style={{ opacity: dispatchOpacity }}
+        className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-emerald-700 to-transparent flex items-center justify-start pl-5 sm:pl-7 rounded-3xl pointer-events-none z-0"
+      >
+        <motion.div style={{ scale: dispatchScale }} className="flex items-center gap-3 text-white">
+          <div className="w-11 h-11 rounded-2xl bg-black/40 border border-[#CFFF5E]/40 flex items-center justify-center shadow-lg">
+            <Truck className="text-[#CFFF5E]" size={22} />
+          </div>
+          <div>
+            <p className="text-xs font-black tracking-wider uppercase text-white">Sedia Dihantar</p>
+            <p className="text-[#CFFF5E] text-[11px] font-mono font-bold">Ready for Dispatch ➔</p>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Left-Swipe Underlay (Reveal on Right: Cancel Order Modal) */}
+      <motion.div
+        style={{ opacity: cancelOpacity }}
+        className="absolute inset-0 bg-gradient-to-l from-red-600 via-red-700 to-transparent flex items-center justify-end pr-5 sm:pr-7 rounded-3xl pointer-events-none z-0"
+      >
+        <motion.div style={{ scale: cancelScale }} className="flex items-center gap-3 text-white flex-row-reverse text-right">
+          <div className="w-11 h-11 rounded-2xl bg-black/40 border border-red-400/40 flex items-center justify-center shadow-lg">
+            <XCircle className="text-red-300" size={22} />
+          </div>
+          <div>
+            <p className="text-xs font-black tracking-wider uppercase text-white">Batal Pesanan</p>
+            <p className="text-red-200 text-[11px] font-mono font-bold">← Buka Modal Batal</p>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Foreground Draggable SpotlightCard with selector .order-card-wrapper */}
+      <SpotlightCard
+        style={{ x }}
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.65}
+        onDragStart={() => setIsSwiping(true)}
+        onDragEnd={(_e, info) => {
+          setIsSwiping(false);
+          const THRESHOLD = 70;
+          if (info.offset.x > THRESHOLD || (info.offset.x > 25 && info.velocity.x > 320)) {
+            onMarkReadyForDispatch(order);
+          } else if (info.offset.x < -THRESHOLD || (info.offset.x < -25 && info.velocity.x < -320)) {
+            onTriggerCancelModal(order);
+          }
+        }}
+        spotlightColor={isSelected ? "rgba(207, 255, 94, 0.22)" : "rgba(255, 255, 255, 0.08)"}
+        borderGlowColor={isSelected ? "rgba(207, 255, 94, 0.75)" : "rgba(207, 255, 94, 0.4)"}
+        whileHover={{
+          scale: 1.02,
+          boxShadow: isSelected 
+            ? "0 0 28px rgba(207, 255, 94, 0.45)" 
+            : "0 0 22px rgba(207, 255, 94, 0.25)",
+          borderColor: isSelected 
+            ? "rgba(207, 255, 94, 1)" 
+            : "rgba(207, 255, 94, 0.6)"
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn(
+          "order-card-wrapper relative z-10 p-5 md:p-6 rounded-3xl border shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors group cursor-grab active:cursor-grabbing touch-pan-y",
+          isSelected 
+            ? "bg-[#151928] border-[#CFFF5E] shadow-[0_0_18px_rgba(207,255,94,0.15)]" 
+            : "bg-[#121420] border-white/10 hover:border-white/20"
+        )}
+      >
+        <div className="flex items-start md:items-center gap-3.5 min-w-0">
+          {/* Row Multi-Select Checkbox */}
+          <button
+            type="button"
+            onClick={(e) => {
+              if (isSwiping) return;
+              e.stopPropagation();
+              onToggleSelect(order.order_id);
+            }}
+            className={cn(
+              "mt-1 md:mt-0 w-6 h-6 rounded-lg flex items-center justify-center border transition-all cursor-pointer shrink-0",
+              isSelected
+                ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_8px_rgba(207,255,94,0.4)]"
+                : "bg-white/5 border-white/20 text-transparent hover:border-white/40"
+            )}
+            title="Pilih pesanan ini"
+          >
+            <CheckCircle2 size={15} className={cn("transition-opacity", isSelected ? "opacity-100" : "opacity-0")} />
+          </button>
+
+          <div className="space-y-2 min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={(e) => {
+                  if (isSwiping) return;
+                  e.stopPropagation();
+                  onCopyId(order.order_id);
+                }}
+                className="flex items-center gap-1.5 font-black text-base md:text-lg text-white font-mono hover:text-[#CFFF5E] transition-colors cursor-pointer group"
+                title="Klik untuk salin ID pesanan"
+              >
+                <span>{order.order_id}</span>
+                {copiedId === order.order_id ? (
+                  <Check size={14} className="text-[#CFFF5E]" />
+                ) : (
+                  <Copy size={13} className="text-zinc-500 group-hover:text-zinc-300 opacity-60 group-hover:opacity-100" />
+                )}
+              </button>
+              <span className="px-3 py-0.5 bg-[#181A2A] rounded-full text-xs font-bold text-zinc-300 border border-white/10 capitalize">
+                {order.city}
+              </span>
+              <span className={cn(
+                "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full border inline-flex items-center gap-1",
+                order.status === 'Ready for Dispatch' ? "bg-emerald-950/90 border-[#CFFF5E]/60 text-[#CFFF5E] shadow-[0_0_12px_rgba(207,255,94,0.25)]" :
+                order.status === 'Delivered' ? "bg-emerald-950/80 border-emerald-800/40 text-emerald-400" : 
+                order.status === 'Delayed' ? "bg-red-950/80 border-red-800/40 text-red-400" :
+                order.status === 'Refunded' ? "bg-zinc-800 border-white/10 text-zinc-300" :
+                order.status === 'Cancelled' ? "bg-red-950/80 border-red-800/40 text-red-400 line-through" :
+                "bg-blue-950/80 border-blue-800/40 text-blue-400"
+              )}>
+                {order.status === 'Ready for Dispatch' && <Truck size={12} className="text-[#CFFF5E]" />}
+                <span>{order.status === 'Ready for Dispatch' ? 'Ready for Dispatch' : order.status}</span>
+              </span>
+            </div>
+
+            <p className="text-xs font-medium text-zinc-300">
+              <strong className="text-white">Produk:</strong> {order.items}
+            </p>
+
+            {order.refund_reason && (
+              <p className="text-[11px] font-bold text-amber-300 bg-amber-950/60 p-2 rounded-xl border border-amber-800/40">
+                {order.refund_reason}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-5 text-xs text-zinc-400 pt-1">
+              <div className="flex flex-col">
+                <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Pelanggan</span>
+                <strong className="text-white text-xs font-bold">{order.customer_name}</strong>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Jumlah</span>
+                <strong className="text-[#CFFF5E] text-xs font-black">RM {order.amount.toLocaleString()}</strong>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Tarikh Rekod</span>
+                <strong className="text-zinc-300 text-xs font-mono">{new Date(order.created_at).toLocaleDateString()}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ergonomic One-Tap Actions for Mobile Thumb Zone */}
+        <div className="flex items-center gap-2 flex-wrap shrink-0 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-white/5">
+          <a
+            href={`https://wa.me/601123456789?text=${encodeURIComponent(`Salam ${order.customer_name}, HQ Abang Colek ingin mengemas kini status pesanan #${order.order_id} (${order.items}).`)}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => { if (isSwiping) e.preventDefault(); }}
+            className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+            title="Hubungi WhatsApp Pelanggan"
+          >
+            <MessageSquare size={14} />
+            <span>WhatsApp</span>
+          </a>
+
+          {order.status !== 'Refunded' && order.status !== 'Cancelled' && (
+            <button 
+              onClick={(e) => {
+                if (isSwiping) return;
+                e.stopPropagation();
+                onOpenRefundModal({ id: order.order_id, amount: order.amount });
+              }}
+              className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
+            >
+              <RotateCcw size={13} />
+              <span>Bayar Balik (RM {order.amount})</span>
+            </button>
+          )}
+
+          <button 
+            onClick={(e) => {
+              if (isSwiping) return;
+              e.stopPropagation();
+              onAction && onAction(`Siasat pesanan Supabase ${order.order_id} bagi pelanggan ${order.customer_name} di hab ${order.city} dengan JEV System-1.`);
+            }}
+            className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 hover:border-[#CFFF5E]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
+          >
+            <span>Semak di Chat</span>
+            <ArrowUpRight size={13} className="text-[#CFFF5E]" />
+          </button>
+        </div>
+
+        {/* Mobile Swipe Gesture Micro-Cue */}
+        <div className="flex md:hidden items-center justify-between text-[10px] font-mono text-zinc-500 pt-2 border-t border-white/5 w-full">
+          <span className="flex items-center gap-1 text-emerald-400/90 font-semibold">
+            <span>➔</span> Leret Kanan: Sedia Dihantar
+          </span>
+          <span className="flex items-center gap-1 text-red-400/90 font-semibold">
+            Leret Kiri: Batal <span>←</span>
+          </span>
+        </div>
+      </SpotlightCard>
+    </div>
+  );
+};
+
 export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   const [orders, setOrders] = useState<SupabaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +294,9 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
   const [syncing, setSyncing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refundConfirmOrder, setRefundConfirmOrder] = useState<{ id: string; amount: number } | null>(null);
+  const [cancelConfirmOrder, setCancelConfirmOrder] = useState<SupabaseOrder | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('Permintaan Pelanggan');
+  const [customCancelReason, setCustomCancelReason] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
 
@@ -116,6 +361,29 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
     setRefundConfirmOrder(null);
     setSyncing(false);
     loadOrders();
+  };
+
+  const handleMarkReadyForDispatch = async (order: SupabaseOrder) => {
+    setSyncing(true);
+    await updateSupabaseOrderStatus(order.order_id, 'Ready for Dispatch');
+    setOrders(prev => prev.map(o => o.order_id === order.order_id ? { ...o, status: 'Ready for Dispatch' } : o));
+    setBulkActionSuccess(`✓ Pesanan #${order.order_id} ditandakan sebagai 'Ready for Dispatch' (Sedia Dihantar)`);
+    setSyncing(false);
+    setTimeout(() => setBulkActionSuccess(null), 3500);
+  };
+
+  const handleExecuteCancel = async (orderId: string, reason: string) => {
+    setSyncing(true);
+    const finalReason = reason === 'Lain-lain' && customCancelReason.trim()
+      ? customCancelReason.trim()
+      : reason;
+    await updateSupabaseOrderStatus(orderId, 'Cancelled', finalReason);
+    setOrders(prev => prev.map(o => o.order_id === orderId ? { ...o, status: 'Cancelled', refund_reason: finalReason } : o));
+    setCancelConfirmOrder(null);
+    setCustomCancelReason('');
+    setBulkActionSuccess(`Pesanan #${orderId} telah dibatalkan (${finalReason})`);
+    setSyncing(false);
+    setTimeout(() => setBulkActionSuccess(null), 3500);
   };
 
   const handleSyncAllToSupabase = async () => {
@@ -402,6 +670,19 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
           </div>
         </div>
 
+        {/* Mobile Swipe Gestures Guide Bar */}
+        <div className="flex md:hidden items-center justify-between px-3.5 py-2 bg-[#121422] border border-white/10 rounded-2xl text-[11px] font-mono select-none">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+            <Truck size={13} />
+            <span>Leret Kanan ➔ Dispatch</span>
+          </span>
+          <span className="text-zinc-600 font-bold">·</span>
+          <span className="flex items-center gap-1.5 text-red-400 font-bold">
+            <XCircle size={13} />
+            <span>Leret Kiri ➔ Batal Modal</span>
+          </span>
+        </div>
+
         {/* Orders Table Cards */}
         <div className="grid gap-3.5">
           {loading ? (
@@ -414,126 +695,20 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
               <p className="text-zinc-400 font-medium">Tiada pesanan ditemui sepadan dengan carian.</p>
             </div>
           ) : (
-            filteredOrders.map((order, i) => {
-              const isSelected = selectedOrderIds.has(order.order_id);
-              return (
-                <SpotlightCard 
-                  key={order.id || order.order_id || i} 
-                  spotlightColor={isSelected ? "rgba(207, 255, 94, 0.16)" : "rgba(255, 255, 255, 0.06)"}
-                  borderGlowColor={isSelected ? "rgba(207, 255, 94, 0.5)" : "rgba(255, 255, 255, 0.15)"}
-                  className={cn(
-                    "p-5 md:p-6 rounded-3xl border shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all group",
-                    isSelected 
-                      ? "bg-[#151928] border-[#CFFF5E] shadow-[0_0_18px_rgba(207,255,94,0.15)]" 
-                      : "bg-[#121420] border-white/10 hover:border-white/20"
-                  )}
-                >
-                  <div className="flex items-start md:items-center gap-3.5 min-w-0">
-                    {/* Row Multi-Select Checkbox */}
-                    <button
-                      type="button"
-                      onClick={() => toggleSelectOrder(order.order_id)}
-                      className={cn(
-                        "mt-1 md:mt-0 w-6 h-6 rounded-lg flex items-center justify-center border transition-all cursor-pointer shrink-0",
-                        isSelected
-                          ? "bg-[#CFFF5E] text-black border-[#CFFF5E] shadow-[0_0_8px_rgba(207,255,94,0.4)]"
-                          : "bg-white/5 border-white/20 text-transparent hover:border-white/40"
-                      )}
-                      title="Pilih pesanan ini"
-                    >
-                      <CheckCircle2 size={15} className={cn("transition-opacity", isSelected ? "opacity-100" : "opacity-0")} />
-                    </button>
-
-                    <div className="space-y-2 min-w-0">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => handleCopyId(order.order_id)}
-                          className="flex items-center gap-1.5 font-black text-base md:text-lg text-white font-mono hover:text-[#CFFF5E] transition-colors cursor-pointer group"
-                          title="Klik untuk salin ID pesanan"
-                        >
-                          <span>{order.order_id}</span>
-                          {copiedId === order.order_id ? (
-                            <Check size={14} className="text-[#CFFF5E]" />
-                          ) : (
-                            <Copy size={13} className="text-zinc-500 group-hover:text-zinc-300 opacity-60 group-hover:opacity-100" />
-                          )}
-                        </button>
-                        <span className="px-3 py-0.5 bg-[#181A2A] rounded-full text-xs font-bold text-zinc-300 border border-white/10 capitalize">
-                          {order.city}
-                        </span>
-                        <span className={cn(
-                          "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full border",
-                          order.status === 'Delivered' ? "bg-emerald-950/80 border-emerald-800/40 text-emerald-400" : 
-                          order.status === 'Delayed' ? "bg-red-950/80 border-red-800/40 text-red-400" :
-                          order.status === 'Refunded' ? "bg-zinc-800 border-white/10 text-zinc-300" :
-                          "bg-blue-950/80 border-blue-800/40 text-blue-400"
-                        )}>
-                          {order.status}
-                        </span>
-                      </div>
-
-                      <p className="text-xs font-medium text-zinc-300">
-                        <strong className="text-white">Produk:</strong> {order.items}
-                      </p>
-
-                      {order.refund_reason && (
-                        <p className="text-[11px] font-bold text-amber-300 bg-amber-950/60 p-2 rounded-xl border border-amber-800/40">
-                          {order.refund_reason}
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap gap-5 text-xs text-zinc-400 pt-1">
-                        <div className="flex flex-col">
-                          <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Pelanggan</span>
-                          <strong className="text-white text-xs font-bold">{order.customer_name}</strong>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Jumlah</span>
-                          <strong className="text-[#CFFF5E] text-xs font-black">RM {order.amount.toLocaleString()}</strong>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Tarikh Rekod</span>
-                          <strong className="text-zinc-300 text-xs font-mono">{new Date(order.created_at).toLocaleDateString()}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Ergonomic One-Tap Actions for Mobile Thumb Zone */}
-                  <div className="flex items-center gap-2 flex-wrap shrink-0 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-white/5">
-                    <a
-                      href={`https://wa.me/601123456789?text=${encodeURIComponent(`Salam ${order.customer_name}, HQ Abang Colek ingin mengemas kini status pesanan #${order.order_id} (${order.items}).`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
-                      title="Hubungi WhatsApp Pelanggan"
-                    >
-                      <MessageSquare size={14} />
-                      <span>WhatsApp</span>
-                    </a>
-
-                    {order.status !== 'Refunded' && (
-                      <button 
-                        onClick={() => setRefundConfirmOrder({ id: order.order_id, amount: order.amount })}
-                        className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
-                      >
-                        <RotateCcw size={13} />
-                        <span>Bayar Balik (RM {order.amount})</span>
-                      </button>
-                    )}
-
-                    <button 
-                      onClick={() => onAction && onAction(`Siasat pesanan Supabase ${order.order_id} bagi pelanggan ${order.customer_name} di hab ${order.city} dengan JEV System-1.`)}
-                      className="min-h-[44px] flex-1 md:flex-initial px-3.5 py-2.5 bg-[#181A2A] hover:bg-[#202438] text-white border border-white/10 hover:border-[#CFFF5E]/40 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
-                    >
-                      <span>Semak di Chat</span>
-                      <ArrowUpRight size={13} className="text-[#CFFF5E]" />
-                    </button>
-                  </div>
-                </SpotlightCard>
-              );
-            })
+            filteredOrders.map((order, i) => (
+              <SwipeableOrderCard
+                key={order.id || order.order_id || i}
+                order={order}
+                isSelected={selectedOrderIds.has(order.order_id)}
+                copiedId={copiedId}
+                onCopyId={handleCopyId}
+                onToggleSelect={toggleSelectOrder}
+                onMarkReadyForDispatch={handleMarkReadyForDispatch}
+                onTriggerCancelModal={(ord) => setCancelConfirmOrder(ord)}
+                onOpenRefundModal={(ord) => setRefundConfirmOrder(ord)}
+                onAction={onAction}
+              />
+            ))
           )}
         </div>
       </div>
@@ -584,6 +759,117 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ onAction }) => {
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-md cursor-pointer flex items-center gap-1.5"
                 >
                   {syncing ? 'Memproses...' : 'Sahkan Bayar Balik'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* In-App Order Cancellation Modal (Triggered by Swiping Left) */}
+      <AnimatePresence>
+        {cancelConfirmOrder && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              className="bg-[#141624] border border-red-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <div className="flex items-center gap-2.5 text-red-400">
+                  <div className="p-2 rounded-xl bg-red-950/80 border border-red-800/60 text-red-400">
+                    <XCircle size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">Sahkan Pembatalan Pesanan</h3>
+                    <p className="text-[11px] text-zinc-400">Pengesahan Operasi Tahap 3 (Irreversible Action)</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setCancelConfirmOrder(null)} 
+                  className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400">ID Pesanan:</span>
+                  <span className="text-[#CFFF5E] font-mono font-bold">#{cancelConfirmOrder.order_id}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400">Pelanggan:</span>
+                  <span className="text-white font-semibold">{cancelConfirmOrder.customer_name} ({cancelConfirmOrder.city})</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400">Nilai Pesanan:</span>
+                  <span className="text-[#CFFF5E] font-bold font-mono">RM {cancelConfirmOrder.amount.toLocaleString()}</span>
+                </div>
+                <div className="text-xs pt-1 border-t border-white/5">
+                  <span className="text-zinc-500">Item: </span>
+                  <span className="text-zinc-300 font-medium">{cancelConfirmOrder.items}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-300 block">
+                  Pilih Alasan Pembatalan:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    'Permintaan Pelanggan',
+                    'Kehabisan Stok / Botol Rosak',
+                    'Slip / Ralat Bayaran',
+                    'Di Luar Kawasan Liputan',
+                    'Pesanan Duplikasi',
+                    'Lain-lain'
+                  ].map(reason => (
+                    <button
+                      key={reason}
+                      type="button"
+                      onClick={() => setCancelReason(reason)}
+                      className={cn(
+                        "p-2.5 rounded-xl text-left text-xs font-medium border transition-all cursor-pointer flex items-center justify-between",
+                        cancelReason === reason
+                          ? "bg-red-950/70 border-red-500 text-white shadow-sm"
+                          : "bg-[#181A2A] border-white/10 text-zinc-400 hover:text-white hover:bg-[#202438]"
+                      )}
+                    >
+                      <span>{reason}</span>
+                      {cancelReason === reason && <CheckCircle2 size={13} className="text-red-400" />}
+                    </button>
+                  ))}
+                </div>
+
+                {cancelReason === 'Lain-lain' && (
+                  <input
+                    type="text"
+                    value={customCancelReason}
+                    onChange={(e) => setCustomCancelReason(e.target.value)}
+                    placeholder="Sila nyatakan alasan pembatalan..."
+                    className="w-full mt-2 px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-red-400"
+                  />
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCancelConfirmOrder(null)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  Kembali / Tutup
+                </button>
+                <button
+                  type="button"
+                  disabled={syncing}
+                  onClick={() => handleExecuteCancel(cancelConfirmOrder.order_id, cancelReason)}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                >
+                  <XCircle size={15} />
+                  <span>{syncing ? 'Memproses...' : 'Sahkan Batal Pesanan'}</span>
                 </button>
               </div>
             </motion.div>

@@ -14,7 +14,7 @@ export interface SupabaseOrder {
   city: string;
   items: string;
   amount: number;
-  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded' | 'Cancelled';
+  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded' | 'Cancelled' | 'Ready for Dispatch';
   refund_reason?: string;
   created_at: string;
   delivered_date?: string;
@@ -185,10 +185,11 @@ export async function insertSupabaseOrder(newOrder: {
  */
 export async function updateSupabaseOrderStatus(
   orderId: string, 
-  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded' | 'Cancelled',
+  status: 'Processing' | 'Delivered' | 'Delayed' | 'Refunded' | 'Cancelled' | 'Ready for Dispatch',
   refundReason?: string
 ): Promise<{ success: boolean; synced: boolean; error?: string }> {
   // Sync local store
+  appStore.updateOrderStatus(orderId, status as any);
   if (status === 'Refunded') {
     appStore.issueRefund(orderId, 0, refundReason || 'LEAKAGE / Kerosakan Botol');
   }
